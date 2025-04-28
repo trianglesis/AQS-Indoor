@@ -3,6 +3,18 @@ idf_component_register(
                     "main.c"
     PRIV_REQUIRES 
                     spi_flash
+    REQUIRES 
+                    wifi
+                    captive_portal
+                    littlefs_driver
+                    card_driver
+                    webserver
+                    display_driver
+                    lvgl_driver
+                    ui
+                    i2c_driver
+                    sensor_co2
+                    sensor_temp
     INCLUDE_DIRS 
                     ""
 )

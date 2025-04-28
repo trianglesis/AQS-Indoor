@@ -1,6 +1,6 @@
 # How to
 
-WIll add here compiled and short desctiptions for project modules and setup.
+Will add here compiled and short desctiptions for project modules and setup.
 
 # Wifi
 
@@ -44,6 +44,14 @@ WIll add here compiled and short desctiptions for project modules and setup.
 
 - Using new `master_i2c.h` driver from IDF 5.4.1
 
+
+## Components details
+
+[Read](components.md)
+
+## IDF Components
+
+[Read](../managed_components/idf_components.md)
 
 # Old
 

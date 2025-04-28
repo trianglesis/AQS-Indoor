@@ -1,0 +1,13 @@
+menu "Air Q Configuration"
+
+
+    menu "SCD40 Address"
+        config I2C_SCD40_ADDRESS
+            hex "I2C SCD40 ADDRESS"
+            default 0x62
+            help
+                Address of I2C slave device SCD40 sensor
+
+    endmenu
+
+endmenu

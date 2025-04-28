@@ -3,3 +3,6 @@
 build/
 sdkconfig
 sdkconfig.ci
+managed_components/espressif__led_strip/
+managed_components/joltwallet__littlefs/
+managed_components/lvgl__lvgl/

@@ -1,0 +1,25 @@
+menu "Air Q Configuration"
+
+    menu "Web Server Configuration"
+        comment "WebServer Configuration"
+
+        config USERNAME
+            string "Admin user"
+            default "admin"
+            help
+                User for auth
+
+        config PASSWORD
+            string "Admin Password"
+            default "mypassword"
+            help
+                Password for auth
+
+        config BASIC_AUTH
+            int "Basic Auth"
+            default 0
+            help
+                Use Admin login
+    endmenu
+
+endmenu

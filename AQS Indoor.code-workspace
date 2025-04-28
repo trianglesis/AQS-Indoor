@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"littlefs_driver.h": "c",
+			"captive_portal.h": "c",
+			"card_driver.h": "c",
+			"display_driver.h": "c",
+			"lvgl_driver.h": "c",
+			"sensor_co2.h": "c",
+			"sensor_temp.h": "c",
+			"webserver.h": "c",
+			"wifi.h": "c",
+			"stdio.h": "c",
+			"ui.h": "c",
+			"esp_log.h": "c"
+		}
+	}
+}
