@@ -1,1 +1,18 @@
+#pragma once
+#include <string.h>
+#include "esp_log.h"
+
+#define SD_GPIO_MOSI CONFIG_SD_GPIO_MOSI
+#define SD_GPIO_SCLK CONFIG_SD_GPIO_SCLK
+#define SD_GPIO_MISO CONFIG_SD_GPIO_MISO
+#define SD_GPIO_CS CONFIG_SD_GPIO_CS
+#define SD_MOUNT_POINT CONFIG_SD_MOUNT_POINT
+#define FORMAT_IF_MOUNT_FAILED CONFIG_FORMAT_IF_MOUNT_FAILED
+
+#ifdef CONFIG_FORMAT_AT_MOUNT
+#define FORMAT_AT_MOUNT CONFIG_FORMAT_AT_MOUNT
+#else
+#define FORMAT_AT_MOUNT "No"
+#endif
+
 void card_driver(void);
