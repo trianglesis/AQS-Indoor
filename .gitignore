@@ -6,3 +6,4 @@ managed_components/joltwallet__littlefs/
 managed_components/lvgl__lvgl/
 sdkconfig
 sdkconfig.ci
+sdkconfig.old
