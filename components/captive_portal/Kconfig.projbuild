@@ -1,13 +1,9 @@
-menu "1.1 AQS Captive Portal"
+menu "AQS Captive Portal"
 
-    menu "Configuration"
-
-        config USE_CAPTIVE_PORTAL
-            bool "Use captive portal"
-            default y
-            help 
-                Start captive portal with DNS and mobile redirection at WiFI client connection
-
-    endmenu
+    config USE_CAPTIVE_PORTAL
+        bool "Use captive portal"
+        default y
+        help 
+            Start captive portal with DNS and mobile redirection at WiFI client connection
 
 endmenu

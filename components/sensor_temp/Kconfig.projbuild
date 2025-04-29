@@ -1,19 +1,15 @@
-menu "10. AQS Temperature, humidity sensor"
-
-    menu "BME680 Address"
+menu "AQS Temperature, humidity sensor"
         
-        config BME680_I2C_ADDR_0
-            hex "I2C BME680 ADDRESS"
-            default 0x76
-            help
-                Address of I2C BME680 sensor
-        
-        config BME680_I2C_ADDR_1
-            hex "I2C BME680 ADDRESS"
-            default 0x77
-            help
-                Address of I2C BME680 sensor
-
-    endmenu
+    config BME680_I2C_ADDR_0
+        hex "I2C BME680 ADDRESS"
+        default 0x76
+        help
+            Address of I2C BME680 sensor
+    
+    config BME680_I2C_ADDR_1
+        hex "I2C BME680 ADDRESS"
+        default 0x77
+        help
+            Address of I2C BME680 sensor
 
 endmenu

@@ -1,47 +1,43 @@
-menu "5. AQS LCD Display"
+menu "AQS LCD Display"
 
-    menu "Configuration"
-        comment "OLED Display connection pins"
+    config DISP_GPIO_SCLK
+        int "LCD Pin SCLK"
+        default 7 if IDF_TARGET_ESP32C6
+        default 7
+        help
+            Dislpay pin SCLK (also used in SD card)
 
-        config DISP_GPIO_SCLK
-            int "LCD Pin SCLK"
-            default 7 if IDF_TARGET_ESP32C6
-            default 7
-            help
-                Dislpay pin SCLK (also used in SD card)
+    config DISP_GPIO_MOSI
+        int "LCD Pin MOSI"
+        default 6 if IDF_TARGET_ESP32C6
+        default 6
+        help
+            Dislpay pin MOSI (also used in SD card)
 
-        config DISP_GPIO_MOSI
-            int "LCD Pin MOSI"
-            default 6 if IDF_TARGET_ESP32C6
-            default 6
-            help
-                Dislpay pin MOSI (also used in SD card)
+    config DISP_GPIO_RST
+        int "LCD Pin RST"
+        default 21 if IDF_TARGET_ESP32C6
+        default 21
+        help
+            Dislpay pin RST
+    config DISP_GPIO_DC
+        int "LCD Pin DC"
+        default 15 if IDF_TARGET_ESP32C6
+        default 15
+        help
+            Dislpay pin DC
+    config DISP_GPIO_CS
+        int "LCD Pin CS"
+        default 14 if IDF_TARGET_ESP32C6
+        default 14
+        help
+            Dislpay pin CS
+    config DISP_GPIO_BL
+        int "LCD Pin BL"
+        default 22 if IDF_TARGET_ESP32C6
+        default 22
+        help
+            Dislpay pin BL
 
-        config DISP_GPIO_RST
-            int "LCD Pin RST"
-            default 21 if IDF_TARGET_ESP32C6
-            default 21
-            help
-                Dislpay pin RST
-        config DISP_GPIO_DC
-            int "LCD Pin DC"
-            default 15 if IDF_TARGET_ESP32C6
-            default 15
-            help
-                Dislpay pin DC
-        config DISP_GPIO_CS
-            int "LCD Pin CS"
-            default 14 if IDF_TARGET_ESP32C6
-            default 14
-            help
-                Dislpay pin CS
-        config DISP_GPIO_BL
-            int "LCD Pin BL"
-            default 22 if IDF_TARGET_ESP32C6
-            default 22
-            help
-                Dislpay pin BL
-
-    endmenu
 
 endmenu

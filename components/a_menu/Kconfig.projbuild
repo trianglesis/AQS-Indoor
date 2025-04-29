@@ -1,0 +1,5 @@
+menu "AQS Project Configurations"
+
+    comment "This is separate section for project configuration"
+
+endmenu

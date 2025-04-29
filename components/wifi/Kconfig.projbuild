@@ -1,4 +1,4 @@
-menu "1. AQS Wifi"
+menu "AQS Wifi"
 
     menu "Wifi SoftAP Configuration"
         comment "SoftAP Configuration"

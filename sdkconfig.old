@@ -401,7 +401,7 @@ CONFIG_IDF_TOOLCHAIN_GCC=y
 CONFIG_IDF_TARGET_ARCH_RISCV=y
 CONFIG_IDF_TARGET_ARCH="riscv"
 CONFIG_IDF_TARGET="esp32c6"
-CONFIG_IDF_INIT_VERSION="5.4.1"
+CONFIG_IDF_INIT_VERSION="$IDF_INIT_VERSION"
 CONFIG_IDF_TARGET_ESP32C6=y
 CONFIG_IDF_FIRMWARE_CHIP_ID=0x000D
 
@@ -568,162 +568,105 @@ CONFIG_ESPTOOLPY_MONITOR_BAUD=115200
 #
 # Partition Table
 #
-CONFIG_PARTITION_TABLE_SINGLE_APP=y
+# CONFIG_PARTITION_TABLE_SINGLE_APP is not set
 # CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE is not set
 # CONFIG_PARTITION_TABLE_TWO_OTA is not set
 # CONFIG_PARTITION_TABLE_TWO_OTA_LARGE is not set
-# CONFIG_PARTITION_TABLE_CUSTOM is not set
+CONFIG_PARTITION_TABLE_CUSTOM=y
 CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
-CONFIG_PARTITION_TABLE_FILENAME="partitions_singleapp.csv"
+CONFIG_PARTITION_TABLE_FILENAME="partitions.csv"
 CONFIG_PARTITION_TABLE_OFFSET=0x8000
 CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
-# 1.1 AQS Captive Portal
+# AQS Project Configurations
 #
 
 #
-# Configuration
+# This is separate section for project configuration
+#
+# end of AQS Project Configurations
+
+#
+# AQS Captive Portal
 #
 CONFIG_USE_CAPTIVE_PORTAL=y
-# end of Configuration
-# end of 1.1 AQS Captive Portal
+# end of AQS Captive Portal
 
 #
-# 3. AQS SD Card
+# AQS SD Card
 #
-
-#
-# Configuration
-#
-CONFIG_SD_GPIO_MOSI=6
-CONFIG_SD_GPIO_SCLK=7
-CONFIG_SD_GPIO_MISO=5
-CONFIG_SD_GPIO_CS=4
+CONFIG_SD_GPIO_MOSI=19
+CONFIG_SD_GPIO_SCLK=20
+CONFIG_SD_GPIO_MISO=21
+CONFIG_SD_GPIO_CS=18
 CONFIG_SD_MOUNT_POINT="/sdcard"
 CONFIG_FORMAT_IF_MOUNT_FAILED=y
 # CONFIG_FORMAT_AT_MOUNT is not set
-# end of Configuration
-# end of 3. AQS SD Card
+# end of AQS SD Card
 
 #
-# 5. AQS LCD Display
+# AQS LCD Display
 #
+CONFIG_DISP_GPIO_SCLK=20
+CONFIG_DISP_GPIO_MOSI=19
+CONFIG_DISP_GPIO_RST=0
+CONFIG_DISP_GPIO_DC=1
+CONFIG_DISP_GPIO_CS=18
+CONFIG_DISP_GPIO_BL=7
+# end of AQS LCD Display
 
 #
-# Configuration
+# AQS I2C Master Bus
 #
-
-#
-# OLED Display connection pins
-#
-CONFIG_DISP_GPIO_SCLK=7
-CONFIG_DISP_GPIO_MOSI=6
-CONFIG_DISP_GPIO_RST=21
-CONFIG_DISP_GPIO_DC=15
-CONFIG_DISP_GPIO_CS=14
-CONFIG_DISP_GPIO_BL=22
-# end of Configuration
-# end of 5. AQS LCD Display
-
-#
-# 8. AQS I2C Master Bus
-#
-
-#
-# Configuration
-#
-
-#
-# i2c master bus pins
-#
-CONFIG_COMMON_SDA_PIN=1
-CONFIG_COMMON_SCL_PIN=0
+CONFIG_COMMON_SDA_PIN=23
+CONFIG_COMMON_SCL_PIN=22
 CONFIG_I2C_FREQ_HZ=100000
-# end of Configuration
-# end of 8. AQS I2C Master Bus
+# end of AQS I2C Master Bus
 
 #
-# 7. AQS LED strip
-#
-
-#
-# Configuration
+# AQS LED strip
 #
 CONFIG_LED_STRIP_GPIO_PIN=8
-# end of Configuration
-# end of 7. AQS LED strip
+# end of AQS LED strip
 
 #
-# 2. AQS LittleFS
-#
-
-#
-# Configuration
+# AQS LittleFS
 #
 CONFIG_LFS_MOUNT_POINT="/sdcard"
 CONFIG_LFS_PARTITION_NAME="littlefs"
-# end of Configuration
-# end of 2. AQS LittleFS
+# end of AQS LittleFS
 
 #
-# 6. AQS LVGL Graphics
-#
-
-#
-# Configuration
-#
-
-#
-# TODO: Add rotation and offset changes later
+# AQS LVGL Graphics
 #
 CONFIG_ROTATE_DISPLAY=270
-# end of Configuration
-# end of 6. AQS LVGL Graphics
+# end of AQS LVGL Graphics
 
 #
-# 9. AQS CO2 Sensor
-#
-
-#
-# SCD40 Address
+# AQS CO2 Sensor
 #
 CONFIG_I2C_SCD40_ADDRESS=0x62
-# end of SCD40 Address
-# end of 9. AQS CO2 Sensor
+# end of AQS CO2 Sensor
 
 #
-# 10. AQS Temperature, humidity sensor
-#
-
-#
-# BME680 Address
+# AQS Temperature, humidity sensor
 #
 CONFIG_BME680_I2C_ADDR_0=0x76
 CONFIG_BME680_I2C_ADDR_1=0x77
-# end of BME680 Address
-# end of 10. AQS Temperature, humidity sensor
+# end of AQS Temperature, humidity sensor
 
 #
-# 4. AQS WebServer
-#
-
-#
-# Configuration
-#
-
-#
-# WebServer Configuration
+# AQS WebServer
 #
 CONFIG_USERNAME="admin"
 CONFIG_PASSWORD="mypassword"
 CONFIG_BASIC_AUTH=0
-# end of Configuration
-# end of 4. AQS WebServer
+# end of AQS WebServer
 
 #
-# 1. AQS Wifi
+# AQS Wifi
 #
 
 #
@@ -733,8 +676,8 @@ CONFIG_BASIC_AUTH=0
 #
 # SoftAP Configuration
 #
-CONFIG_ESP_WIFI_AP_SSID="myssid"
-CONFIG_ESP_WIFI_AP_PASSWORD="mypassword"
+CONFIG_ESP_WIFI_AP_SSID="Fcuk_you!"
+CONFIG_ESP_WIFI_AP_PASSWORD="y0u_$h@ll_n0t_p@$$_!!!"
 CONFIG_ESP_WIFI_AP_CHANNEL=1
 CONFIG_ESP_MAX_STA_CONN_AP=4
 # end of Wifi SoftAP Configuration
@@ -746,8 +689,8 @@ CONFIG_ESP_MAX_STA_CONN_AP=4
 #
 # STA Configuration
 #
-CONFIG_WIFI_SSID="myssid"
-CONFIG_WIFI_PASSWORD="mypassword"
+CONFIG_WIFI_SSID="ESP32C6-tst"
+CONFIG_WIFI_PASSWORD=""
 CONFIG_ESP_MAXIMUM_STA_RETRY=5
 CONFIG_WIFI_FAST_SCAN=y
 # CONFIG_WIFI_ALL_CHANNEL_SCAN is not set
@@ -770,7 +713,7 @@ CONFIG_FAST_SCAN_WEAKEST_AUTHMODE_OPEN=y
 #
 CONFIG_MAX_TRANSMIT_POWER=44
 # end of Wifi Transmit power
-# end of 1. AQS Wifi
+# end of AQS Wifi
 
 #
 # Compiler options

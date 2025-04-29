@@ -1,25 +1,21 @@
-menu "4. AQS WebServer"
+menu "AQS WebServer"
 
-    menu "Configuration"
-        comment "WebServer Configuration"
+    config USERNAME
+        string "Admin user"
+        default "admin"
+        help
+            User for auth
 
-        config USERNAME
-            string "Admin user"
-            default "admin"
-            help
-                User for auth
+    config PASSWORD
+        string "Admin Password"
+        default "mypassword"
+        help
+            Password for auth
 
-        config PASSWORD
-            string "Admin Password"
-            default "mypassword"
-            help
-                Password for auth
-
-        config BASIC_AUTH
-            int "Basic Auth"
-            default 0
-            help
-                Use Admin login
-    endmenu
+    config BASIC_AUTH
+        int "Basic Auth"
+        default 0
+        help
+            Use Admin login
 
 endmenu

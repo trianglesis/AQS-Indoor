@@ -1,15 +1,9 @@
-menu "6. AQS LVGL Graphics"
+menu "AQS LVGL Graphics"
 
-    menu "Configuration"
-        comment "TODO: Add rotation and offset changes later"
-
-        config ROTATE_DISPLAY
-            int "Degree to rotate display"
-            default 270
-            help 
-                TODO: Add Display rotation degree and offset calculation
-
-    endmenu
-
+    config ROTATE_DISPLAY
+        int "Degree to rotate display"
+        default 270
+        help 
+            TODO: Add Display rotation degree and offset calculation
 
 endmenu

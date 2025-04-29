@@ -16,6 +16,7 @@ idf_component_register(
     PRIV_REQUIRES 
                     spi_flash
     REQUIRES 
+                    a_menu
                     wifi
                     captive_portal
                     littlefs_driver

@@ -1,11 +1,9 @@
-menu "7. AQS LED strip"
+menu "AQS LED strip"
 
-    menu "Configuration"
-        config LED_STRIP_GPIO_PIN
-            int "Led strip pin"
-            default 8
-            help
-                GPIO number for board LED or extra LED.
-    endmenu
+    config LED_STRIP_GPIO_PIN
+        int "Led strip pin"
+        default 8
+        help
+            GPIO number for board LED or extra LED.
 
 endmenu

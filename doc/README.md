@@ -6,6 +6,7 @@ Will add here compiled and short desctiptions for project modules and setup.
 
 Most options for the board itself.
 
+- Kconfig [doc](https://docs.espressif.com/projects/esp-idf-kconfig/en/latest/kconfiglib/language.html)
 
 ### Little FS - SPI flash partition
 
