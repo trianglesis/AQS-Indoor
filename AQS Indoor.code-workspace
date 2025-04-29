@@ -17,7 +17,8 @@
 			"wifi.h": "c",
 			"stdio.h": "c",
 			"ui.h": "c",
-			"esp_log.h": "c"
+			"esp_log.h": "c",
+			"err.h": "c"
 		}
 	}
 }
