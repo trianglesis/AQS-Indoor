@@ -2,6 +2,38 @@
 
 Will add here compiled and short desctiptions for project modules and setup.
 
+## ESP32
+
+Most options for the board itself.
+
+
+### Little FS - SPI flash partition
+
+Create custom partition to save config data from sensors and small html page.
+
+- Update `menuconfig` - `PARTITION_TABLE_TYPE`
+
+```csv
+# Common partitions above
+littlefs,   data,   littlefs,  ,            2000K,
+```
+
+- Update `CMakeLists.txt` root project
+
+
+```txt
+# Note: you must have a partition named the first argument (here it's "littlefs")
+# in your partition table csv file.
+littlefs_create_partition_image(littlefs ../flash_data FLASH_IN_PROJECT)
+```
+
+Path in project: `{PROJ_ROOT}/flash_data` will be used to upload files into SPI flash from build!
+
+Initial files:
+- `index.html` - dummy index page to show that LittleFS is runing and WebServer is too.
+- `upload_script.html` - to upload files with the webserver to SD card
+
+
 # Wifi
 
 - Work in AP mode if no known network available.
