@@ -1,2 +1,10 @@
-idf_component_register(SRCS "led_driver.c"
-                    INCLUDE_DIRS "include")
+idf_component_register(
+    SRCS 
+                "led_driver.c"
+    REQUIRES
+                led_strip
+    PRIV_REQUIRES
+                driver
+    INCLUDE_DIRS 
+                "include"
+)

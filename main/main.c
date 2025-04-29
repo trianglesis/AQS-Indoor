@@ -50,8 +50,13 @@ void app_main(void)
 
     /*
         1. Start i2c master bus and add devices to warm them up during setup of all other modules
+            1.1 Add SCD4x sensor to the BUS, check address, stop measuremenets
+        
+        Proceed with all other modules while sensors are warming up!
     */
     ESP_ERROR_CHECK(master_bus_init());
+    ESP_ERROR_CHECK(scd40_sensor_init());  // Add to I2C, stop it, for measurements
+
 
     /*
         2. Wifi setup, AP mode if no known networks found, STA mode if found one.
