@@ -33,8 +33,8 @@ idf_component_register(
 )
 
 # External component, compile lvgl
-idf_component_get_property(lvgl_lib lvgl__lvgl COMPONENT_LIB)
-target_compile_options(${lvgl_lib} PRIVATE -Wno-format)
+# idf_component_get_property(lvgl_lib lvgl__lvgl COMPONENT_LIB)
+# target_compile_options(${lvgl_lib} PRIVATE -Wno-format)
 
 # Note: you must have a partition named the first argument (here it's "littlefs")
 # in your partition table csv file.
