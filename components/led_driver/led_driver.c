@@ -47,7 +47,8 @@ void led_co2_severity(int co2_ppm) {
     float hue_calc = (1 - t) * 96;
     // https://cplusplus.com/reference/cstdio/printf/
     // ESP_LOGI(TAG, "CO2 lvl = %d co2 min = %4.2f HUE = %4.2f t = %4.2f", co2_ppm, co2, hue_calc, t);
-    ESP_LOGI(TAG, "Led HUE: %.0f, saturation: %d, value: %d", hue_calc, LED_COLOUR_SATURATION, LED_COLOUR_VALUE);
+    ESP_LOGI(TAG, "\tHUE \tSaturation \tValue");
+    ESP_LOGI(TAG, "\t%.0f \t%d \t\t%d", hue_calc, LED_COLOUR_SATURATION, LED_COLOUR_VALUE);
     for (int i = 0; i < LED_STRIP_LED_COUNT; i++) {
         led_control_hsv(led_strip, i, hue_calc, LED_COLOUR_SATURATION, LED_COLOUR_VALUE);
     }

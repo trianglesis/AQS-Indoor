@@ -38,18 +38,13 @@ void co2_scd4x_reading(void * pvParameters) {
         } else {
             // Now read
             scd4x_read_measurement(scd41_handle, &co2Raw, &t_mili_deg, &humid_mili_percent);
-            ESP_LOGI(TAG, "RAW Measurements ready co2: %d, t: %ld C Humidity: %ld (raw value)", 
-                co2Raw, 
-                t_mili_deg, 
-                humid_mili_percent);
+            ESP_LOGI(TAG, "\tCO2 ppm \tTemperature C \tHumidity %%");
+            ESP_LOGI(TAG, "\t%d \t\t%ld (raw) \t%ld (raw)", co2Raw, t_mili_deg, humid_mili_percent);
             // Post conversion from mili
             const int co2Ppm = co2Raw;
             const float t_celsius = t_mili_deg / 1000.0f;
             const float humid_percent = humid_mili_percent / 1000.0f;
-            ESP_LOGI(TAG, "CO2: %d ppm, Temperature: %.1f C Humidity: %.1f%%\n", 
-                co2Ppm, 
-                t_celsius, 
-                humid_percent);
+            ESP_LOGI(TAG, "\t%d \t\t%.1f \t\t%.1f", co2Ppm, t_celsius, humid_percent);
             // Add to queue
             scd4x_readings.co2_ppm = co2Ppm;
             scd4x_readings.temperature = t_celsius;
