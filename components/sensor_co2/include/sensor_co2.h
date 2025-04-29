@@ -18,9 +18,8 @@
 #include "sensirion_i2c.h"
 
 #define I2C_SCD40_ADDRESS CONFIG_I2C_SCD40_ADDRESS
-
-#define wait_co2_next_measure 5000  // Sensor can only provide it once for 5 sec!
-#define wait_co2_to_led 5000 * 3    // No need to update led too often
+#define CO2_MEASUREMENT_FREQ CONFIG_CO2_MEASUREMENT_FREQ  // Sensor can only provide it once for 5 sec!
+#define CO2_LED_UPDATE_FREQ CONFIG_CO2_LED_UPDATE_FREQ
 
 extern QueueHandle_t mq_co2;
 extern i2c_master_dev_handle_t scd41_handle;

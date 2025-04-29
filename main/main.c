@@ -55,7 +55,6 @@ void app_main(void)
         Proceed with all other modules while sensors are warming up!
     */
     ESP_ERROR_CHECK(master_bus_init());
-    ESP_ERROR_CHECK(scd40_sensor_init());  // Add to I2C, stop it, for measurements
 
 
     /*
@@ -72,8 +71,11 @@ void app_main(void)
     lvgl_driver();      // 7
     ui_init_fake();     // 8
     
-    sensor_co2();       // 10
     sensor_temp();      // 11
+
+    // Warm up sensors
+    ESP_ERROR_CHECK(scd40_sensor_init());  // Add to I2C, stop it, for measurements
+
 
     // Tasks add
 

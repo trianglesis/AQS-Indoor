@@ -5,5 +5,17 @@ menu "AQS CO2 Sensor"
         default 0x62
         help
             Address of I2C slave device SCD40 sensor
+    
+    config CO2_MEASUREMENT_FREQ
+        int "SO2 Measure request frequency ms"
+        default 5000
+        help
+            How long should we wait before getting next measurement. Default 5 sec, cannot be less!
+
+    config CO2_LED_UPDATE_FREQ
+        int "CO2 LED update frequency ms"
+        default 15000
+        help
+            How long should we wait before update the LED colour with new CO2 severity level. Shold not be less than CO2 measurement frequency.
 
 endmenu

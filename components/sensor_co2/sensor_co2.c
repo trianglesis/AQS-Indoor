@@ -7,18 +7,13 @@ QueueHandle_t mq_co2;  // Always init early, even empty!
 
 i2c_master_dev_handle_t scd41_handle; // Update as soon as all other 
 
-void sensor_co2(void)
-{
+void sensor_co2(void) {
     printf(" - Init: sensor_co2 empty function call!\n\n");
     ESP_LOGI(TAG, "SCD40 COMMON_SDA_PIN: %x", COMMON_SDA_PIN);
     ESP_LOGI(TAG, "SCD40 COMMON_SCL_PIN: %x", COMMON_SCL_PIN);
     ESP_LOGI(TAG, "I2C_SCD40_ADDRESS: %x", I2C_SCD40_ADDRESS);
 
 }
-
-QueueHandle_t mq_co2;  // Always init early, even empty!
-
-i2c_master_dev_handle_t scd41_handle; // Update as soon as all other 
 
 /*
  Check 
@@ -31,7 +26,7 @@ void co2_scd4x_reading(void * pvParameters) {
 
     // Wait 5 seconds before goint into the loop, sensor should warm up
     vTaskDelay(pdMS_TO_TICKS(5000));
-
+    TickType_t last_wake_time  = xTaskGetTickCount();  
     while (1) {
         struct SCD4XSensor scd4x_readings = {};
         // Check if measurements are ready, for 5 sec cycle
@@ -60,8 +55,12 @@ void co2_scd4x_reading(void * pvParameters) {
             scd4x_readings.temperature = t_celsius;
             scd4x_readings.humidity = humid_percent;
             xQueueOverwrite(mq_co2, (void *)&scd4x_readings);
+
             // Waiting before get next measurements, usually not LT 5 sec.
-            vTaskDelay(pdMS_TO_TICKS(wait_co2_next_measure));
+            // vTaskDelay(pdMS_TO_TICKS(CONFIG_CO2_MEASUREMENT_FREQ));
+
+            // Actual sleep real time?
+            xTaskDelayUntil(&last_wake_time, CONFIG_CO2_MEASUREMENT_FREQ);
         }
 
     }
@@ -70,6 +69,8 @@ void co2_scd4x_reading(void * pvParameters) {
 /*
 Get I2C bus 
 Add SCD40 sensor at it, and use device handle
+
+TODO: Save last state to SPI flash: littlefs
 
 TODO: Add SD card read\write option to save states:
 - last operation mode
@@ -96,6 +97,8 @@ esp_err_t scd40_sensor_init(void) {
     } else {
         ESP_LOGD(TAG, "Device added! Probe address!");
     }
+    // Wait for sensor to wake up, test address and stop measurement after
+    vTaskDelay(pdMS_TO_TICKS(5000));
     ESP_ERROR_CHECK(master_bus_probe_address(I2C_SCD40_ADDRESS, 50)); // Wait 50 ms
     
     // Probably a good idea is to shut the sensor before use it again.
@@ -119,6 +122,7 @@ esp_err_t scd40_sensor_init(void) {
             (int)serial_number[1], 
             (int)serial_number[2]);
     }
+    
     // TODO: Save states to SD Card.
     // TODO: Read previous states from SD Card
     // TODO: If no SD Card - write to SPI flash partition
@@ -131,7 +135,7 @@ esp_err_t scd40_sensor_init(void) {
         return ESP_FAIL;
     } else {
         ESP_LOGI(TAG, "Starting the periodic mesurement mode, you can check the next data in 5 seconds since now.");
-        // Wait moved into test init part
+        // Wait moved into the task init part
     }
 
     return ESP_OK;
@@ -146,9 +150,9 @@ Led HUE based on CO2 levels as task
 void led_co2(void * pvParameters) {
     // Read from the queue
     struct SCD4XSensor scd4x_readings; // data type should be same as queue item type
-    const TickType_t xTicksToWait = pdMS_TO_TICKS(wait_co2_to_led);
+    const TickType_t xTicksToWait = pdMS_TO_TICKS(CONFIG_CO2_LED_UPDATE_FREQ);
     while (1) {
-        vTaskDelay(pdMS_TO_TICKS(wait_co2_to_led));  // idle between cycles
+        vTaskDelay(pdMS_TO_TICKS(CONFIG_CO2_LED_UPDATE_FREQ));  // idle between cycles
         xQueuePeek(mq_co2, (void *)&scd4x_readings, xTicksToWait);
         // Update LED colour
         led_co2_severity(scd4x_readings.co2_ppm);
@@ -168,11 +172,11 @@ void create_mq_co2() {
 }
 
 void task_co2() {
-
-    // Real
+    // Put measurements into the queue
+    create_mq_co2();
+    // Cycle getting measurements
     xTaskCreatePinnedToCore(co2_scd4x_reading, "co2_scd4x_reading", 4096, NULL, 4, NULL, tskNO_AFFINITY);
-
-    // Change LED color
+    // Change LED color based on CO2 severity level
     xTaskCreatePinnedToCore(led_co2, "led_co2", 4096, NULL, 8, NULL, tskNO_AFFINITY);
 
 }
