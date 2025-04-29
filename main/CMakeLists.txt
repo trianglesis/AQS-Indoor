@@ -11,6 +11,7 @@ idf_component_register(
                     webserver
                     display_driver
                     lvgl_driver
+                    led_driver
                     ui
                     i2c_driver
                     sensor_co2

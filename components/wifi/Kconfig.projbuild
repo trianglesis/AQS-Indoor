@@ -1,6 +1,6 @@
-menu "Air Q Configuration"
+menu "1. AQS Wifi"
 
-    menu "SoftAP Configuration"
+    menu "Wifi SoftAP Configuration"
         comment "SoftAP Configuration"
 
         config ESP_WIFI_AP_SSID
@@ -29,7 +29,7 @@ menu "Air Q Configuration"
                 Max number of the STA connects to AP.
     endmenu
 
-    menu "STA Configuration"
+    menu "Wifi STA Configuration"
         comment "STA Configuration"
 
         config WIFI_SSID
@@ -114,4 +114,6 @@ menu "Air Q Configuration"
                 the STA to prioritize connecting to the 5G AP
 
     endmenu
+
+
 endmenu

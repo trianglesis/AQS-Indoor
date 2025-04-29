@@ -1,6 +1,6 @@
-menu "Air Q Configuration"
+menu "4. AQS WebServer"
 
-    menu "Web Server Configuration"
+    menu "Configuration"
         comment "WebServer Configuration"
 
         config USERNAME

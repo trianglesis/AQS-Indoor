@@ -107,3 +107,9 @@ Squareline studio export dir
 
 ### wifi
 
+
+
+# Configs
+
+- [DOC](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/kconfig/component-configuration-guide.html#how-to-define-new-configuration-options-for-your-component)
+- [DOC](https://docs.espressif.com/projects/esp-idf-kconfig/en/latest/kconfiglib/language.html)

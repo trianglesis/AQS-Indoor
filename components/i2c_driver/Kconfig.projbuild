@@ -1,18 +1,18 @@
-menu "Air Q Configuration"
+menu "8. AQS I2C Master Bus"
 
-    menu "I2C Configuration"
-        comment "SoftAP Configuration"
+    menu "Configuration"
+        comment "i2c master bus pins"
 
         config COMMON_SDA_PIN
             int "SCL GPIO Num"
-            default 19 if IDF_TARGET_ESP32
+            default 19 if IDF_TARGET_ESP32C6
             default 1
             help
                 SDA Pin where all sensors will be found
 
         config COMMON_SCL_PIN
             int "SDA GPIO Num"
-            default 18 if IDF_TARGET_ESP32
+            default 18 if IDF_TARGET_ESP32C6
             default 0
             help
                 SCL Pin where all sensors will be found

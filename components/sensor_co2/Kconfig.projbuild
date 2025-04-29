@@ -1,5 +1,4 @@
-menu "Air Q Configuration"
-
+menu "9. AQS CO2 Sensor"
 
     menu "SCD40 Address"
         config I2C_SCD40_ADDRESS
@@ -7,7 +6,6 @@ menu "Air Q Configuration"
             default 0x62
             help
                 Address of I2C slave device SCD40 sensor
-
     endmenu
 
 endmenu

@@ -1,0 +1,46 @@
+menu "3. AQS SD Card"
+
+    menu "Configuration"
+
+        config SD_GPIO_MOSI
+            int "SD Card MOSI Pin"
+            default 6 if IDF_TARGET_ESP32C6
+            help
+                Same as in LCD config MOSI, leave empty for default.
+
+        config SD_GPIO_SCLK
+            int "SD Card SCLK Pin"
+            default 7 if IDF_TARGET_ESP32C6
+            help
+                Same as in LCD config SCLK, leave empty for default.
+
+        config SD_GPIO_MISO
+            int "SD Card MISO Pin"
+            default 5 if IDF_TARGET_ESP32C6
+            default 5
+            help
+                Default according to Waveshare board with LCD.
+
+        config SD_GPIO_CS
+            int "SD Card CS Pin"
+            default 4 if IDF_TARGET_ESP32C6
+            default 4
+            help
+                Default according to Waveshare board with LCD.
+
+        config SD_MOUNT_POINT
+            string "SD FAT Mount Point"
+            default "/sdcard"
+            help
+                How to name a mount point
+
+        config FORMAT_IF_MOUNT_FAILED
+            bool "Format if mount failed"
+            default y
+        config FORMAT_AT_MOUNT
+            bool "Format at mount - each power cycle"
+            default n
+
+    endmenu
+
+endmenu

@@ -1,4 +1,4 @@
-menu "Air Q Configuration"
+menu "10. AQS Temperature, humidity sensor"
 
     menu "BME680 Address"
         
