@@ -9,10 +9,9 @@ i2c_master_dev_handle_t scd41_handle; // Update as soon as all other
 
 void sensor_co2(void) {
     printf(" - Init: sensor_co2 empty function call!\n\n");
-    ESP_LOGI(TAG, "SCD40 COMMON_SDA_PIN: %x", COMMON_SDA_PIN);
-    ESP_LOGI(TAG, "SCD40 COMMON_SCL_PIN: %x", COMMON_SCL_PIN);
+    ESP_LOGI(TAG, "SCD40 COMMON_SDA_PIN: %d", COMMON_SDA_PIN);
+    ESP_LOGI(TAG, "SCD40 COMMON_SCL_PIN: %d", COMMON_SCL_PIN);
     ESP_LOGI(TAG, "I2C_SCD40_ADDRESS: %x", I2C_SCD40_ADDRESS);
-
 }
 
 /*
@@ -98,7 +97,6 @@ esp_err_t scd40_sensor_init(void) {
         ESP_LOGD(TAG, "Device added! Probe address!");
     }
     // Wait for sensor to wake up, test address and stop measurement after
-    vTaskDelay(pdMS_TO_TICKS(5000));
     ESP_ERROR_CHECK(master_bus_probe_address(I2C_SCD40_ADDRESS, 50)); // Wait 50 ms
     
     // Probably a good idea is to shut the sensor before use it again.

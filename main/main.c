@@ -18,15 +18,15 @@ In order of importance during init
 */
 // Function modules
 #include "wifi.h"
+#include "i2c_driver.h"
+#include "sensor_co2.h"
 
 // Empty files - placeholders
 #include "littlefs_driver.h"
 #include "captive_portal.h"
 #include "card_driver.h"
 #include "display_driver.h"
-#include "i2c_driver.h"
 #include "lvgl_driver.h"
-#include "sensor_co2.h"
 #include "sensor_temp.h"
 #include "webserver.h"
 
@@ -55,7 +55,8 @@ void app_main(void)
         Proceed with all other modules while sensors are warming up!
     */
     ESP_ERROR_CHECK(master_bus_init());
-
+    // Warm up sensors
+    ESP_ERROR_CHECK(scd40_sensor_init());  // Add to I2C, stop it, for measurements
 
     /*
         2. Wifi setup, AP mode if no known networks found, STA mode if found one.
@@ -72,10 +73,6 @@ void app_main(void)
     ui_init_fake();     // 8
     
     sensor_temp();      // 11
-
-    // Warm up sensors
-    ESP_ERROR_CHECK(scd40_sensor_init());  // Add to I2C, stop it, for measurements
-
 
     // Tasks add
 
