@@ -226,6 +226,7 @@ void event_group(void) {
 */
 esp_err_t wifi_setup(void) {
     esp_err_t ret;
+    // wifi();             // 1
 
     ESP_LOGI(TAG, "Starting Wifi, init MVS, Events");
     ESP_ERROR_CHECK(esp_netif_init());

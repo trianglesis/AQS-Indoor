@@ -47,11 +47,18 @@ void app_main(void)
     //Allow other core to finish initialization
     vTaskDelay(pdMS_TO_TICKS(10));
     ESP_LOGI(TAG, "Init...");
+
+    /*
+        1. Start i2c master bus and add devices to warm them up during setup of all other modules
+    */
+    ESP_ERROR_CHECK(master_bus_init());
+
+    /*
+        2. Wifi setup, AP mode if no known networks found, STA mode if found one.
+    */
+   ESP_ERROR_CHECK(wifi_setup());
     
     // Init in order of importance
-    wifi();             // 1
-    wifi_setup();       // 1
-
     captive_portal();   // 2
     littlefs_driver();  // 3
     card_driver();      // 4
@@ -59,7 +66,7 @@ void app_main(void)
     display_driver();   // 6
     lvgl_driver();      // 7
     ui_init_fake();     // 8
-    i2c_driver();       // 9
+    
     sensor_co2();       // 10
     sensor_temp();      // 11
 
