@@ -18,7 +18,9 @@
 			"stdio.h": "c",
 			"ui.h": "c",
 			"esp_log.h": "c",
-			"err.h": "c"
+			"err.h": "c",
+			"string.h": "c",
+			"i2c_master.h": "c"
 		}
 	}
 }

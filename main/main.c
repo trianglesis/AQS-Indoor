@@ -58,7 +58,7 @@ void app_main(void)
     webserver();        // 5
     display_driver();   // 6
     lvgl_driver();      // 7
-    ui_init();          // 8
+    ui_init_fake();     // 8
     i2c_driver();       // 9
     sensor_co2();       // 10
     sensor_temp();      // 11
