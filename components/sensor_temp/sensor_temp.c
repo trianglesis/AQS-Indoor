@@ -8,9 +8,9 @@ static const char *TAG = "sensor-bme680";
 void sensor_temp(void)
 {
     printf(" - Init: sensor_temp empty function call!\n\n");
-    ESP_LOGI(TAG, "BME680 COMMON_SDA_PIN: %x", COMMON_SDA_PIN);
-    ESP_LOGI(TAG, "BME680 COMMON_SCL_PIN: %x", COMMON_SCL_PIN);
-    ESP_LOGI(TAG, "BME680_I2C_ADDR_0: %d", BME680_I2C_ADDR_0);
-    ESP_LOGI(TAG, "BME680_I2C_ADDR_1: %d", BME680_I2C_ADDR_1);
+    ESP_LOGI(TAG, "BME680 COMMON_SDA_PIN: %d", COMMON_SDA_PIN);
+    ESP_LOGI(TAG, "BME680 COMMON_SCL_PIN: %d", COMMON_SCL_PIN);
+    ESP_LOGI(TAG, "BME680_I2C_ADDR_0: %x", BME680_I2C_ADDR_0);
+    ESP_LOGI(TAG, "BME680_I2C_ADDR_1: %x", BME680_I2C_ADDR_1);
 
 }

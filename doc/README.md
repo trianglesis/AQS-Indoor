@@ -100,6 +100,7 @@ i2c-tools> i2cdetect
 i2c-tools> 
 ```
 
+Always check if PINs are added correctly!
 
 ## Components details
 

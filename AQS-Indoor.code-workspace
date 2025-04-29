@@ -26,7 +26,8 @@
 			"scd4x_i2c.h": "c",
 			"led_driver.h": "c",
 			"sensirion_i2c.h": "c",
-			"led_strip.h": "c"
+			"led_strip.h": "c",
+			"gpio.h": "c"
 		}
 	}
 }

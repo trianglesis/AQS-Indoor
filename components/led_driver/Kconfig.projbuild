@@ -6,4 +6,26 @@ menu "AQS LED strip"
         help
             GPIO number for board LED or extra LED.
 
+    choice COLOUR_COMPONENT_FORMAT
+        prompt "LED colours ordering"
+        default FMT_RGB
+        help
+            Select proper order for LED colour RGB/GRB
+
+        config FMT_RGB
+            bool "RGB"
+        config FMT_GRB
+            bool "GRB"
+    endchoice
+
+    config LED_COLOUR_SATURATION
+        int "saturation part of color (0 - 255, rescaled from 0 - 1. e.g. saturation = 0.5, rescaled to 127)"
+        range 0 255
+        default 255
+
+    config LED_COLOUR_VALUE
+        int "value part of color (0 - 255, rescaled from 0 - 1. e.g. value = 0.5, rescaled to 127)"
+        range 0 255
+        default 255
+
 endmenu

@@ -25,19 +25,20 @@ void co2_scd4x_reading(void * pvParameters) {
 
     // Wait 5 seconds before goint into the loop, sensor should warm up
     vTaskDelay(pdMS_TO_TICKS(5000));
+    // Wait TS between cycles real time
     TickType_t last_wake_time  = xTaskGetTickCount();  
     while (1) {
         struct SCD4XSensor scd4x_readings = {};
         // Check if measurements are ready, for 5 sec cycle
         dataReady = scd4x_get_data_ready_status(scd41_handle);
         if (!dataReady) {
-            ESP_LOGD(TAG, "CO2 data ready status is not ready! Wait for next check.");
+            ESP_LOGI(TAG, "CO2 data ready status is not ready! Wait for next check.");
             vTaskDelay(pdMS_TO_TICKS(1000));  // Waiting 1 sec before checking again!
             continue;
         } else {
             // Now read
             scd4x_read_measurement(scd41_handle, &co2Raw, &t_mili_deg, &humid_mili_percent);
-            ESP_LOGD(TAG, "RAW Measurements ready co2: %d, t: %ld C Humidity: %ld (raw value)", 
+            ESP_LOGI(TAG, "RAW Measurements ready co2: %d, t: %ld C Humidity: %ld (raw value)", 
                 co2Raw, 
                 t_mili_deg, 
                 humid_mili_percent);
@@ -45,7 +46,7 @@ void co2_scd4x_reading(void * pvParameters) {
             const int co2Ppm = co2Raw;
             const float t_celsius = t_mili_deg / 1000.0f;
             const float humid_percent = humid_mili_percent / 1000.0f;
-            ESP_LOGD(TAG, "CO2: %d ppm, Temperature: %.1f C Humidity: %.1f%%\n", 
+            ESP_LOGI(TAG, "CO2: %d ppm, Temperature: %.1f C Humidity: %.1f%%\n", 
                 co2Ppm, 
                 t_celsius, 
                 humid_percent);
@@ -60,9 +61,8 @@ void co2_scd4x_reading(void * pvParameters) {
 
             // Actual sleep real time?
             xTaskDelayUntil(&last_wake_time, CONFIG_CO2_MEASUREMENT_FREQ);
-        }
-
-    }
+        } // Data ready
+    } // WHILE
 }
 
 /*
@@ -81,7 +81,7 @@ TODO: Add SD card read\write option to save states:
 esp_err_t scd40_sensor_init(void) {
     esp_err_t ret;
 
-    sensor_co2();
+    sensor_co2();  // Debug 
 
     i2c_device_config_t scd41_device = {
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
@@ -148,13 +148,19 @@ Led HUE based on CO2 levels as task
 void led_co2(void * pvParameters) {
     // Read from the queue
     struct SCD4XSensor scd4x_readings; // data type should be same as queue item type
-    const TickType_t xTicksToWait = pdMS_TO_TICKS(CONFIG_CO2_LED_UPDATE_FREQ);
+    // Wait for queue
+    const TickType_t xTicksToWait = pdMS_TO_TICKS(10);
+    // Wait TS between cycles real time
+    TickType_t last_wake_time  = xTaskGetTickCount();
     while (1) {
-        vTaskDelay(pdMS_TO_TICKS(CONFIG_CO2_LED_UPDATE_FREQ));  // idle between cycles
         xQueuePeek(mq_co2, (void *)&scd4x_readings, xTicksToWait);
         // Update LED colour
         led_co2_severity(scd4x_readings.co2_ppm);
-    }
+        // Classical approach sleep in ticks
+        // vTaskDelay(pdMS_TO_TICKS(CONFIG_CO2_LED_UPDATE_FREQ));  // idle between cycles
+        // Actual sleep real time?
+        xTaskDelayUntil(&last_wake_time, CONFIG_CO2_LED_UPDATE_FREQ);
+    } // WHILE
 }
 
 
@@ -170,11 +176,12 @@ void create_mq_co2() {
 }
 
 void task_co2() {
+    // Task CO2 requires LED
+    led_init();
     // Put measurements into the queue
     create_mq_co2();
     // Cycle getting measurements
     xTaskCreatePinnedToCore(co2_scd4x_reading, "co2_scd4x_reading", 4096, NULL, 4, NULL, tskNO_AFFINITY);
     // Change LED color based on CO2 severity level
     xTaskCreatePinnedToCore(led_co2, "led_co2", 4096, NULL, 8, NULL, tskNO_AFFINITY);
-
 }

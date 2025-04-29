@@ -51,6 +51,7 @@ void app_main(void)
     /*
         1. Start i2c master bus and add devices to warm them up during setup of all other modules
             1.1 Add SCD4x sensor to the BUS, check address, stop measuremenets
+                1.1.1 Led init under CO2 Sensor.
             1.2 Add MBE680 sensor to the BUS, stop it and move on
         Proceed with all other modules while sensors are warming up!
     */
@@ -74,6 +75,8 @@ void app_main(void)
     sensor_temp();      // 11
 
     // Tasks add
+    vTaskDelay(pdMS_TO_TICKS(500));
+    task_co2();
 
     // End
 }

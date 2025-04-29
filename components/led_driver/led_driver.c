@@ -15,10 +15,12 @@ int random_int_range(int min, int max) {
 
 void led_driver(void) {
     printf(" - Init: sensor_co2 empty function call!\n\n");
-    ESP_LOGI(TAG, "LED TIME_TICK_MS: %x", TIME_TICK_MS);
-    ESP_LOGI(TAG, "LED LED_STRIP_LED_COUNT: %x", LED_STRIP_LED_COUNT);
-    ESP_LOGI(TAG, "LED LED_STRIP_MODEL: %x", LED_STRIP_MODEL);
-    ESP_LOGI(TAG, "LED LED_STRIP_GPIO_PIN: %x", LED_STRIP_GPIO_PIN);
+    ESP_LOGI(TAG, "LED TIME_TICK_MS: %d", TIME_TICK_MS);
+    ESP_LOGI(TAG, "LED LED_STRIP_LED_COUNT: %d", LED_STRIP_LED_COUNT);
+    ESP_LOGI(TAG, "LED LED_STRIP_MODEL: %d", LED_STRIP_MODEL);
+    ESP_LOGI(TAG, "LED LED_STRIP_GPIO_PIN: %d", LED_STRIP_GPIO_PIN);
+    ESP_LOGI(TAG, "LED LED_COLOUR_SATURATION: %d", LED_COLOUR_SATURATION);
+    ESP_LOGI(TAG, "LED LED_COLOUR_VALUE: %d", LED_COLOUR_VALUE);
 }
 
 /*
@@ -29,7 +31,7 @@ Max level 2000 after which any CO2 level is always RED
 
 Generate LED colour based on CO2 severity levels:
     Hue - colour
-    Saturation - MAX
+    Saturation - MAX or LED_SATURATION
     Value - 200 of 255, to make color vibrant, not darker
 
 Example
@@ -45,8 +47,9 @@ void led_co2_severity(int co2_ppm) {
     float hue_calc = (1 - t) * 96;
     // https://cplusplus.com/reference/cstdio/printf/
     // ESP_LOGI(TAG, "CO2 lvl = %d co2 min = %4.2f HUE = %4.2f t = %4.2f", co2_ppm, co2, hue_calc, t);
+    ESP_LOGI(TAG, "Led HUE: %.0f, saturation: %d, value: %d", hue_calc, LED_COLOUR_SATURATION, LED_COLOUR_VALUE);
     for (int i = 0; i < LED_STRIP_LED_COUNT; i++) {
-        led_control_hsv(led_strip, i, hue_calc, 255, 200);
+        led_control_hsv(led_strip, i, hue_calc, LED_COLOUR_SATURATION, LED_COLOUR_VALUE);
     }
 }
 
@@ -95,7 +98,7 @@ void led_init(void) {
         .strip_gpio_num = LED_STRIP_GPIO_PIN,
         .max_leds = LED_STRIP_LED_COUNT,
         .led_model = LED_STRIP_MODEL,
-        .color_component_format = LED_STRIP_COLOR_COMPONENT_FMT_RGB,
+        .color_component_format = COLOUR_COMPONENT,
         .flags = {
             .invert_out = false, // don't invert the output signal
         }
