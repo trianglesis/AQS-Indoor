@@ -11,4 +11,4 @@ idf.py add-dependency "joltwallet/littlefs^1.19.2"
 
 Keep `lv_conf.h` in root dir, to setup LVGL.
 
-OR do not use it at all, set `menuconfig` option for that.
+OR do not use it at all, set `menuconfig` option `LV_CONF_SKIP` for that.

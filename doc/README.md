@@ -12,6 +12,9 @@ Most options for the board itself.
 
 Create custom partition to save config data from sensors and small html page.
 
+- Update `menuconfig` - `ESPTOOLPY_FLASHSIZE`
+  - (8Mb) For ESP32C6 test board
+  - (4Mb) For ESP32C6 WaveShare LCD board
 - Update `menuconfig` - `PARTITION_TABLE_TYPE`
 
 ```csv
@@ -45,6 +48,9 @@ Initial files:
 
 
 # Display
+
+[LVGL](../managed_components/idf_components.md)
+
 
 - Show info
 
