@@ -11,10 +11,13 @@
 #include "esp_check.h"
 #include "esp_err.h"
 #include "esp_mac.h"
+
 /*
 Custom components
 In order of importance during init
 */
+// Function modules
+#include "wifi.h"
 
 // Empty files - placeholders
 #include "littlefs_driver.h"
@@ -26,7 +29,6 @@ In order of importance during init
 #include "sensor_co2.h"
 #include "sensor_temp.h"
 #include "webserver.h"
-#include "wifi.h"
 
 // LVGL locally installed
 #include "lvgl.h"
@@ -48,6 +50,8 @@ void app_main(void)
     
     // Init in order of importance
     wifi();             // 1
+    wifi_setup();       // 1
+
     captive_portal();   // 2
     littlefs_driver();  // 3
     card_driver();      // 4

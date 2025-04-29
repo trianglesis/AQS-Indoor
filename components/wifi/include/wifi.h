@@ -74,6 +74,7 @@
 #define WIFI_PASS                   CONFIG_ESP_WIFI_AP_PASSWORD // Empty str len 0 = No password, this AP is KIOSK-like
 #define WIFI_CHANNEL                CONFIG_ESP_WIFI_AP_CHANNEL
 #define MAX_STA_CONN                CONFIG_ESP_MAX_STA_CONN_AP
+#define MAX_TRANSMIT_POWER          CONFIG_MAX_TRANSMIT_POWER
 
 /* The event group allows multiple bits for each event, but we only care about two events:
  * - we are connected to the AP with an IP
@@ -92,3 +93,5 @@ extern char ip_string[128];
 
 // Only log vars
 void wifi(void);
+// Start AP
+esp_err_t wifi_setup(void);
