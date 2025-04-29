@@ -74,6 +74,7 @@ void app_main(void)
     littlefs_driver();  // 3
     card_driver();      // 4
     webserver();        // 5
+    
     display_driver();   // 6
     lvgl_driver();      // 7
     ui_init_fake();     // 8
