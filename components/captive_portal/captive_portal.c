@@ -8,6 +8,6 @@ void captive_portal(void)
 {
     printf(" - Init: captive_portal empty function call!\n");
     if (USE_CAPTIVE_PORTAL) {
-        ESP_LOGI(TAG, "USE_CAPTIVE_PORTAL: %s", USE_CAPTIVE_PORTAL);
+        ESP_LOGI(TAG, "USE_CAPTIVE_PORTAL: %d", USE_CAPTIVE_PORTAL);
     }
 }
