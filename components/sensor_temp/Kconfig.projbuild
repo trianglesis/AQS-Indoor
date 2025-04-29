@@ -12,4 +12,10 @@ menu "AQS Temperature, humidity sensor"
         help
             Address of I2C BME680 sensor
 
+    config BME680_MEASUREMENT_FREQ
+        int "Measure request frequency ms"
+        default 5000
+        help
+            How long should we wait before getting next measurement. Default 5 sec, cannot be less!
+
 endmenu

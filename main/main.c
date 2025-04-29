@@ -20,6 +20,7 @@ In order of importance during init
 #include "wifi.h"
 #include "i2c_driver.h"
 #include "sensor_co2.h"
+#include "sensor_temp.h"
 
 // Empty files - placeholders
 #include "littlefs_driver.h"
@@ -27,7 +28,6 @@ In order of importance during init
 #include "card_driver.h"
 #include "display_driver.h"
 #include "lvgl_driver.h"
-#include "sensor_temp.h"
 #include "webserver.h"
 
 // LVGL locally installed
@@ -57,9 +57,15 @@ void app_main(void)
     */
     ESP_ERROR_CHECK(master_bus_init());
     ESP_ERROR_CHECK(scd40_sensor_init());
+    ESP_ERROR_CHECK(bme680_sensor_init());
 
     /*
         2. Wifi setup, AP mode if no known networks found, STA mode if found one.
+
+        x. LittleFS init and read\write sensor states and calibration data
+        x. SD Card init and start\continue writing sensors
+        x. LCD Display init and show picture
+        x. Web Server start as soon as WiFi is ok
     */
     ESP_ERROR_CHECK(wifi_setup());
     
@@ -71,12 +77,16 @@ void app_main(void)
     display_driver();   // 6
     lvgl_driver();      // 7
     ui_init_fake();     // 8
-    
-    sensor_temp();      // 11
 
-    // Tasks add
+    /*
+        Make a queue for each sensor
+        Assign a task:
+        - Wait 5 seconds before loop
+        - Sleep real time betteen measurements with xTaskDelayUntil
+    */
     vTaskDelay(pdMS_TO_TICKS(500));
     task_co2();
+    task_bme680();
 
     // End
 }

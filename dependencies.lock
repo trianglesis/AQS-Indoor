@@ -23,6 +23,12 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 1.19.2
+  k0i05/esp_type_utils:
+    dependencies: []
+    source:
+      path: D:\Projects\ESP\ESP32-C6-OLED\AQS-Indoor
+      type: local
+    version: '*'
   lvgl/lvgl:
     component_hash: 096c69af22eaf8a2b721e3913da91918c5e6bf1a762a113ec01f401aa61337a0
     dependencies: []
@@ -34,7 +40,8 @@ direct_dependencies:
 - espressif/led_strip
 - idf
 - joltwallet/littlefs
+- k0i05/esp_type_utils
 - lvgl/lvgl
-manifest_hash: adec0100a31e57a01d13ea4e66e9da4027d3ebdae49894a14ddb82038cf4fff4
+manifest_hash: 529aa88da85879fe22ed9dfa4fa3e9d5b38b9523d2e66cc9100d9b55eadba442
 target: esp32c6
 version: 2.0.0

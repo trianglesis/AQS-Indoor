@@ -7,7 +7,7 @@ menu "AQS CO2 Sensor"
             Address of I2C slave device SCD40 sensor
     
     config CO2_MEASUREMENT_FREQ
-        int "SO2 Measure request frequency ms"
+        int "CO2 Measure request frequency ms"
         default 5000
         help
             How long should we wait before getting next measurement. Default 5 sec, cannot be less!

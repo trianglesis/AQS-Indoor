@@ -27,7 +27,8 @@
 			"led_driver.h": "c",
 			"sensirion_i2c.h": "c",
 			"led_strip.h": "c",
-			"gpio.h": "c"
+			"gpio.h": "c",
+			"lock.h": "c"
 		}
 	}
 }
