@@ -6,7 +6,7 @@ static const char *TAG = "sd-card";
 
 void card_driver(void)
 {
-    printf(" - Init: card_driver empty function call!\n");
+    printf(" - Init: card_driver empty function call!\n\n");
     ESP_LOGI(TAG, "SD_GPIO_MOSI: %d", SD_GPIO_MOSI);
     ESP_LOGI(TAG, "SD_GPIO_SCLK: %d", SD_GPIO_SCLK);
     ESP_LOGI(TAG, "SD_GPIO_MISO: %d", SD_GPIO_MISO);

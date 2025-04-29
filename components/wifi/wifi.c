@@ -23,7 +23,7 @@ static wifi_config_t wifi_sta_config = { 0 };
 
 
 void wifi(void) {
-    printf("1 - Init: wifi empty function call!\n");
+    printf("1 - Init: wifi empty function call!\n\n");
 
     ESP_LOGI(TAG, "WIFI_SSID: %s", WIFI_SSID);
     ESP_LOGI(TAG, "WIFI_PASS: %s", WIFI_PASS);
@@ -35,7 +35,12 @@ void wifi(void) {
     ESP_LOGI(TAG, "ip_string: %s", ip_string);
 }
 
-// Both AP and STA
+/*
+Both AP and STA
+
+    TODO: Check if STA network is no longer available and switch to AP
+    
+*/
 static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data) {
     ESP_LOGI(TAG, "Init WiFI event handler");
     // When AP connected\disconnected

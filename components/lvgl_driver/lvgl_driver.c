@@ -5,7 +5,7 @@ static const char *TAG = "lvgl";
 
 void lvgl_driver(void)
 {
-    printf(" - Init: lvgl_driver empty function call!\n");
+    printf(" - Init: lvgl_driver empty function call!\n\n");
     ESP_LOGI(TAG, "ROTATE_DISPLAY: %d", ROTATE_DISPLAY);
 
 }
