@@ -21,14 +21,14 @@ In order of importance during init
 #include "i2c_driver.h"
 #include "sensor_co2.h"
 #include "sensor_temp.h"
+#include "littlefs_driver.h"
+#include "card_driver.h"
 
 // Empty files - placeholders
-#include "littlefs_driver.h"
 #include "captive_portal.h"
-#include "card_driver.h"
+#include "webserver.h"
 #include "display_driver.h"
 #include "lvgl_driver.h"
-#include "webserver.h"
 
 // LVGL locally installed
 #include "lvgl.h"
@@ -59,31 +59,30 @@ void app_main(void)
     ESP_ERROR_CHECK(scd40_sensor_init());
     ESP_ERROR_CHECK(bme680_sensor_init());
 
-    /*
-        2. Wifi setup, AP mode if no known networks found, STA mode if found one.
+    /* Startup sequence:
+    2. Wifi setup, AP mode if no known networks found, STA mode if found one.
+    3. LittleFS init and read\write sensor states and calibration data
+    4. SD Card init and start\continue writing sensors
 
-        x. LittleFS init and read\write sensor states and calibration data
-        x. SD Card init and start\continue writing sensors
-        x. LCD Display init and show picture
-        x. Web Server start as soon as WiFi is ok
+    x. LCD Display init and show picture
+    x. Web Server start as soon as WiFi is ok
     */
     ESP_ERROR_CHECK(wifi_setup());
+    ESP_ERROR_CHECK(fs_setup());
+    ESP_ERROR_CHECK(card_init());
     
     // Init in order of importance
     captive_portal();   // 2
-    littlefs_driver();  // 3
-    card_driver();      // 4
     webserver();        // 5
-    
+
     display_driver();   // 6
     lvgl_driver();      // 7
     ui_init_fake();     // 8
 
-    /*
-        Make a queue for each sensor
-        Assign a task:
-        - Wait 5 seconds before loop
-        - Sleep real time betteen measurements with xTaskDelayUntil
+    /* Make a queue for each sensor
+    Assign a task:
+    - Wait 5 seconds before loop
+    - Sleep real time betteen measurements with xTaskDelayUntil
     */
     vTaskDelay(pdMS_TO_TICKS(500));
     task_co2();

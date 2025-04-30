@@ -28,7 +28,12 @@
 			"sensirion_i2c.h": "c",
 			"led_strip.h": "c",
 			"gpio.h": "c",
-			"lock.h": "c"
+			"lock.h": "c",
+			"esp_vfs.h": "c",
+			"esp_vfs_fat.h": "c",
+			"vector": "c",
+			"esp_flash.h": "c",
+			"stat.h": "c"
 		}
 	}
 }

@@ -63,7 +63,7 @@ void bme680_reading(void * pvParameters) {
         bme680_readings.air_q_index = data.iaq_score;
 
         ESP_LOGI(TAG, " \t Air(°C) \t Hum(%%) \t hPa \t\t Res(kΩ) \t Stable \t IAQ \t (Level) ");
-        ESP_LOGI(TAG, " \t %.2f \t\t %.2f \t\t %.2f \t %.2f \t\t %s \t %d \t (%s) ",
+        ESP_LOGI(TAG, " \t %.2f \t\t %.2f \t\t %.2f \t %.2f \t %s \t\t %d \t (%s) ",
             data.air_temperature,
             data.relative_humidity,
             data.barometric_pressure/100,

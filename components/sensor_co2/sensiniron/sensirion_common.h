@@ -53,7 +53,7 @@ extern "C" {
 /**
  * Enum to describe the type of an integer
  */
-typedef enum { BYTE = 1, SHORT = 2, INTEGER = 4, LONG_INTEGER = 8 } INT_TYPE;
+// typedef enum { BYTE = 1, SHORT = 2, INTEGER = 4, LONG_INTEGER = 8 } INT_TYPE;
 
 /**
  * sensirion_common_bytes_to_int16_t() - Convert an array of bytes to an int16_t
@@ -187,8 +187,21 @@ void sensirion_common_copy_bytes(const uint8_t* source, uint8_t* destination,
  * @param int_type Type (size) of the integer to be copied.
  * @param data_length Number of bytes to copy.
  */
-void sensirion_common_to_integer(const uint8_t* source, uint8_t* destination,
-                                 INT_TYPE int_type, uint8_t data_length);
+
+
+/*
+D:/esp/v5.4.1/esp-idf/components/fatfs/src/ff.h:50:25: error: 'BYTE' redeclared as different kind of symbol
+   50 | typedef unsigned char   BYTE;   char must be 8-bit
+   |                         ^~~~
+   In file included from D:/Projects/ESP/ESP32-C6-OLED/AQS-Indoor/components/sensor_co2/include/sensor_co2.h:17,
+                    from D:/Projects/ESP/ESP32-C6-OLED/AQS-Indoor/main/main.c:22:
+   D:/Projects/ESP/ESP32-C6-OLED/AQS-Indoor/components/sensor_co2/sensiniron/sensirion_common.h:56:16: note: previous definition of 'BYTE' with type 'enum <anonymous>'
+      56 | typedef enum { BYTE = 1, SHORT = 2, INTEGER = 4, LONG_INTEGER = 8 } INT_TYPE;
+         |                ^~~~
+   ninja: build stopped: subcommand failed.
+*/
+
+// void sensirion_common_to_integer(const uint8_t* source, uint8_t* destination, INT_TYPE int_type, uint8_t data_length);
 
 #ifdef __cplusplus
 }

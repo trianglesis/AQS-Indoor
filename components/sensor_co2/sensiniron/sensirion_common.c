@@ -99,6 +99,7 @@ void sensirion_common_copy_bytes(const uint8_t* source, uint8_t* destination, ui
     }
 }
 
+/*
 void sensirion_common_to_integer(const uint8_t* source, uint8_t* destination, INT_TYPE int_type, uint8_t data_length) {
 
     if (data_length > int_type) {
@@ -116,3 +117,4 @@ void sensirion_common_to_integer(const uint8_t* source, uint8_t* destination, IN
         destination[int_type - offset - i] = source[i - 1];
     }
 }
+*/
