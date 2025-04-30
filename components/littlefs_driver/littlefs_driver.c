@@ -62,12 +62,17 @@ esp_err_t little_fs_file_sum_test(void) {
 // Just test
 esp_err_t littlefs_read_test(void) {
     ESP_LOGI(TAG, "Reading from littlefs: hello.txt");
-    FILE *f = fopen(lfs_file_hello, "r");
+    // Open for reading hello.txt
+    FILE* f = fopen(lfs_file_hello, "r");
     if (f == NULL) {
-        ESP_LOGE(TAG, "Failed to open file for reading");
-        return ESP_FAIL;
+        ESP_LOGE(TAG, "Failed to open hello.txt");
     }
+    char buf[64];
+    memset(buf, 0, sizeof(buf));
+    fread(buf, 1, sizeof(buf), f);
     fclose(f);
+    // Display the read contents from the file
+    ESP_LOGI(TAG, "Read from hello.txt: %s", buf);
     return ESP_OK;
 }
 

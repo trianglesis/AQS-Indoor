@@ -47,7 +47,7 @@ void card_space(void) {
     }
     sd_total = (total / (1024 * 1024 * 1024)); // Convert to Gb
     sd_free = (free / (1024 * 1024 * 1024)); // Convert to Gb
-    ESP_LOGI(TAG, "SD Card size total/free: %.2f/%.2f KB", sd_total, sd_free);
+    ESP_LOGI(TAG, "SD Card size total/free: %.2f/%.2f GB", sd_total, sd_free);
 }
 
 // Leave it as in example
