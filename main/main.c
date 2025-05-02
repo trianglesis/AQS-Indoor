@@ -70,10 +70,10 @@ void app_main(void)
     ESP_ERROR_CHECK(wifi_setup());
     ESP_ERROR_CHECK(fs_setup());
     ESP_ERROR_CHECK(card_init());
+    ESP_ERROR_CHECK(start_webserver());
     
     // Init in order of importance
     captive_portal();   // 2
-    webserver();        // 5
 
     display_driver();   // 6
     lvgl_driver();      // 7

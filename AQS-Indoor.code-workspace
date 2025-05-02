@@ -34,7 +34,8 @@
 			"vector": "c",
 			"esp_flash.h": "c",
 			"stat.h": "c",
-			"esp_err.h": "c"
+			"esp_err.h": "c",
+			"esp_check.h": "c"
 		}
 	}
 }

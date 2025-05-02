@@ -1,6 +1,15 @@
 #pragma once
 #include <string.h>
 #include "esp_log.h"
+#include "esp_netif.h"
+#include "esp_http_server.h"
+#include "esp_event.h"
+#include "esp_netif.h"
+#include "esp_tls.h"
+#include "esp_check.h"
+
+// My
+#include "wifi.h"
 #include "card_driver.h"
 #include "littlefs_driver.h"
 
@@ -13,6 +22,10 @@
 #define WEBSERVER_ROOT              SD_MOUNT_POINT
 // Upload INIT server root dir - do not upload files here, but use as initial page for upload
 #define FILESERVER_INIT_ROOT        LFS_MOUNT_POINT
+
+// AP mode = no fileserver, STA mode and home wifi = file server
+#define AP_MODE                     wifi_ap_mode
+#define FOUND_WIFI                  found_wifi
 
 // File server opt
 /* Max length a file path can have on storage */
