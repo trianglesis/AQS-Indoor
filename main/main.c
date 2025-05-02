@@ -42,6 +42,7 @@ static const char *TAG = "co2station";
 // only define xCoreID CORE1 as 1 if this is a multiple core processor target, else define it as tskNO_AFFINITY
 #define CORE1       ((CONFIG_FREERTOS_NUMBER_OF_CORES > 1) ? 1 : tskNO_AFFINITY)
 
+
 void app_main(void)
 {
     //Allow other core to finish initialization
@@ -74,7 +75,6 @@ void app_main(void)
     
     // Init in order of importance
     captive_portal();   // 2
-
     display_driver();   // 6
     lvgl_driver();      // 7
     ui_init_fake();     // 8
@@ -87,8 +87,6 @@ void app_main(void)
     vTaskDelay(pdMS_TO_TICKS(500));
     task_co2();
     task_bme680();
-
     // End
 }
-
 // END

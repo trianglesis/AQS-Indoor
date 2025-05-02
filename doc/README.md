@@ -104,6 +104,11 @@ Always check if PINs are added correctly!
 
 i2cconfig  --port=0 --freq=100000 --sda=9 --scl=18
 
+```text
+ESP_CONSOLE_UART
+ESP_CONSOLE_SECONDARY
+```
+
 
 ## Components details
 

@@ -1,6 +1,5 @@
 {
     "C_Cpp.intelliSenseEngine": "default",
-    "cmake.cmakePath": "D:\\.espressif\\tools\\cmake\\3.30.2\\bin\\cmake.exe",
     "idf.espIdfPathWin": "D:\\esp\\v5.4.1\\esp-idf",
     "idf.pythonInstallPath": "d:\\.espressif\\tools\\idf-python\\3.11.2\\python.exe",
     "idf.openOcdConfigs": [
@@ -11,5 +10,6 @@
     "idf.customExtraVars": {
         "IDF_TARGET": "esp32c6"
     },
-    "idf.flashType": "UART"
+    "idf.flashType": "UART",
+    "cmake.cmakePath": "D:\\.espressif\\tools\\cmake\\3.30.2\\bin\\cmake.exe",
 }
