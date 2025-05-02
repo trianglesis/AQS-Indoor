@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "preRun",
+			"type": "shell",
+			"windows": {
+				"command": "clean & start openocd -c \"set ESP_RTOS none\" -f board/esp32c6-lpcore-builtin.cfg & exit"
+			}
+		}
+	]
+}
