@@ -70,7 +70,7 @@ void load_index_html_file(char* index_html_buff) {
         if (cb == 0) {
             // File OK, close after
             ESP_LOGI(TAG, "fread (%d) OK for html at path %s", cb, index_html_path);
-            fclose(f_r);
+            // fclose(f_r);
         } else if (cb == -1) {
             // File not ok, show it
             /*
@@ -82,7 +82,7 @@ void load_index_html_file(char* index_html_buff) {
             E (6643) webserver: fread (1) failed for html at path /sdcard/index.html
             */
             ESP_LOGE(TAG, "fread (%d) failed for html at path %s", cb, index_html_path);
-            fclose(f_r);
+            // fclose(f_r);
         } else {
             // File not ok, show it
             ESP_LOGE(TAG, "fread (%d) failed for html at path %s", cb, index_html_path);

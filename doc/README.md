@@ -104,11 +104,6 @@ Always check if PINs are added correctly!
 
 i2cconfig  --port=0 --freq=100000 --sda=9 --scl=18
 
-```text
-ESP_CONSOLE_UART
-ESP_CONSOLE_SECONDARY
-```
-
 
 ## Components details
 
@@ -118,7 +113,7 @@ ESP_CONSOLE_SECONDARY
 
 [Read](../managed_components/idf_components.md)
 
-### Debug and etc
+# Debug and etc
 
 - [JTAG](https://docs.espressif.com/projects/esp-idf/en/v5.4.1/esp32c6/api-guides/jtag-debugging/index.html)
 
@@ -131,6 +126,11 @@ openocd -f board/esp32c6-lpcore-builtin.cfg
 # Separate PS
 d:\.espressif\tools\openocd-esp32\v0.12.0-esp32-20241016\openocd-esp32\bin\openocd.exe -f board/esp32c6-builtin.cfg
 d:\.espressif\tools\openocd-esp32\v0.12.0-esp32-20241016\openocd-esp32\bin\openocd.exe -f board/esp32c6-lpcore-builtin.cfg
+```
+
+```text
+ESP_CONSOLE_UART
+ESP_CONSOLE_SECONDARY
 ```
 
 # Old
