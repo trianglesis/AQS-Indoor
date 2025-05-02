@@ -117,10 +117,14 @@ i2cconfig  --port=0 --freq=100000 --sda=9 --scl=18
 
 - [JTAG](https://docs.espressif.com/projects/esp-idf/en/v5.4.1/esp32c6/api-guides/jtag-debugging/index.html)
 
+With and without LP core
+
 ```txt
+openocd -f board/esp32c6-builtin.cfg
 openocd -f board/esp32c6-lpcore-builtin.cfg
 
 # Separate PS
+d:\.espressif\tools\openocd-esp32\v0.12.0-esp32-20241016\openocd-esp32\bin\openocd.exe -f board/esp32c6-builtin.cfg
 d:\.espressif\tools\openocd-esp32\v0.12.0-esp32-20241016\openocd-esp32\bin\openocd.exe -f board/esp32c6-lpcore-builtin.cfg
 ```
 

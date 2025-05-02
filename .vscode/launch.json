@@ -10,7 +10,6 @@
             "request": "launch",
             "cwd": "${workspaceFolder}/build",
             "program": "${workspaceFolder}/build/AQS.elf",
-            // "miDebuggerPath": "D:/.espressif/tools/xtensa-esp-elf-gdb/14.2_20240403/xtensa-esp-elf-gdb/bin/xtensa-esp32-elf-gdb.exe",
             "miDebuggerPath": "D:/.espressif/tools/riscv32-esp-elf-gdb/14.2_20240403/riscv32-esp-elf-gdb/bin/riscv32-esp-elf-gdb.exe",
             "setupCommands": [
                 { "text": "target remote 127.0.0.1:3333" },
