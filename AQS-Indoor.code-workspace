@@ -33,7 +33,8 @@
 			"esp_vfs_fat.h": "c",
 			"vector": "c",
 			"esp_flash.h": "c",
-			"stat.h": "c"
+			"stat.h": "c",
+			"esp_err.h": "c"
 		}
 	}
 }
