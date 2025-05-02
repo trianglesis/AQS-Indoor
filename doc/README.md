@@ -102,6 +102,9 @@ i2c-tools>
 
 Always check if PINs are added correctly!
 
+i2cconfig  --port=0 --freq=100000 --sda=9 --scl=18
+
+
 ## Components details
 
 [Read](components.md)

@@ -136,10 +136,10 @@ esp_err_t fs_setup(void) {
     
     // Space total and used
     little_fs_space();
-    // Test
-    littlefs_read_test();
-    littlefs_write_test();
-    little_fs_file_sum_test();
+    // Test, 1,2,3
+    littlefs_write_test();      // 1
+    littlefs_read_test();       // 2
+    little_fs_file_sum_test();  // 3 
 
     return ESP_OK;
 

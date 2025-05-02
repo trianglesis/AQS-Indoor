@@ -204,10 +204,10 @@ esp_err_t card_init(void) {
     card_info();
     // Space total and free
     card_space();
-    // Test
-    sd_card_file_write_test();
-    sd_card_file_read_test();
-    sd_card_file_sum_test();
+    // Test 1,2,3
+    sd_card_file_write_test(); // 1
+    sd_card_file_read_test();  // 2
+    sd_card_file_sum_test();   // 3
 
     return ESP_OK;
 }
