@@ -4,7 +4,7 @@
     "idf.espIdfPathWin": "D:\\esp\\v5.4.1\\esp-idf",
     "idf.pythonInstallPath": "d:\\.espressif\\tools\\idf-python\\3.11.2\\python.exe",
     "idf.openOcdConfigs": [
-        "board/esp32c6-lpcore-builtin.cfg"
+        "board/esp32c6-builtin.cfg"
     ],
     "idf.portWin": "COM11",
     "idf.toolsPathWin": "d:\\.espressif",
