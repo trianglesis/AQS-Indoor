@@ -3,7 +3,8 @@
 
 bool index_exists = false;
 const char *index_html_path = NULL;
-const char index_html[4096];
+
+#define BUFFER_SIZE      4096       // The read/write performance can be improved with larger buffer for the cost of RAM, 4kB is enough for most usecases
 
 static const char *TAG = "webserver";
 
@@ -54,11 +55,10 @@ void check_indexes_locations(void) {
 }
 
 // Load HTML from SPI OR SD Card
-void load_index_html_file(void) {
-    char index_html[4096];
+void load_index_html_file(char* index_html_buff) {
     ESP_LOGI(TAG, "Load HTML index...");
     struct stat st;
-    memset((void *)index_html, 0, sizeof(index_html));
+    // memset((void *)index_html_buff, 0, sizeof(index_html_buff));
 
     if (stat(index_html_path, &st) == 0) {
         ESP_LOGI(TAG, "Index HTML exists: %s", index_html_path);
@@ -66,7 +66,7 @@ void load_index_html_file(void) {
 
     FILE *f_r = fopen(index_html_path, "r");
     if (f_r != NULL) {
-        int cb = fread(index_html, st.st_size, sizeof(index_html), f_r);
+        int cb = fread(&index_html_buff, BUFFER_SIZE, sizeof(index_html_buff), f_r);
         if (cb == 0) {
             // File OK, close after
             ESP_LOGI(TAG, "fread (%d) OK for html at path %s", cb, index_html_path);
@@ -90,13 +90,22 @@ void load_index_html_file(void) {
         }
     }
     fclose(f_r);
+    // return index_html_buff;
 }
 
 // Root page if present
 esp_err_t root_get_handler(httpd_req_t *req) {
-    load_index_html_file();
+    ESP_LOGI(TAG, "Load root handler, start index html page read!");
+
+    // Allocate application buffer used for read/write
+    char index_html_buff[BUFFER_SIZE];
+    
+    load_index_html_file(index_html_buff);
+    ESP_LOGI(TAG, "Html page read OK!");
+    
     httpd_resp_set_type(req, "text/html");
-    httpd_resp_send(req, index_html, HTTPD_RESP_USE_STRLEN);
+    httpd_resp_send(req, index_html_buff, HTTPD_RESP_USE_STRLEN);
+    // Free buff
     return ESP_OK;
 }
 
