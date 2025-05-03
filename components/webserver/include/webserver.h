@@ -35,7 +35,7 @@
 VFS does not impose any limit on total file path length, but it does limit the FS path prefix to ESP_VFS_PATH_MAX characters. Individual FS drivers may have their own filename length limitations.
 Also limit to webserver max uri > 
 */
-#define FILE_PATH_MAX               512
+#define FILE_PATH_MAX               128
 
 /* Max size of an individual file. Make sure this
  * value is same as that set in upload_script.html */

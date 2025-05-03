@@ -17,10 +17,10 @@ void webserver(void) {
     ESP_LOGI(TAG, "BASIC_AUTH: %d", BASIC_AUTH);
     ESP_LOGI(TAG, "AP_MODE: %d", AP_MODE);
     ESP_LOGI(TAG, "FOUND_WIFI: %d", FOUND_WIFI);
-    ESP_LOGI(TAG, "WEBSERVER_ROOT new root for webserver: %s", WEBSERVER_ROOT);
-    ESP_LOGI(TAG, "WEBSERVER_INIT_ROOT new root for webserver: %s", WEBSERVER_INIT_ROOT);
+    ESP_LOGI(TAG, "WEBSERVER_ROOT SD Card root for webserver: %s", WEBSERVER_ROOT);
+    ESP_LOGI(TAG, "WEBSERVER_INIT_ROOT SPI Flash root for webserver: %s", WEBSERVER_INIT_ROOT);
     ESP_LOGI(TAG, "LFS_MOUNT_POINT init (fallback) root for webserver: %s", LFS_MOUNT_POINT);
-    ESP_LOGI(TAG, "FILESERVER_ROOT new root for fileserver: %s", FILESERVER_ROOT);
+    ESP_LOGI(TAG, "FILESERVER_ROOT SD Card root for fileserver: %s", FILESERVER_ROOT);
     ESP_LOGI(TAG, "SD Card exists and total space: %.2f GB", SD_CARD_TOTAL);
     ESP_LOGI(TAG, "SD Card exists and free space: %.2f GB", SD_CARD_FREE);
     ESP_LOGI(TAG, "MAX_FILE_SIZE_STR (check html JS too): %s", MAX_FILE_SIZE_STR);
@@ -66,7 +66,7 @@ Path validation is at the check_indexes_locations()
 I've used this read_file as example to understand the proper pointer use.
 - https://github.com/DaveGamble/cJSON/blob/acc76239bee01d8e9c858ae2cab296704e52d916/tests/common.h#L47
 */
-char* load_index_html_file(const char *filepath) {
+char* load_html_file(const char *filepath) {
     FILE *file = NULL;
     char *content = NULL;
     size_t read_chars = 0;
@@ -114,7 +114,7 @@ esp_err_t root_get_handler(httpd_req_t *req) {
     // Check again, if the is already present html file at SD card.
     check_indexes_locations();
     // Load html page from validated path
-    char *content = load_index_html_file(index_html_path);
+    char *content = load_html_file(index_html_path);
     httpd_resp_set_type(req, "text/html");
     httpd_resp_send(req, content, HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
@@ -191,116 +191,88 @@ struct file_server_data {
  * a list of all files and folders under the requested path.
  * In case of SPIFFS this returns empty list when path is any
  * string other than '/', since SPIFFS doesn't support directories */
- static esp_err_t http_resp_dir_html(httpd_req_t *req, const char *dirpath)
- {
-     char entrypath[FILE_PATH_MAX];
-     char entrysize[16];
-     char upload_html[4096];
+ static esp_err_t http_resp_dir_html(httpd_req_t *req, const char *dirpath) {
+    char entrypath[FILE_PATH_MAX];
+    char entrysize[16];
+    const char *entrytype;
+    struct dirent *entry;
+    struct stat entry_stat;
 
-     const char *entrytype;
- 
-     struct dirent *entry;
-     struct stat entry_stat;
-     struct stat st;
+    DIR *dir = opendir(dirpath);
+    const size_t dirpath_len = strlen(dirpath);
 
- 
-     DIR *dir = opendir(dirpath);
-     const size_t dirpath_len = strlen(dirpath);
- 
-     /* Retrieve the base path of file storage to construct the full path */
-     strlcpy(entrypath, dirpath, sizeof(entrypath));
- 
-     if (!dir) {
-         ESP_LOGE(TAG_FS, "Failed to stat dir : %s", dirpath);
-         /* Respond with 404 Not Found */
-         httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Directory does not exist");
-         return ESP_FAIL;
-     } else {
+    /* Retrieve the base path of file storage to construct the full path */
+    strlcpy(entrypath, dirpath, sizeof(entrypath));
+
+    if (!dir) {
+        ESP_LOGE(TAG_FS, "Failed to stat dir : %s", dirpath);
+        /* Respond with 404 Not Found */
+        httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Directory does not exist");
+        return ESP_FAIL;
+    } else {
         ESP_LOGI(TAG_FS, "Dir exist: %s", dirpath);
-     }
- 
-     /* Send HTML file header */
-     httpd_resp_sendstr_chunk(req, "<!DOCTYPE html><html><body>");
- 
-     /* Get handle to embedded file upload script */
-    //  extern const unsigned char upload_script_start[] asm("_binary_upload_script_html_start");
-    //  extern const unsigned char upload_script_end[]   asm("_binary_upload_script_html_end");
-    //  const size_t upload_script_size = (upload_script_end - upload_script_start);
-
-    // File size
-    memset((void *)upload_html, 0, sizeof(upload_html));
-
-    if (stat(UPLOAD_HTML_PATH, &st) == 0) {
-        ESP_LOGI(TAG_FS, "HTML exists at path: %s", UPLOAD_HTML_PATH);
     }
 
-    FILE *f_r = fopen(UPLOAD_HTML_PATH, "r");
-    if (f_r != NULL) {
-        int cb = fread(upload_html, st.st_size, sizeof(upload_html), f_r);
-        if (cb == 0) {
-            // File OK, close after
-            ESP_LOGE(TAG_FS, "fread (%d) OK for upload html script at path %s", cb, UPLOAD_HTML_PATH);
-            fclose(f_r);
-        } else {
-            // File not ok, show it
-            ESP_LOGE(TAG_FS, "fread (%d) failed for html at path %s", cb, UPLOAD_HTML_PATH);
-            fclose(f_r);
+    /* Send HTML file header */
+    httpd_resp_sendstr_chunk(req, "<!DOCTYPE html><html><body>");
+
+    // Load html file
+    char *content = load_html_file(UPLOAD_HTML_PATH);
+
+    /* Add file upload form and script which on execution sends a POST request to /upload */
+    // httpd_resp_send_chunk(req, (const char *)content, sizeof(content));
+    httpd_resp_sendstr_chunk(req, content);
+
+    /* Send file-list table definition and column labels */
+    httpd_resp_sendstr_chunk(req,
+        "<table class=\"fixed\" border=\"1\">"
+        "<col width=\"800px\" /><col width=\"300px\" /><col width=\"300px\" /><col width=\"100px\" />"
+        "<thead><tr><th>Name</th><th>Type</th><th>Size (Bytes)</th><th>Delete</th></tr></thead>"
+        "<tbody>");
+
+    /* Iterate over all files / folders and fetch their names and sizes */
+    while ((entry = readdir(dir)) != NULL) {
+        entrytype = (entry->d_type == DT_DIR ? "directory" : "file");
+
+        strlcpy(entrypath + dirpath_len, entry->d_name, sizeof(entrypath) - dirpath_len);
+        if (stat(entrypath, &entry_stat) == -1) {
+            ESP_LOGE(TAG_FS, "Failed to stat %s : %s", entrytype, entry->d_name);
+            continue;
         }
-    }
+        sprintf(entrysize, "%ld", entry_stat.st_size);
+        ESP_LOGI(TAG_FS, "Found %s : %s (%s bytes)", entrytype, entry->d_name, entrysize);
 
-     /* Add file upload form and script which on execution sends a POST request to /upload */
-     httpd_resp_send_chunk(req, (const char *)upload_html, sizeof(upload_html));
- 
-     /* Send file-list table definition and column labels */
-     httpd_resp_sendstr_chunk(req,
-         "<table class=\"fixed\" border=\"1\">"
-         "<col width=\"800px\" /><col width=\"300px\" /><col width=\"300px\" /><col width=\"100px\" />"
-         "<thead><tr><th>Name</th><th>Type</th><th>Size (Bytes)</th><th>Delete</th></tr></thead>"
-         "<tbody>");
- 
-     /* Iterate over all files / folders and fetch their names and sizes */
-     while ((entry = readdir(dir)) != NULL) {
-         entrytype = (entry->d_type == DT_DIR ? "directory" : "file");
- 
-         strlcpy(entrypath + dirpath_len, entry->d_name, sizeof(entrypath) - dirpath_len);
-         if (stat(entrypath, &entry_stat) == -1) {
-             ESP_LOGE(TAG_FS, "Failed to stat %s : %s", entrytype, entry->d_name);
-             continue;
-         }
-         sprintf(entrysize, "%ld", entry_stat.st_size);
-         ESP_LOGI(TAG_FS, "Found %s : %s (%s bytes)", entrytype, entry->d_name, entrysize);
- 
-         /* Send chunk of HTML file containing table entries with file name and size */
-         httpd_resp_sendstr_chunk(req, "<tr><td><a href=\"");
-         httpd_resp_sendstr_chunk(req, req->uri);
-         httpd_resp_sendstr_chunk(req, entry->d_name);
-         if (entry->d_type == DT_DIR) {
-             httpd_resp_sendstr_chunk(req, "/");
-         }
-         httpd_resp_sendstr_chunk(req, "\">");
-         httpd_resp_sendstr_chunk(req, entry->d_name);
-         httpd_resp_sendstr_chunk(req, "</a></td><td>");
-         httpd_resp_sendstr_chunk(req, entrytype);
-         httpd_resp_sendstr_chunk(req, "</td><td>");
-         httpd_resp_sendstr_chunk(req, entrysize);
-         httpd_resp_sendstr_chunk(req, "</td><td>");
-         httpd_resp_sendstr_chunk(req, "<form method=\"post\" action=\"/delete");
-         httpd_resp_sendstr_chunk(req, req->uri);
-         httpd_resp_sendstr_chunk(req, entry->d_name);
-         httpd_resp_sendstr_chunk(req, "\"><button type=\"submit\">Delete</button></form>");
-         httpd_resp_sendstr_chunk(req, "</td></tr>\n");
-     }
-     closedir(dir);
- 
-     /* Finish the file list table */
-     httpd_resp_sendstr_chunk(req, "</tbody></table>");
- 
-     /* Send remaining chunk of HTML file to complete it */
-     httpd_resp_sendstr_chunk(req, "</body></html>");
- 
-     /* Send empty chunk to signal HTTP response completion */
-     httpd_resp_sendstr_chunk(req, NULL);
-     return ESP_OK;
+        /* Send chunk of HTML file containing table entries with file name and size */
+        httpd_resp_sendstr_chunk(req, "<tr><td><a href=\"");
+        httpd_resp_sendstr_chunk(req, req->uri);
+        httpd_resp_sendstr_chunk(req, entry->d_name);
+        if (entry->d_type == DT_DIR) {
+            httpd_resp_sendstr_chunk(req, "/");
+        }
+        httpd_resp_sendstr_chunk(req, "\">");
+        httpd_resp_sendstr_chunk(req, entry->d_name);
+        httpd_resp_sendstr_chunk(req, "</a></td><td>");
+        httpd_resp_sendstr_chunk(req, entrytype);
+        httpd_resp_sendstr_chunk(req, "</td><td>");
+        httpd_resp_sendstr_chunk(req, entrysize);
+        httpd_resp_sendstr_chunk(req, "</td><td>");
+        httpd_resp_sendstr_chunk(req, "<form method=\"post\" action=\"/delete");
+        httpd_resp_sendstr_chunk(req, req->uri);
+        httpd_resp_sendstr_chunk(req, entry->d_name);
+        httpd_resp_sendstr_chunk(req, "\"><button type=\"submit\">Delete</button></form>");
+        httpd_resp_sendstr_chunk(req, "</td></tr>\n");
+    }
+    closedir(dir);
+
+    /* Finish the file list table */
+    httpd_resp_sendstr_chunk(req, "</tbody></table>");
+
+    /* Send remaining chunk of HTML file to complete it */
+    httpd_resp_sendstr_chunk(req, "</body></html>");
+
+    /* Send empty chunk to signal HTTP response completion */
+    httpd_resp_sendstr_chunk(req, NULL);
+    return ESP_OK;
  }
 
  /* Set HTTP response content type according to file extension */
@@ -728,6 +700,10 @@ esp_err_t start_webserver(void) {
     // Maing page is served from SPI if no same-named index.html was found at SD card!
     httpd_register_uri_handler(server, &root);
     httpd_register_err_handler(server, HTTPD_404_NOT_FOUND, http_404_error_handler);
+
+    /*
+    TODO: Add sockets or REST endpoints for all usefull information
+    */
 
     // Last, and check if WiFi is STA and ok
     start_fileserver();

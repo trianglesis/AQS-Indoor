@@ -80,9 +80,9 @@ void app_main(void)
     ui_init_fake();     // 8
 
     /* Make a queue for each sensor
-    Assign a task:
-    - Wait 5 seconds before loop
-    - Sleep real time betteen measurements with xTaskDelayUntil
+        Assign a task:
+        - Wait 5 seconds before loop
+        - Sleep real time betteen measurements with xTaskDelayUntil
     */
     vTaskDelay(pdMS_TO_TICKS(500));
     task_co2();
