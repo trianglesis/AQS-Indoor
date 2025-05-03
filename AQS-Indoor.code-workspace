@@ -35,7 +35,27 @@
 			"esp_flash.h": "c",
 			"stat.h": "c",
 			"esp_err.h": "c",
-			"esp_check.h": "c"
+			"esp_check.h": "c",
+			"array": "c",
+			"string": "c",
+			"string_view": "c",
+			"span": "c",
+			"bitset": "c",
+			"format": "c",
+			"initializer_list": "c",
+			"regex": "c",
+			"atomic": "c",
+			"chrono": "c",
+			"list": "c",
+			"optional": "c",
+			"random": "c",
+			"fstream": "c",
+			"functional": "c",
+			"istream": "c",
+			"tuple": "c",
+			"type_traits": "c",
+			"variant": "c",
+			"cstdio": "c"
 		}
 	}
 }

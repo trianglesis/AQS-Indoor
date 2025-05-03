@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include "webserver.h"
+#include "common.h"
+
 
 bool index_exists = false;
 const char *index_html_path = NULL;
-
-#define BUFFER_SIZE      4096       // The read/write performance can be improved with larger buffer for the cost of RAM, 4kB is enough for most usecases
 
 static const char *TAG = "webserver";
 
@@ -54,58 +54,73 @@ void check_indexes_locations(void) {
     }
 }
 
-// Load HTML from SPI OR SD Card
-void load_index_html_file(char* index_html_buff) {
+/*
+Load HTML from SPI OR SD Card
+- https://github.com/DaveGamble/cJSON/blob/acc76239bee01d8e9c858ae2cab296704e52d916/tests/common.h#L47
+*/
+char* load_index_html_file(void) {
     ESP_LOGI(TAG, "Load HTML index...");
-    struct stat st;
-    // memset((void *)index_html_buff, 0, sizeof(index_html_buff));
 
-    if (stat(index_html_path, &st) == 0) {
-        ESP_LOGI(TAG, "Index HTML exists: %s", index_html_path);
+    FILE *file = NULL;
+    char *content = NULL;
+    size_t read_chars = 0;
+
+    struct stat info;
+    // Test file existence and get its size in bytes
+    if (stat(index_html_path, &info) == 0) {
+        ESP_LOGI(
+            TAG, 
+            "Index HTML exists: %s; \n" 
+            "- Last changed: %s; \n"
+            "- File size: %ld bytes ", 
+            index_html_path, 
+            ctime(&info.st_mtime), 
+            info.st_size);
+    }
+    
+    // Read file
+    file = fopen(index_html_path, "r");
+    if (file == NULL) {
+        ESP_LOGE(TAG, "Cannot open HTML file for read from path: %s", index_html_path);
+        // return ESP_FAIL;
     }
 
-    FILE *f_r = fopen(index_html_path, "r");
-    if (f_r != NULL) {
-        int cb = fread(&index_html_buff, BUFFER_SIZE, sizeof(index_html_buff), f_r);
-        if (cb == 0) {
-            // File OK, close after
-            ESP_LOGI(TAG, "fread (%d) OK for html at path %s", cb, index_html_path);
-            // fclose(f_r);
-        } else if (cb == -1) {
-            // File not ok, show it
-            /*
-            Strange log but works
-            W (6563) httpd_uri: httpd_uri: URI '/favicon.ico' not found
-            I (6563) webserver: Redirecting to root
-            I (6643) webserver: Load HTML from local store path
-            I (6643) webserver: Root index.html found at SD Card!
-            E (6643) webserver: fread (1) failed for html at path /sdcard/index.html
-            */
-            ESP_LOGE(TAG, "fread (%d) failed for html at path %s", cb, index_html_path);
-            // fclose(f_r);
-        } else {
-            // File not ok, show it
-            ESP_LOGE(TAG, "fread (%d) failed for html at path %s", cb, index_html_path);
-            fclose(f_r);
-        }
+    // Allocate memory for file to read into
+    content = (char*)malloc((size_t)info.st_size + sizeof(""));
+    if (content == NULL) {
+        ESP_LOGE(TAG, "Failed to allocate memory");
+        // return ESP_FAIL;
     }
-    fclose(f_r);
-    // return index_html_buff;
-}
-
-// Root page if present
-esp_err_t root_get_handler(httpd_req_t *req) {
-    ESP_LOGI(TAG, "Load root handler, start index html page read!");
 
     // Allocate application buffer used for read/write
-    char index_html_buff[BUFFER_SIZE];
+    read_chars = fread(content, sizeof(char), (size_t)info.st_size, file);
+    if ((long)read_chars != info.st_size) {
+        free(content);
+        content = NULL;
+    }
+    content[read_chars] = '\0';
+
+    if (file != NULL)
+    {
+        fclose(file);
+    }
+    return content;
+}
+
+/* 
+    Root page if present
+    https://stackoverflow.com/a/35325067
+*/
+esp_err_t root_get_handler(httpd_req_t *req) {
+    ESP_LOGI(TAG, "Load root handler, start index html page read!");
+    // Load html page from LittleFS or SC Card
     
-    load_index_html_file(index_html_buff);
+    // size_t *bytes_read;
+    char *content = load_index_html_file();
     ESP_LOGI(TAG, "Html page read OK!");
-    
     httpd_resp_set_type(req, "text/html");
-    httpd_resp_send(req, index_html_buff, HTTPD_RESP_USE_STRLEN);
-    // Free buff
+    httpd_resp_send(req, content, HTTPD_RESP_USE_STRLEN);
+    // ESP_LOGI(TAG, "Data sent: %u Bytes", *bytes_read);
     return ESP_OK;
 }
 

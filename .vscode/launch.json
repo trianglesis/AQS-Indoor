@@ -12,7 +12,7 @@
             "program": "${workspaceFolder}/build/AQS.elf",
             "miDebuggerPath": "D:/.espressif/tools/riscv32-esp-elf-gdb/14.2_20240403/riscv32-esp-elf-gdb/bin/riscv32-esp-elf-gdb.exe",
             "setupCommands": [
-                { "text": "target remote 127.0.0.1:3333" },
+                { "text": "target extended-remote 127.0.0.1:3333" },
                 { "text": "set remote hardware-watchpoint-limit 2" },
                 { "text": "monitor reset halt" },
                 { "text": "flushregs" },
