@@ -73,6 +73,26 @@ Initial files:
   - Show Sensors statistics for last 5,30,60 minutes and longer
   - Graphs and JS
 
+# File server
+
+CURL example:
+
+```shell
+curl -X POST --data-binary @sd_card/index.html  http://192.168.1.225:80/upload/index.html
+curl -X POST --data-binary @index.html  http://192.168.1.225:80/upload/index.html
+curl -X POST http://192.168.1.225:80/delete/index3.txt
+
+# New added replace ARG
+curl -X POST --data-binary @index.html  http://192.168.1.225:80/upload/index.txt?replace=1
+File uploaded successfully
+```
+
+Can be used also with web: `http://192.168.1.197/download/`
+- You should see dir and files
+
+Check `FATFS_LONG_FILENAMES` to upload files with >3 chars in extension!
+- [link](https://stackoverflow.com/a/72530185)
+
 # Sensors
 
 - `SCD40` for CO2

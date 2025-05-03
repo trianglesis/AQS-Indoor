@@ -67,6 +67,13 @@ typedef struct {
 
 #endif
 
+/* Check before upload files with 4chars+ extensions */
+#ifdef FATFS_LONG_FILENAMES
+#define LONG_FILENAMES 0
+#else
+#define LONG_FILENAMES 1
+#endif
+
 
 void webserver(void);
 

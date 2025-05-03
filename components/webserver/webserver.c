@@ -24,6 +24,7 @@ void webserver(void) {
     ESP_LOGI(TAG, "SD Card exists and total space: %.2f GB", SD_CARD_TOTAL);
     ESP_LOGI(TAG, "SD Card exists and free space: %.2f GB", SD_CARD_FREE);
     ESP_LOGI(TAG, "MAX_FILE_SIZE_STR (check html JS too): %s", MAX_FILE_SIZE_STR);
+    ESP_LOGI(TAG, "LONG_FILENAMES (check FATFS_LONG_FILENAMES): %d", LONG_FILENAMES);
     // BASIC_AUTH is not yet implemented and may never be, it's just info server...
 }
 
@@ -414,6 +415,10 @@ esp_err_t upload_post_handler(httpd_req_t *req)
 {
     char filepath[FILE_PATH_MAX];
     struct stat file_stat;
+
+    if (LONG_FILENAMES != 1) {
+        ESP_LOGW(TAG, "IMPORTANT, check the FATFS_LONG_FILENAMES config option, before uploading files with 4char extensions and longer!");
+    }
 
     /* Skip leading "/upload" from URI to get filename */
     /* Note sizeof() counts NULL termination hence the -1 */
