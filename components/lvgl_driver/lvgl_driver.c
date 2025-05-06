@@ -11,8 +11,9 @@ lv_disp_t *display;
 
 void lvgl_driver(void) {
     printf(" - Init: lvgl_driver empty function call!\n\n");
-    ESP_LOGI(TAG, "ROTATE_DISPLAY: %d", ROTATE_DISPLAY);
-
+    ESP_LOGI(TAG, "CONNECTION_SPI: %d", CONNECTION_SPI);
+    ESP_LOGI(TAG, "CONNECTION_I2C: %d", CONNECTION_I2C);
+    ESP_LOGI(TAG, "Display rotation is set to %d degree! Offsets X: %d Y: %d", ROTATE_DEGREE, Offset_X, Offset_Y);
 }
 
 // Tell LVGL how many milliseconds have elapsed
@@ -67,6 +68,58 @@ void set_resolution(lv_display_t* disp) {
     // 
     lv_display_set_resolution(disp, DISP_HOR_RES, DISP_VER_RES);
     lv_display_set_physical_resolution(disp, DISP_HOR_RES, DISP_VER_RES);
+}
+
+/*
+Simple for I2C display
+*/
+void example_lvgl_demo_ui(lv_disp_t *disp)
+{
+    lv_obj_t *scr = lv_disp_get_scr_act(disp);
+    lv_obj_t *label = lv_label_create(scr);
+    lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR); /* Circular scroll */
+    lv_label_set_text(label, "Hello Espressif, Hello LVGL.");
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+    long curtime = esp_timer_get_time()/1000;
+    int counter = 0;
+
+    // Handle LVGL tasks
+    while (1) {
+        vTaskDelay(pdMS_TO_TICKS(10));
+        lv_task_handler();
+
+        if (esp_timer_get_time()/1000 - curtime > 1000) {
+            curtime = esp_timer_get_time()/1000;
+
+            char textlabel[20];
+            sprintf(textlabel, "Running: %u\n", counter);
+            printf(textlabel);
+            lv_label_set_text(label, textlabel);
+            counter++;
+        }
+    }
+}
+
+esp_err_t graphics_i2c_draw(void) {
+
+    example_lvgl_demo_ui(display);
+
+    return ESP_OK;
+}
+
+/*
+Task to process complex UI with OLED display from Waveshare board via SPI
+*/
+esp_err_t graphics_spi_draw(void) {
+    
+    // Use as task!
+    long curtime = esp_timer_get_time()/1000;
+    ui_init_fake(); // NOTE: Always init UI from SquareLine Studio export!
+    // Handle LVGL tasks
+    // REPEAT THE 'static void lvgl_task(void * pvParameters)' from older example
+
+    return ESP_OK;
+
 }
 
 esp_err_t lvgl_init(void) {
@@ -135,9 +188,23 @@ esp_err_t lvgl_init(void) {
     */
     
     // Manual rotate 270deg, no HAL sensor
-    lv_display_set_rotation(display, LV_DISPLAY_ROTATION_270);
-    esp_lcd_panel_mirror(panel_handle, false, true);
-    esp_lcd_panel_swap_xy(panel_handle, true);
+    if (ROTATE_DEGREE == 0) {
+        lv_display_set_rotation(display, LV_DISPLAY_ROTATION_0);
+    } else if (ROTATE_DEGREE == 90) {
+        lv_display_set_rotation(display, LV_DISPLAY_ROTATION_90);
+        esp_lcd_panel_mirror(panel_handle, true, false);
+        esp_lcd_panel_swap_xy(panel_handle, true);
+    } else if (ROTATE_DEGREE == 180) {
+        lv_display_set_rotation(display, LV_DISPLAY_ROTATION_180);
+        esp_lcd_panel_mirror(panel_handle, true, true);
+        esp_lcd_panel_swap_xy(panel_handle, false);
+    } else if (ROTATE_DEGREE == 270) {
+        lv_display_set_rotation(display, LV_DISPLAY_ROTATION_270);
+        esp_lcd_panel_mirror(panel_handle, false, true);
+        esp_lcd_panel_swap_xy(panel_handle, true);
+    } else {
+        lv_display_set_rotation(display, LV_DISPLAY_ROTATION_0);
+    }
 
     // Set this display as defaulkt for UI use
     lv_display_set_default(display);
@@ -149,12 +216,11 @@ esp_err_t lvgl_init(void) {
         ESP_LOGI(TAG, "Drop the default theme");
         lv_theme_default_deinit();
     }
-    // Tasks?
-    // Init in main.c
+    
+    // Init LVGL, then use appropriate display and graphics for it
     esp_err_t ret = lvgl_tick_init();
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Timer failed to initialize");
-        while (1);
     }
     return ESP_OK;
 }

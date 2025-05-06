@@ -6,6 +6,7 @@ idf_component_register(
                         "display_driver"
                         "lvgl" 
                         "esp_timer" 
+                        "ui" 
         INCLUDE_DIRS 
                         "include"
 )

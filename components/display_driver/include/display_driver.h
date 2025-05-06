@@ -23,7 +23,7 @@ extern esp_lcd_panel_io_handle_t    io_handle;
 #include "lvgl.h"
 #endif
 
-#ifdef CONFIG_CONNECTION_SPI  
+#ifdef CONFIG_CONNECTION_SPI
 /*
 SPI Config. 
 Example: Waveshare ESP32 C6 LCD
@@ -96,12 +96,13 @@ I2C Config
 
 // Common for all
 void display_driver(void);
+esp_err_t display_init(void);
 
 // SPI Only
 #ifdef CONFIG_CONNECTION_SPI
 void BK_Init(void);
 void BK_Light(uint8_t Light);
-esp_err_t display_init(void);
+esp_err_t display_spi_init(void);
 #elif CONFIG_CONNECTION_I2C
 esp_err_t display_i2c_init(void);
 #endif

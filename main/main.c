@@ -23,13 +23,11 @@ In order of importance during init
 #include "sensor_temp.h"
 #include "littlefs_driver.h"
 #include "card_driver.h"
+#include "display_driver.h"
+#include "webserver.h"
 
 // Empty files - placeholders
 #include "captive_portal.h"
-#include "webserver.h"
-#include "display_driver.h"
-#include "lvgl_driver.h"
-
 // LVGL locally installed
 #include "lvgl.h"
 // SquareLine Studio export
@@ -72,11 +70,12 @@ void app_main(void)
     ESP_ERROR_CHECK(fs_setup());
     ESP_ERROR_CHECK(card_init());
     ESP_ERROR_CHECK(start_webserver());
+    ESP_ERROR_CHECK(display_init());
     
     // Init in order of importance
     captive_portal();   // 2
-    display_driver();   // 6
-    lvgl_driver();      // 7
+
+    // TODO: Create a separate module for graphics?
     ui_init_fake();     // 8
 
     /* Make a queue for each sensor

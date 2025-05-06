@@ -65,7 +65,8 @@
 			"spi_master.h": "c",
 			"esp_mac.h": "c",
 			"esp_lcd_panel_vendor.h": "c",
-			"esp_lcd_panel_io_interface.h": "c"
+			"esp_lcd_panel_io_interface.h": "c",
+			"freertos.h": "c"
 		}
 	}
 }

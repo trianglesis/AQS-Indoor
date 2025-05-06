@@ -1,2 +1,6 @@
-idf_component_register(SRCS "ui.c"
-                    INCLUDE_DIRS "include")
+idf_component_register(
+            SRCS 
+                            "ui.c"
+            INCLUDE_DIRS 
+                            "include"
+)

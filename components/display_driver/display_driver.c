@@ -28,6 +28,8 @@ void display_driver(void) {
     ESP_LOGI(TAG, "DISP_I2C_SCL: %d", DISP_I2C_SCL);
     ESP_LOGI(TAG, "DISP_I2C_ADR: %d", DISP_I2C_ADR);
     #endif
+    ESP_LOGI(TAG, "DISP_HOR_RES: %d", DISP_HOR_RES);
+    ESP_LOGI(TAG, "DISP_VER_RES: %d", DISP_VER_RES);
 }
 
 /*
@@ -35,8 +37,7 @@ void display_driver(void) {
 */
 #ifdef CONFIG_CONNECTION_SPI  
 
-esp_err_t display_init(void) {
-    display_driver();
+esp_err_t display_spi_init(void) {
     // Skip SPI init, if SD Card is already there
     // LCD initialization - enable from example
     if (SDCard_Size) {
@@ -160,7 +161,6 @@ I2C Display
 #elif CONFIG_CONNECTION_I2C
 esp_err_t display_i2c_init(void) {
     esp_err_t ret;
-    display_driver();
 
     ESP_LOGI(TAG, "Run display i2c setup.");
     
@@ -205,3 +205,33 @@ esp_err_t display_i2c_init(void) {
     return ESP_OK;
 }
 #endif
+
+
+esp_err_t display_init(void) {
+    esp_err_t ret;
+
+    display_driver();  // Debug info print
+    #ifdef CONFIG_CONNECTION_SPI  
+    // Init as SPI
+    display_spi_init();
+    #elif CONFIG_CONNECTION_I2C
+    // Init as I2C
+    display_i2c_init();
+    #endif
+
+    // Init LVGL for display
+    ret = lvgl_init();
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "LVGL Display failed to initialize");
+        while (1);
+    }
+
+    #ifdef CONFIG_CONNECTION_SPI
+    graphics_spi_draw();
+    #elif CONFIG_CONNECTION_I2C
+    graphics_i2c_draw();
+    #endif
+
+
+    return ESP_OK;
+}
