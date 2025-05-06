@@ -1,43 +1,85 @@
 menu "AQS LCD Display"
 
+    choice LCD_CONNECTION_TYPE
+        prompt "LCD Connection type: 4 pin I2C 6 pin SPI"
+        default CONNECTTION_SPI
+        help
+            Select proper order for LED colour RGB/GRB
+
+        config CONNECTTION_SPI
+            bool "SPI 6 pin"
+        config CONNECTTION_I2C
+            bool "I2C 4 pin"
+    endchoice
+
     config DISP_GPIO_SCLK
+        depends on CONNECTTION_SPI
         int "LCD Pin SCLK"
         default 7 if IDF_TARGET_ESP32C6
         default 7
         help
-            Dislpay pin SCLK (also used in SD card)
+            Display pin SCLK (also used in SD card)
 
     config DISP_GPIO_MOSI
+        depends on CONNECTTION_SPI
         int "LCD Pin MOSI"
         default 6 if IDF_TARGET_ESP32C6
         default 6
         help
-            Dislpay pin MOSI (also used in SD card)
+            Display pin MOSI (also used in SD card)
 
     config DISP_GPIO_RST
+        depends on CONNECTTION_SPI
         int "LCD Pin RST"
         default 21 if IDF_TARGET_ESP32C6
         default 21
         help
-            Dislpay pin RST
+            Display pin RST
     config DISP_GPIO_DC
+        depends on CONNECTTION_SPI
         int "LCD Pin DC"
         default 15 if IDF_TARGET_ESP32C6
         default 15
         help
-            Dislpay pin DC
+            Display pin DC
     config DISP_GPIO_CS
+        depends on CONNECTTION_SPI
         int "LCD Pin CS"
         default 14 if IDF_TARGET_ESP32C6
         default 14
         help
-            Dislpay pin CS
+            Display pin CS
     config DISP_GPIO_BL
+        depends on CONNECTTION_SPI
         int "LCD Pin BL"
         default 22 if IDF_TARGET_ESP32C6
         default 22
         help
-            Dislpay pin BL
+            Display pin BL
 
+
+    config DISP_I2C_SDA
+        depends on CONNECTTION_I2C
+        int "LCD I2C Pin SDA"
+        default 9 if IDF_TARGET_ESP32C6
+        default 9
+        help
+            Display i2c pin SDA (also SCD4x and BME680)
+
+    config DISP_I2C_SCL
+        depends on CONNECTTION_I2C
+        int "LCD I2C Pin SCL"
+        default 18 if IDF_TARGET_ESP32C6
+        default 18
+        help
+            Display i2c pin SCL (also SCD4x and BME680)
+
+    config DISP_I2C_ADR
+        depends on CONNECTTION_I2C
+        int "LCD I2C Address"
+        default 78 if IDF_TARGET_ESP32C6
+        default 78
+        help
+            Display i2c address
 
 endmenu
