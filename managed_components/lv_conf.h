@@ -27,7 +27,11 @@
  *====================*/
 
 /*Color depth: 1 (I1), 8 (L8), 16 (RGB565), 24 (RGB888), 32 (XRGB8888)*/
+#ifdef CONFIG_CONNECTION_SPI
 #define LV_COLOR_DEPTH 16
+#elif CONFIG_CONNECTION_I2C
+#define LV_COLOR_DEPTH 1
+#endif // CONFIG_CONNECTION
 
 /*=========================
    STDLIB WRAPPER SETTINGS
@@ -142,8 +146,14 @@
 	 * - gradients use RGB888
 	 * - bitmaps with transparency may use ARGB8888
 	 */
-
-	#define LV_DRAW_SW_SUPPORT_RGB565		1
+    #ifdef CONFIG_CONNECTION_SPI
+        #define LV_DRAW_SW_SUPPORT_RGB565		1
+        #define LV_DRAW_SW_SUPPORT_I1			0
+        #elif CONFIG_CONNECTION_I2C
+        #define LV_DRAW_SW_SUPPORT_RGB565		0
+        #define LV_DRAW_SW_SUPPORT_I1			1
+    #endif // CONFIG_CONNECTION
+    //  Other
 	#define LV_DRAW_SW_SUPPORT_RGB565A8		0
 	#define LV_DRAW_SW_SUPPORT_RGB888		0
 	#define LV_DRAW_SW_SUPPORT_XRGB8888		0
@@ -151,7 +161,7 @@
 	#define LV_DRAW_SW_SUPPORT_L8			0
 	#define LV_DRAW_SW_SUPPORT_AL88			0
 	#define LV_DRAW_SW_SUPPORT_A8			0
-	#define LV_DRAW_SW_SUPPORT_I1			0
+	
 
 	/* Set the number of draw unit.
      * > 1 requires an operating system enabled in `LV_USE_OS`
@@ -1044,8 +1054,13 @@
 #endif
 
 /*Drivers for LCD devices connected via SPI/parallel port*/
-#define LV_USE_ST7735        0
+#ifdef CONFIG_CONNECTION_SPI
 #define LV_USE_ST7789        1
+#elif CONFIG_CONNECTION_I2C
+#define LV_USE_ST7789        0
+#endif // CONFIG_CONNECTION
+
+#define LV_USE_ST7735        0
 #define LV_USE_ST7796        0
 #define LV_USE_ILI9341       0
 
