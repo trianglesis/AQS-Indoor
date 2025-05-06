@@ -2,17 +2,14 @@
 
 static const char *TAG = "lvgl";
 
-// LVGL drawing
-static void* buf1 = NULL;
-static void* buf2 = NULL;
-
 lv_disp_t *display;
-
 
 void lvgl_driver(void) {
     printf(" - Init: lvgl_driver empty function call!\n\n");
     ESP_LOGI(TAG, "CONNECTION_SPI: %d", CONNECTION_SPI);
     ESP_LOGI(TAG, "CONNECTION_I2C: %d", CONNECTION_I2C);
+    ESP_LOGI(TAG, "BUFFER_SIZE: %d", BUFFER_SIZE);
+    ESP_LOGI(TAG, "RENDER_MODE: %d", RENDER_MODE);
     ESP_LOGI(TAG, "Display rotation is set to %d degree! Offsets X: %d Y: %d", ROTATE_DEGREE, Offset_X, Offset_Y);
 }
 
@@ -21,15 +18,17 @@ static void lvgl_tick_increment(void *arg) {
     lv_tick_inc(LVGL_TICK_PERIOD_MS);
 }
 
-static esp_err_t lvgl_tick_init(void) {
-    esp_timer_handle_t  tick_timer;
-    // Tick interface for LVGL (using esp_timer to generate 2ms periodic event)
+static void lvgl_tick_init(void) {
+    // Tick interface for LVGL (using esp_timer to generate 5ms periodic event)
+    ESP_LOGI(TAG, "Use esp_timer as LVGL tick timer");
     const esp_timer_create_args_t lvgl_tick_timer_args = {
         .callback = &lvgl_tick_increment,
-        .name = "LVGL tick",
+        .name = "LVGL_tick",
     };
-    ESP_RETURN_ON_ERROR(esp_timer_create(&lvgl_tick_timer_args, &tick_timer), TAG, "Creating LVGL timer filed!");
-    return esp_timer_start_periodic(tick_timer, 2 * 1000); // 2 ms
+    esp_timer_handle_t tick_timer = NULL;
+    ESP_ERROR_CHECK(esp_timer_create(&lvgl_tick_timer_args, &tick_timer));
+    ESP_ERROR_CHECK(esp_timer_start_periodic(tick_timer, LVGL_TICK_PERIOD_MS * 1000));
+    // Next create a task
 }
 
 static bool notify_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx) {
@@ -105,27 +104,23 @@ static void set_resolution(lv_display_t* disp) {
 Simple for I2C display
 */
 static void lvgl_task(void * pvParameters)  {
+    ESP_LOGI(TAG, "Starting LVGL task");
     // Wait TS between cycles real time
     TickType_t last_wake_time  = xTaskGetTickCount();
-    esp_log_level_set("lcd_panel", ESP_LOG_VERBOSE);
-    esp_log_level_set("lcd_panel.ssd1306", ESP_LOG_VERBOSE);
-    esp_log_level_set(TAG, ESP_LOG_VERBOSE);
-
     long curtime = esp_timer_get_time()/1000;
     int counter = 0;
-
-    // Create a simple label
-    lv_obj_t *label = lv_label_create(lv_scr_act());
-    lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR); /* Circular scroll */
-    lv_label_set_text(label, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam euismod egestas augue at semper. Etiam ut erat vestibulum, volutpat lectus a, laoreet lorem.");
-    lv_obj_set_width(label, DISP_HOR_RES);
-    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
     
+    lv_obj_t *scr = lv_display_get_screen_active(display);
+    lv_obj_t *label = lv_label_create(scr);
+    lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR); /* Circular scroll */
+    lv_obj_set_width(label, lv_display_get_horizontal_resolution(display));
+    lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 0);
+
     // Show text 3 sec
     vTaskDelay(pdMS_TO_TICKS(3000));
-
     // Handle LVGL tasks
     while (1) {
+        _lock_acquire(&lvgl_api_lock);  // Lock the mutex due to the LVGL APIs are not thread-safe
         lv_task_handler();
 
         if (esp_timer_get_time()/1000 - curtime > 1000) {
@@ -134,32 +129,27 @@ static void lvgl_task(void * pvParameters)  {
             char textlabel[20];
             sprintf(textlabel, "Running: %u\n", counter);
             printf(textlabel);
-            lv_label_set_text(label, textlabel);
+            lv_label_set_text(label, "textlabel");
             counter++;
         } // Wait for next update
-        // Actual sleep real time?
+        _lock_release(&lvgl_api_lock);  // Actual sleep real time?
         xTaskDelayUntil(&last_wake_time, DISPLAY_UPDATE_FREQ);
     } // WHILE
 }
 
-esp_err_t graphics_i2c_draw(void) {
-
-
-    
+void graphics_i2c_draw(void) {
     // Create a set of tasks to read sensors and update LCD, LED and other elements
+    // xTaskCreatePinnedToCore(lvgl_task, "i2c display task", LVGL_TASK_STACK_SIZE, NULL, LVGL_TASK_PRIORITY, NULL, tskNO_AFFINITY);
     xTaskCreatePinnedToCore(lvgl_task, "i2c display task", 8192, NULL, 9, NULL, tskNO_AFFINITY);
-    return ESP_OK;
+    ESP_LOGI(TAG, "Display LVGL Scroll Text");
 }
 
 /*
 Task to process complex UI with OLED display from Waveshare board via SPI
 */
-esp_err_t graphics_spi_draw(void) {
+void graphics_spi_draw(void) {
     // Use as task!
     ui_init_fake(); // NOTE: Always init UI from SquareLine Studio export!
-    // Handle LVGL tasks
-    // REPEAT THE 'static void lvgl_task(void * pvParameters)' from older example
-    return ESP_OK;
 
 }
 
@@ -170,14 +160,18 @@ esp_err_t lvgl_init(void) {
 
     display = lv_display_create(DISP_HOR_RES, DISP_VER_RES);
     lv_display_set_user_data(display, panel_handle);
+    lv_display_set_default(display); // Set this display as default for UI use
 
     #ifdef CONFIG_CONNECTION_SPI
     // Buffers
+    void* buf1 = NULL;
+    void* buf2 = NULL;
     buf1 = heap_caps_calloc(1, BUFFER_SIZE, MALLOC_CAP_INTERNAL |  MALLOC_CAP_DMA);
     buf2 = heap_caps_calloc(1, BUFFER_SIZE, MALLOC_CAP_INTERNAL |  MALLOC_CAP_DMA);
     assert(buf1);
     assert(buf2);
     #elif CONFIG_CONNECTION_I2C
+    void* buf1 = NULL;
     size_t draw_buffer_sz = BUFFER_SIZE + LVGL_PALETTE_SIZE;
     buf1 = heap_caps_calloc(1, BUFFER_SIZE, MALLOC_CAP_INTERNAL |  MALLOC_CAP_8BIT);
     assert(buf1);
@@ -193,7 +187,10 @@ esp_err_t lvgl_init(void) {
     lv_display_set_buffers(display, buf1, NULL, draw_buffer_sz, RENDER_MODE);
     #endif // CONFIG_CONNECTION
 
+    // set the callback which can copy the rendered image to an area of the display
     lv_display_set_flush_cb(display, flush_cb);
+    
+    ESP_LOGI(TAG, "Register io panel event callback for LVGL flush ready notification");
     const esp_lcd_panel_io_callbacks_t cbs = {
         .on_color_trans_done = notify_flush_ready,
     };
@@ -201,10 +198,8 @@ esp_err_t lvgl_init(void) {
 
     /* Register done callback */
     ESP_RETURN_ON_ERROR(esp_lcd_panel_io_register_event_callbacks(io_handle, &cbs, display), TAG, "esp_lcd_panel_io_register_event_callbacks error"); // I have tried to use 
-    ESP_RETURN_ON_ERROR(esp_lcd_panel_init(panel_handle), TAG, "esp_lcd_panel_init error");
-
-    // Sometimes better to hard-set resolution
-    set_resolution(display);
+    
+    lvgl_tick_init(); // timer
 
     /* Landscape orientation:
         270deg = USB on the left side - landscape orientation
@@ -245,8 +240,11 @@ esp_err_t lvgl_init(void) {
         lv_display_set_rotation(display, LV_DISPLAY_ROTATION_0);
     }
 
-    // Set this display as default for UI use
-    lv_display_set_default(display);
+
+    // Sometimes better to hard-set resolution
+    #ifdef CONFIG_CONNECTION_SPI
+    set_resolution(display);
+    #endif // CONFIG_CONNECTION
 
     #ifdef CONFIG_CONNECTION_SPI
     // Drop any theme if exist
@@ -256,11 +254,7 @@ esp_err_t lvgl_init(void) {
         ESP_LOGI(TAG, "Drop the default theme");
         lv_theme_default_deinit();
     }
-    // Init LVGL, then use appropriate display and graphics for it
-    esp_err_t ret = lvgl_tick_init();
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Timer failed to initialize");
-    }
     #endif // CONFIG_CONNECTION
+
     return ESP_OK;
 }

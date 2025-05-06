@@ -642,9 +642,9 @@ CONFIG_LFS_PARTITION_NAME="littlefs"
 #
 # AQS LVGL Graphics
 #
-# CONFIG_ROTATE_0 is not set
+CONFIG_ROTATE_0=y
 # CONFIG_ROTATE_90 is not set
-CONFIG_ROTATE_180=y
+# CONFIG_ROTATE_180 is not set
 # CONFIG_ROTATE_270 is not set
 # end of AQS LVGL Graphics
 

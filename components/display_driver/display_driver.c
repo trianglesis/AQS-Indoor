@@ -221,20 +221,20 @@ esp_err_t display_init(void) {
     #endif
 
     // Init LVGL for display and later use it
+    ESP_LOGI(TAG, "LVGL Display graphics initialization!");
     esp_log_level_set("lcd_panel", ESP_LOG_VERBOSE);
     esp_log_level_set(TAG, ESP_LOG_VERBOSE);
     ret = lvgl_init();
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "LVGL Display failed to initialize");
-        while (1);
     }
 
+    // Draw different level of graphics at displays
     #ifdef CONFIG_CONNECTION_SPI
     graphics_spi_draw();
     #elif CONFIG_CONNECTION_I2C
     graphics_i2c_draw();
     #endif
-
 
     return ESP_OK;
 }

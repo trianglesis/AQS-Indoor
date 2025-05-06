@@ -105,12 +105,12 @@ TODO Add extra graphics similarly to:
 
 As separate function with task
 */
-esp_err_t graphics_spi_draw(void);
+void graphics_spi_draw(void);
 
 #elif CONFIG_CONNECTION_I2C
 /*
 Included simple text and icos for i2c display
 */
-esp_err_t graphics_i2c_draw(void);
+void graphics_i2c_draw(void);
 
 #endif // CONFIG_CONNECTION_
