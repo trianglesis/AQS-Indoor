@@ -46,21 +46,18 @@ Must change Offset Y to X at flush_cb
 Offset_Y 34  // 34 IF ROTATED 270deg
 */
 void flush_cb(lv_display_t* disp, const lv_area_t* area, uint8_t* px_map) {
-    /* 
-        If Rotated
+    /*  If Rotated
         https://forum.lvgl.io/t/gestures-are-slow-perceiving-only-detecting-one-of-5-10-tries/18515/86
     */
     int x1 = area->x1 + Offset_X;
     int x2 = area->x2 + Offset_X;
     int y1 = area->y1 + Offset_Y;
     int y2 = area->y2 + Offset_Y;
-
     /*
         There is usually rgb565 enforcing, but it no longer needed.
         See how it was implemented in main\display_driver\ST7789V3.c at the panel_config code
         lv_draw_sw_rgb565_swap(px_map, (x2 + 1 - x1) * (y2 + 1 - y1));
     */
-    
     esp_lcd_panel_draw_bitmap((esp_lcd_panel_handle_t)lv_display_get_user_data(disp), x1, y1, x2 + 1, y2 + 1, px_map);
 }
 
@@ -145,12 +142,10 @@ esp_err_t lvgl_init(void) {
     buf1 = heap_caps_calloc(1, BUFFER_SIZE, MALLOC_CAP_INTERNAL |  MALLOC_CAP_DMA);
     buf2 = heap_caps_calloc(1, BUFFER_SIZE, MALLOC_CAP_INTERNAL |  MALLOC_CAP_DMA);
 
-    /*
-        Changed the default setup from example with LVGL 8 version to a newer implementation.
-        Old: lv_disp_draw_buf_init();
+    /* Changed the default setup from example with LVGL 8 version to a newer implementation.
+       Old: lv_disp_draw_buf_init();
     */
-    lv_display_set_buffers(display, buf1, buf2, BUFFER_SIZE, LV_DISPLAY_RENDER_MODE_PARTIAL);
-    
+    lv_display_set_buffers(display, buf1, buf2, BUFFER_SIZE, RENDER_MODE);
     lv_display_set_user_data(display, panel_handle);
 
     /*
@@ -198,14 +193,17 @@ esp_err_t lvgl_init(void) {
     if (ROTATE_DEGREE == 0) {
         lv_display_set_rotation(display, LV_DISPLAY_ROTATION_0);
     } else if (ROTATE_DEGREE == 90) {
+        ESP_LOGI(TAG, "Rotating display by: %d deg", ROTATE_DEGREE);
         lv_display_set_rotation(display, LV_DISPLAY_ROTATION_90);
         esp_lcd_panel_mirror(panel_handle, true, false);
         esp_lcd_panel_swap_xy(panel_handle, true);
     } else if (ROTATE_DEGREE == 180) {
+        ESP_LOGI(TAG, "Rotating display by: %d deg", ROTATE_DEGREE);
         lv_display_set_rotation(display, LV_DISPLAY_ROTATION_180);
         esp_lcd_panel_mirror(panel_handle, true, true);
         esp_lcd_panel_swap_xy(panel_handle, false);
     } else if (ROTATE_DEGREE == 270) {
+        ESP_LOGI(TAG, "Rotating display by: %d deg", ROTATE_DEGREE);
         lv_display_set_rotation(display, LV_DISPLAY_ROTATION_270);
         esp_lcd_panel_mirror(panel_handle, false, true);
         esp_lcd_panel_swap_xy(panel_handle, true);
@@ -224,12 +222,11 @@ esp_err_t lvgl_init(void) {
         ESP_LOGI(TAG, "Drop the default theme");
         lv_theme_default_deinit();
     }
-    #endif // CONFIG_CONNECTION
-
     // Init LVGL, then use appropriate display and graphics for it
     esp_err_t ret = lvgl_tick_init();
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Timer failed to initialize");
     }
+    #endif // CONFIG_CONNECTION
     return ESP_OK;
 }

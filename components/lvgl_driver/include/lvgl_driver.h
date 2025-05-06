@@ -75,8 +75,16 @@
 extern lv_disp_t *display; 
 // 
 #define LVGL_TICK_PERIOD_MS    2
-// Display buffer use
+
+// Display buffer use and render mode
+#ifdef CONFIG_CONNECTION_SPI
 #define BUFFER_SIZE            (DISP_HOR_RES * DISP_VER_RES * 2 / 10)
+#define RENDER_MODE             LV_DISPLAY_RENDER_MODE_PARTIAL
+#elif CONFIG_CONNECTION_I2C
+#define BUFFER_SIZE            (DISP_HOR_RES * DISP_VER_RES)  // Smaller for ssd1306
+#define RENDER_MODE             LV_DISPLAY_RENDER_MODE_DIRECT
+#endif // CONFIG_CONNECTION_
+
 
 void lvgl_driver(void);
 bool notify_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx);

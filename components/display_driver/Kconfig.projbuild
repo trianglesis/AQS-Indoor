@@ -21,8 +21,8 @@ menu "AQS LCD Display"
     config DISP_I2C_ADR
         depends on CONNECTION_I2C
         hex "LCD I2C Address"
-        default 0x78 if IDF_TARGET_ESP32C6
-        default 0x78
+        default 0x3C if IDF_TARGET_ESP32C6
+        default 0x3C
         help
             Display i2c address
 

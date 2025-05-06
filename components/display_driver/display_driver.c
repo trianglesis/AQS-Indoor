@@ -114,6 +114,7 @@ esp_err_t display_spi_init(void) {
     ESP_LOGI(TAG, "Turn on LCD backlight first, to see display content early!");
     BK_Init();  // Back light
     BK_Light(50);  // Less toxic
+    ESP_LOGI(TAG, "Display panel installed!");
     return ESP_OK;
 }
 
@@ -161,14 +162,11 @@ I2C Display
 #elif CONFIG_CONNECTION_I2C
 esp_err_t display_i2c_init(void) {
     esp_err_t ret;
-
     ESP_LOGI(TAG, "Run display i2c setup.");
-    
     // I2C should be already init!
     i2c_master_bus_handle_t bus_handle = NULL;
     ret = master_bus_get(&bus_handle);  // My
     // ret = i2c_master_get_bus_handle(0, &bus_handle);
-
     if (bus_handle == NULL || ret != ESP_OK) {
         ESP_LOGE(TAG, "I2C Bus should not be none at this stage!");
     }
@@ -183,15 +181,16 @@ esp_err_t display_i2c_init(void) {
         .dc_bit_offset = 6,                     // According to SSD1306 datasheet
 
     };
-
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c(bus_handle, &io_config, &io_handle));
+
+    // Wait for sensor to wake up, test address and stop measurement after
+    ESP_ERROR_CHECK(master_bus_probe_address(DISP_I2C_ADR, 50)); // Wait 50 ms
 
     ESP_LOGI(TAG, "Install SSD1306 panel driver");
     esp_lcd_panel_dev_config_t panel_config = {
         .bits_per_pixel = 1,
         .reset_gpio_num = DISP_I2C_RST,
     };
-
     esp_lcd_panel_ssd1306_config_t ssd1306_config = {
         .height = DISP_VER_RES,
     };
@@ -201,7 +200,7 @@ esp_err_t display_i2c_init(void) {
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
-
+    ESP_LOGI(TAG, "Display panel installed!");
     return ESP_OK;
 }
 #endif
@@ -211,15 +210,19 @@ esp_err_t display_init(void) {
     esp_err_t ret;
 
     display_driver();  // Debug info print
-    #ifdef CONFIG_CONNECTION_SPI  
+    #ifdef CONFIG_CONNECTION_SPI
+    ESP_LOGI(TAG, "SPI Display panel installation!");
     // Init as SPI
     display_spi_init();
     #elif CONFIG_CONNECTION_I2C
+    ESP_LOGI(TAG, "I2C Display panel installation!");
     // Init as I2C
     display_i2c_init();
     #endif
 
     // Init LVGL for display and later use it
+    esp_log_level_set("lcd_panel", ESP_LOG_VERBOSE);
+    esp_log_level_set(TAG, ESP_LOG_VERBOSE);
     ret = lvgl_init();
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "LVGL Display failed to initialize");
