@@ -61,7 +61,9 @@
 			"ledc.h": "c",
 			"stdint.h": "c",
 			"esp_lcd_panel_ops.h": "c",
-			"lvgl.h": "c"
+			"lvgl.h": "c",
+			"spi_master.h": "c",
+			"esp_mac.h": "c"
 		}
 	}
 }

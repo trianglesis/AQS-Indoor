@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "lvgl_driver.h"
 
 static const char *TAG = "lvgl";

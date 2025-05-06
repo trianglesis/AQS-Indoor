@@ -1,20 +1,15 @@
 #include "display_driver.h"
 
 #ifdef CONFIG_CONNECTION_SPI
-
 static ledc_channel_config_t ledc_channel;
 // LCD
 esp_lcd_panel_handle_t panel_handle = NULL;
 esp_lcd_panel_io_handle_t io_handle = NULL;
-
 static const char *TAG = "oled-display-spi";
 
 #elif CONFIG_CONNECTION_I2C
-
 static const char *TAG = "oled-display-i2c";
-
 #endif
-
 
 void display_driver(void) {
     printf(" - Init: display_driver empty function call!\n\n");
@@ -31,7 +26,6 @@ void display_driver(void) {
     ESP_LOGI(TAG, "DISP_I2C_ADR: %d", DISP_I2C_ADR);
     #endif
 }
-
 
 esp_err_t display_init(void) {
     
@@ -112,4 +106,42 @@ esp_err_t display_init(void) {
     BK_Init();  // Back light
     BK_Light(50);  // Less toxic
     return ESP_OK;
+}
+
+void BK_Init(void) {
+    ESP_LOGI(TAG, "Turn off LCD backlight");
+    gpio_config_t bk_gpio_config = {
+        .mode = GPIO_MODE_OUTPUT,
+        .pin_bit_mask = 1ULL << DISP_SPI_BL
+    };
+    ESP_ERROR_CHECK(gpio_config(&bk_gpio_config));
+    
+    // 配置LEDC
+    ledc_timer_config_t ledc_timer = {
+        .duty_resolution = LEDC_TIMER_13_BIT,
+        .freq_hz = 5000,
+        .speed_mode = LEDC_LS_MODE,
+        .timer_num = LEDC_HS_TIMER,
+        .clk_cfg = LEDC_AUTO_CLK
+    };
+    ledc_timer_config(&ledc_timer);
+
+    ledc_channel.channel    = LEDC_HS_CH0_CHANNEL;
+    ledc_channel.duty       = 0;
+    ledc_channel.gpio_num   = DISP_SPI_BL;
+    ledc_channel.speed_mode = LEDC_LS_MODE;
+    ledc_channel.timer_sel  = LEDC_HS_TIMER;
+    ledc_channel_config(&ledc_channel);
+    ledc_fade_func_install(0);
+}
+
+void BK_Light(uint8_t Light) {
+    ESP_LOGI(TAG, "Set LCD backlight");
+    if(Light > 100) Light = 100;
+    uint16_t Duty = LEDC_MAX_Duty-(81*(100-Light));
+    if(Light == 0) Duty = 0;
+    // 设置PWM占空比
+    ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, Duty);
+    ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
+
 }
