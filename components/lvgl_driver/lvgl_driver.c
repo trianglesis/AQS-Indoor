@@ -209,6 +209,7 @@ esp_err_t lvgl_init(void) {
     // Set this display as defaulkt for UI use
     lv_display_set_default(display);
 
+    #ifdef CONFIG_CONNECTION_SPI
     // Drop any theme if exist
     bool is_def = lv_theme_default_is_inited();
     if (is_def) {
@@ -216,7 +217,8 @@ esp_err_t lvgl_init(void) {
         ESP_LOGI(TAG, "Drop the default theme");
         lv_theme_default_deinit();
     }
-    
+    #endif // CONFIG_CONNECTION
+
     // Init LVGL, then use appropriate display and graphics for it
     esp_err_t ret = lvgl_tick_init();
     if (ret != ESP_OK) {

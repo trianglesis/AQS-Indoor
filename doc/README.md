@@ -55,6 +55,7 @@ Initial files:
 ## Simple OLED
 
 - [ALi](https://www.aliexpress.com/item/1005006035385704.html)
+- 
 
 ```txt
 128*64 LED display module for Arduino, supports many control chip.
@@ -74,6 +75,20 @@ Active Area: 21.74* 11.2mm /0.86*0.44 inch(approx)
 Driver IC: SSD1306
 ```
 
+Detect address: `0x3c`
+
+```text
+i2c-tools> i2cdetect
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00: 00 -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+30: -- -- -- -- -- -- -- -- -- -- -- -- 3c -- -- --
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+60: -- -- 62 -- -- -- -- -- -- -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- 77 -- -- -- -- -- -- -- --
+```
 
 - Show info
 
