@@ -55,7 +55,13 @@
 			"tuple": "c",
 			"type_traits": "c",
 			"variant": "c",
-			"cstdio": "c"
+			"cstdio": "c",
+			"esp_lcd_panel_commands.h": "c",
+			"esp_lcd_panel_io.h": "c",
+			"ledc.h": "c",
+			"stdint.h": "c",
+			"esp_lcd_panel_ops.h": "c",
+			"lvgl.h": "c"
 		}
 	}
 }

@@ -3,9 +3,9 @@ idf_component_register(
     SRCS 
                 "card_driver.c"
     PRIV_REQUIRES 
-                vfs sdmmc spi_flash
+                vfs sdmmc
     REQUIRES 
-                fatfs mbedtls
+                spi_flash fatfs mbedtls
     INCLUDE_DIRS 
                 "include"
 )
