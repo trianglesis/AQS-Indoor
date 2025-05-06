@@ -9,8 +9,7 @@ static void* buf2 = NULL;
 lv_disp_t *display;
 
 
-void lvgl_driver(void)
-{
+void lvgl_driver(void) {
     printf(" - Init: lvgl_driver empty function call!\n\n");
     ESP_LOGI(TAG, "ROTATE_DISPLAY: %d", ROTATE_DISPLAY);
 

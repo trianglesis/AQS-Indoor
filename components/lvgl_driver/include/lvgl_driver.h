@@ -30,3 +30,9 @@ extern lv_disp_t *display;
 
 
 void lvgl_driver(void);
+
+bool notify_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx);
+void lvgl_tick_increment(void *arg);
+void flush_cb(lv_display_t* disp, const lv_area_t* area, uint8_t* px_map);
+void set_resolution(lv_display_t* disp);
+esp_err_t lvgl_init(void);

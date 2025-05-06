@@ -74,13 +74,14 @@ extern esp_lcd_panel_io_handle_t    io_handle;
 
 #endif
 
+
+// Common for all
+void display_driver(void);
+
+// SPI Only
 #ifdef CONFIG_CONNECTION_SPI
-// Initialize the LCD backlight, which has been called in the LCD_Init function
-void BK_Init(void);                                                         
-// Call this function to adjust the brightness of the backlight. The value of the parameter Light ranges from 0 to 100
+void BK_Init(void);
 void BK_Light(uint8_t Light);
-// Call this function to initialize the screen (must be called in the main function)
 esp_err_t display_init(void);
 #endif
 
-void display_driver(void);
