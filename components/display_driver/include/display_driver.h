@@ -79,8 +79,8 @@ I2C Config
 #include "driver/i2c_master.h"
 
 // Pins
-#define DISP_I2C_SDA                CONFIG_DISP_I2C_SDA
-#define DISP_I2C_SCL                CONFIG_DISP_I2C_SCL
+#define DISP_I2C_SDA                CONFIG_COMMON_SDA_PIN
+#define DISP_I2C_SCL                CONFIG_COMMON_SCL_PIN
 #define DISP_I2C_ADR                CONFIG_DISP_I2C_ADR
 
 #define DISP_I2C_RST                -1
