@@ -165,8 +165,10 @@ esp_err_t display_i2c_init(void) {
     ESP_LOGI(TAG, "Run display i2c setup.");
     
     // I2C should be already init!
-    i2c_master_bus_handle_t bus_handle;
-    ret = master_bus_get(&bus_handle);
+    i2c_master_bus_handle_t bus_handle = NULL;
+    ret = master_bus_get(&bus_handle);  // My
+    // ret = i2c_master_get_bus_handle(0, &bus_handle);
+
     if (bus_handle == NULL || ret != ESP_OK) {
         ESP_LOGE(TAG, "I2C Bus should not be none at this stage!");
     }

@@ -25,7 +25,7 @@ esp_err_t master_bus_init();
 /*
 Gen handle for already created bus.
 */
-esp_err_t master_bus_get(i2c_master_bus_handle_t handle);
+esp_err_t master_bus_get(i2c_master_bus_handle_t *handle);
 
 
 /*

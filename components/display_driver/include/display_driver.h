@@ -76,7 +76,7 @@ I2C Config
  // My implementation of most common functions
 #include "i2c_driver.h"
 // If needed
-// #include "driver/i2c_master.h"
+#include "driver/i2c_master.h"
 
 // Pins
 #define DISP_I2C_SDA                CONFIG_DISP_I2C_SDA
