@@ -219,7 +219,7 @@ esp_err_t display_init(void) {
     display_i2c_init();
     #endif
 
-    // Init LVGL for display
+    // Init LVGL for display and later use it
     ret = lvgl_init();
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "LVGL Display failed to initialize");

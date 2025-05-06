@@ -73,19 +73,28 @@ void set_resolution(lv_display_t* disp) {
 /*
 Simple for I2C display
 */
-void example_lvgl_demo_ui(lv_disp_t *disp)
-{
-    lv_obj_t *scr = lv_disp_get_scr_act(disp);
-    lv_obj_t *label = lv_label_create(scr);
-    lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR); /* Circular scroll */
-    lv_label_set_text(label, "Hello Espressif, Hello LVGL.");
-    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+static void lvgl_task(void * pvParameters)  {
+    // Wait TS between cycles real time
+    TickType_t last_wake_time  = xTaskGetTickCount();
+    esp_log_level_set("lcd_panel", ESP_LOG_VERBOSE);
+    esp_log_level_set("lcd_panel.ssd1306", ESP_LOG_VERBOSE);
+    esp_log_level_set(TAG, ESP_LOG_VERBOSE);
+
     long curtime = esp_timer_get_time()/1000;
     int counter = 0;
 
+    // Create a simple label
+    lv_obj_t *label = lv_label_create(lv_scr_act());
+    lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR); /* Circular scroll */
+    lv_label_set_text(label, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam euismod egestas augue at semper. Etiam ut erat vestibulum, volutpat lectus a, laoreet lorem.");
+    lv_obj_set_width(label, DISP_HOR_RES);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+    
+    // Show text 3 sec
+    vTaskDelay(pdMS_TO_TICKS(3000));
+
     // Handle LVGL tasks
     while (1) {
-        vTaskDelay(pdMS_TO_TICKS(10));
         lv_task_handler();
 
         if (esp_timer_get_time()/1000 - curtime > 1000) {
@@ -96,14 +105,15 @@ void example_lvgl_demo_ui(lv_disp_t *disp)
             printf(textlabel);
             lv_label_set_text(label, textlabel);
             counter++;
-        }
-    }
+        } // Wait for next update
+        // Actual sleep real time?
+        xTaskDelayUntil(&last_wake_time, DISPLAY_UPDATE_FREQ);
+    } // WHILE
 }
 
 esp_err_t graphics_i2c_draw(void) {
-
-    example_lvgl_demo_ui(display);
-
+    // Create a set of tasks to read sensors and update LCD, LED and other elements
+    xTaskCreatePinnedToCore(lvgl_task, "i2c display task", 8192, NULL, 9, NULL, tskNO_AFFINITY);
     return ESP_OK;
 }
 
@@ -111,13 +121,10 @@ esp_err_t graphics_i2c_draw(void) {
 Task to process complex UI with OLED display from Waveshare board via SPI
 */
 esp_err_t graphics_spi_draw(void) {
-    
     // Use as task!
-    long curtime = esp_timer_get_time()/1000;
     ui_init_fake(); // NOTE: Always init UI from SquareLine Studio export!
     // Handle LVGL tasks
     // REPEAT THE 'static void lvgl_task(void * pvParameters)' from older example
-
     return ESP_OK;
 
 }
