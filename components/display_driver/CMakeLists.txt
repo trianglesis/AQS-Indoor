@@ -7,17 +7,18 @@ set(include_dirs "include")
 
 # Display setup SPI
 if(CONFIG_CONNECTION_SPI)
-    list(APPEND priv_requires "lvgl_driver" "card_driver" "lvgl")
+    list(APPEND requires "card_driver")
 endif()
 
 # Display setup I2C
 if(CONFIG_CONNECTION_I2C)
-    list(APPEND priv_requires "i2c_driver")
+    list(APPEND requires "i2c_driver")
 endif()
 
 idf_component_register(
                         SRCS        "${srcs}"
                         REQUIRES    "${requires}" 
+                                    "i2c_driver" 
                                     "lvgl_driver" 
                                     "card_driver"
                         PRIV_REQUIRES "${priv_requires}"

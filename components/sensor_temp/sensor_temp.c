@@ -130,9 +130,7 @@ TODO: Add SD card read\write option to save states:
 
 */
 esp_err_t bme680_sensor_init(void) {    
-    
     sensor_temp();  // Debug 
-
     // initialize i2c device configuration
     bme680_config_t dev_cfg = I2C_BME680_FORCED_CONFIG_DEFAULT;
     // init device

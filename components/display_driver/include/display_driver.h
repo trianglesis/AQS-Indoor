@@ -10,6 +10,14 @@
 #include "esp_timer.h"
 // Displays common
 #include "esp_lcd_panel_io.h"
+// My
+#include "lvgl_driver.h"            // LVGL required for most displays
+
+#ifdef CONFIG_LV_CONF_SKIP
+#else
+// CUSTOM configured. Do not use now, use Kconfig
+#include "lvgl.h"
+#endif
 
 // SPI config
 #ifdef CONFIG_CONNECTION_SPI  
@@ -22,13 +30,6 @@
 #include "esp_lcd_panel_commands.h"
 // My
 #include "card_driver.h"            // To test if SD card init
-#include "lvgl_driver.h"            // Also include LVGL setup here
-
-#ifdef CONFIG_LV_CONF_SKIP
-#else
-// CUSTOM configured. Do not use now, use Kconfig
-#include "lvgl.h"
-#endif
 
 // Setup as DataSheet shows
 #define DISP_SPI_SCLK               CONFIG_DISP_GPIO_SCLK
@@ -64,16 +65,27 @@ extern esp_lcd_panel_io_handle_t    io_handle;
 
 // I2C CONFIG
 #elif CONFIG_CONNECTION_I2C
-#include "esp_lcd_panel_io_interface.h"
-#include "driver/i2c_master.h"
 #include "driver/gpio.h"
-#include "esp_lcd_panel_io_interface.h"
+// #include "driver/i2c_master.h"
+#include "i2c_driver.h"  // My
+#include "esp_lcd_panel_ops.h"
+#include "esp_lcd_panel_vendor.h"
+
+// Pins
 #define DISP_I2C_SDA                CONFIG_DISP_I2C_SDA
 #define DISP_I2C_SCL                CONFIG_DISP_I2C_SCL
 #define DISP_I2C_ADR                CONFIG_DISP_I2C_ADR
 
-#endif
+#define DISP_I2C_RST                -1
+#define LCD_PIXEL_CLOCK_HZ          (400 * 1000)
+// Bit number used to represent command and parameter
+#define LCD_CMD_BITS           8
+#define LCD_PARAM_BITS         8
 
+/* LCD size SSD1306 */
+#define DISP_HOR_RES                128
+#define DISP_VER_RES                64
+#endif
 
 // Common for all
 void display_driver(void);
@@ -83,5 +95,7 @@ void display_driver(void);
 void BK_Init(void);
 void BK_Light(uint8_t Light);
 esp_err_t display_init(void);
+#elif CONFIG_CONNECTION_I2C
+esp_err_t display_i2c_init(void);
 #endif
 

@@ -11,6 +11,10 @@ static const char *TAG = "oled-display-spi";
 static const char *TAG = "oled-display-i2c";
 #endif
 
+
+/*
+    Common for all displays
+*/
 void display_driver(void) {
     printf(" - Init: display_driver empty function call!\n\n");
     #ifdef CONFIG_CONNECTION_SPI
@@ -27,8 +31,13 @@ void display_driver(void) {
     #endif
 }
 
+/*
+    LCD from waveshare board
+*/
+#ifdef CONFIG_CONNECTION_SPI  
+
 esp_err_t display_init(void) {
-    
+    display_driver();
     // Skip SPI init, if SD Card is already there
     // LCD initialization - enable from example
     if (SDCard_Size) {
@@ -145,3 +154,35 @@ void BK_Light(uint8_t Light) {
     ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
 
 }
+
+/*
+I2C Display
+*/
+#elif CONFIG_CONNECTION_I2C
+esp_err_t display_i2c_init(void) {
+    esp_err_t ret;
+    display_driver();
+    ESP_LOGI(TAG, "Run display i2c setup.");
+    // I2C should be already init!
+    i2c_master_bus_handle_t bus_handle;
+    ret = master_bus_get(&bus_handle);
+    if (bus_handle == NULL) {
+        ESP_LOGE(TAG, "I2C Bus should not be none at this stage!");
+    }
+    ESP_LOGI(TAG, "Install panel IO");
+    esp_lcd_panel_io_handle_t io_handle = NULL;
+    esp_lcd_panel_io_i2c_config_t io_config = {
+        .dev_addr = DISP_I2C_ADR,
+        .scl_speed_hz = LCD_PIXEL_CLOCK_HZ,
+        .control_phase_bytes = 1,               // According to SSD1306 datasheet
+        .lcd_cmd_bits = LCD_CMD_BITS,           // According to SSD1306 datasheet
+        .lcd_param_bits = LCD_CMD_BITS,         // According to SSD1306 datasheet
+        .dc_bit_offset = 6,                     // According to SSD1306 datasheet
+
+    };
+
+    ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c(bus_handle, &io_config, &io_handle));
+
+    return ESP_OK;
+}
+#endif

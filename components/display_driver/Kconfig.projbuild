@@ -65,7 +65,6 @@ menu "AQS LCD Display"
         help
             Display pin BL
 
-
     config DISP_I2C_SDA
         depends on CONNECTION_I2C
         int "LCD I2C Pin SDA"
@@ -84,9 +83,9 @@ menu "AQS LCD Display"
 
     config DISP_I2C_ADR
         depends on CONNECTION_I2C
-        int "LCD I2C Address"
-        default 78 if IDF_TARGET_ESP32C6
-        default 78
+        hex "LCD I2C Address"
+        default 0x78 if IDF_TARGET_ESP32C6
+        default 0x78
         help
             Display i2c address
 
