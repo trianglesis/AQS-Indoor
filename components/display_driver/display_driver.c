@@ -2,19 +2,18 @@
 
 #ifdef CONFIG_CONNECTION_SPI
 static ledc_channel_config_t ledc_channel;
-// LCD
-esp_lcd_panel_handle_t panel_handle = NULL;
-esp_lcd_panel_io_handle_t io_handle = NULL;
 static const char *TAG = "oled-display-spi";
 
 #elif CONFIG_CONNECTION_I2C
 static const char *TAG = "oled-display-i2c";
 #endif
 
-
 /*
     Common for all displays
 */
+esp_lcd_panel_handle_t panel_handle = NULL;
+esp_lcd_panel_io_handle_t io_handle = NULL;
+
 void display_driver(void) {
     printf(" - Init: display_driver empty function call!\n\n");
     #ifdef CONFIG_CONNECTION_SPI
@@ -162,15 +161,17 @@ I2C Display
 esp_err_t display_i2c_init(void) {
     esp_err_t ret;
     display_driver();
+
     ESP_LOGI(TAG, "Run display i2c setup.");
+    
     // I2C should be already init!
     i2c_master_bus_handle_t bus_handle;
     ret = master_bus_get(&bus_handle);
-    if (bus_handle == NULL) {
+    if (bus_handle == NULL || ret != ESP_OK) {
         ESP_LOGE(TAG, "I2C Bus should not be none at this stage!");
     }
+    
     ESP_LOGI(TAG, "Install panel IO");
-    esp_lcd_panel_io_handle_t io_handle = NULL;
     esp_lcd_panel_io_i2c_config_t io_config = {
         .dev_addr = DISP_I2C_ADR,
         .scl_speed_hz = LCD_PIXEL_CLOCK_HZ,
@@ -182,6 +183,22 @@ esp_err_t display_i2c_init(void) {
     };
 
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c(bus_handle, &io_config, &io_handle));
+
+    ESP_LOGI(TAG, "Install SSD1306 panel driver");
+    esp_lcd_panel_dev_config_t panel_config = {
+        .bits_per_pixel = 1,
+        .reset_gpio_num = DISP_I2C_RST,
+    };
+
+    esp_lcd_panel_ssd1306_config_t ssd1306_config = {
+        .height = DISP_VER_RES,
+    };
+    panel_config.vendor_config = &ssd1306_config;
+    ESP_ERROR_CHECK(esp_lcd_new_panel_ssd1306(io_handle, &panel_config, &panel_handle));
+
+    ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
 
     return ESP_OK;
 }

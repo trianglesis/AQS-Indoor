@@ -13,14 +13,21 @@
 // My
 #include "lvgl_driver.h"            // LVGL required for most displays
 
+// Common handles for any display
+extern esp_lcd_panel_handle_t       panel_handle;
+extern esp_lcd_panel_io_handle_t    io_handle;
+
 #ifdef CONFIG_LV_CONF_SKIP
 #else
 // CUSTOM configured. Do not use now, use Kconfig
 #include "lvgl.h"
 #endif
 
-// SPI config
 #ifdef CONFIG_CONNECTION_SPI  
+/*
+SPI Config. 
+Example: Waveshare ESP32 C6 LCD
+*/
 #include "driver/gpio.h"
 #include "driver/ledc.h"
 #include "driver/spi_master.h"
@@ -59,17 +66,17 @@
 #define LEDC_ResolutionRatio        LEDC_TIMER_13_BIT
 #define LEDC_MAX_Duty               ((1 << LEDC_ResolutionRatio) - 1)
 
-// Glob
-extern esp_lcd_panel_handle_t       panel_handle;
-extern esp_lcd_panel_io_handle_t    io_handle;
-
-// I2C CONFIG
 #elif CONFIG_CONNECTION_I2C
+/*
+I2C Config
+*/
 #include "driver/gpio.h"
-// #include "driver/i2c_master.h"
-#include "i2c_driver.h"  // My
 #include "esp_lcd_panel_ops.h"
 #include "esp_lcd_panel_vendor.h"
+ // My implementation of most common functions
+#include "i2c_driver.h"
+// If needed
+// #include "driver/i2c_master.h"
 
 // Pins
 #define DISP_I2C_SDA                CONFIG_DISP_I2C_SDA
@@ -79,8 +86,8 @@ extern esp_lcd_panel_io_handle_t    io_handle;
 #define DISP_I2C_RST                -1
 #define LCD_PIXEL_CLOCK_HZ          (400 * 1000)
 // Bit number used to represent command and parameter
-#define LCD_CMD_BITS           8
-#define LCD_PARAM_BITS         8
+#define LCD_CMD_BITS                8
+#define LCD_PARAM_BITS              8
 
 /* LCD size SSD1306 */
 #define DISP_HOR_RES                128

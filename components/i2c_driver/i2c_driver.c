@@ -66,9 +66,9 @@ i2c_master_bus_handle_t handle
 https://docs.espressif.com/projects/esp-idf/en/v5.4.1/esp32c6/api-reference/peripherals/i2c.html#get-i2c-master-handle-via-port
 
 */
-esp_err_t master_bus_get(i2c_master_bus_handle_t handle) {
+esp_err_t master_bus_get(i2c_master_bus_handle_t *handle) {
     esp_err_t ret;
-    ret = i2c_master_get_bus_handle(0, &handle);
+    ret = i2c_master_get_bus_handle(0, handle);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Cannot get master bus!");
         return ESP_FAIL;

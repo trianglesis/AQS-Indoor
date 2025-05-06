@@ -7,6 +7,7 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "lvgl.h"
+// Use display, we need panel_handle and io_handle
 #include "display_driver.h"
 
 // Check default lvgl conf
