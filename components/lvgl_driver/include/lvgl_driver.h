@@ -68,29 +68,34 @@
 #define Offset_X                0
 #define Offset_Y                0
 #endif // CONFIG_ROTATE
-#endif // CONFIG_CONNECTION_
+#endif // CONFIG_CONNECTION
 
 
 // Save display when init and use it all over the project
 extern lv_disp_t *display; 
-// 
-#define LVGL_TICK_PERIOD_MS    2
 
 // Display buffer use and render mode
 #ifdef CONFIG_CONNECTION_SPI
-#define BUFFER_SIZE            (DISP_HOR_RES * DISP_VER_RES * 2 / 10)
-#define RENDER_MODE             LV_DISPLAY_RENDER_MODE_PARTIAL
+#define BUFFER_SIZE                     (DISP_HOR_RES * DISP_VER_RES * 2 / 10)
+#define RENDER_MODE                     LV_DISPLAY_RENDER_MODE_PARTIAL
 #elif CONFIG_CONNECTION_I2C
-#define BUFFER_SIZE            (DISP_HOR_RES * DISP_VER_RES)  // Smaller for ssd1306
-#define RENDER_MODE             LV_DISPLAY_RENDER_MODE_DIRECT
-#endif // CONFIG_CONNECTION_
+#define BUFFER_SIZE                     (DISP_HOR_RES * DISP_VER_RES / 8)
+#define RENDER_MODE                     LV_DISPLAY_RENDER_MODE_FULL
+#endif // CONFIG_CONNECTION
+
+// LVGL library is not thread-safe, this example will call LVGL APIs from different tasks, so use a mutex to protect it
+static _lock_t lvgl_api_lock;
+
+// Common LVGL options
+#define LVGL_TICK_PERIOD_MS     5
+#define LVGL_TASK_STACK_SIZE    (4 * 1024)
+#define LVGL_TASK_PRIORITY      2
+#define LVGL_PALETTE_SIZE       8
+#define LVGL_TASK_MAX_DELAY_MS  500
+#define LVGL_TASK_MIN_DELAY_MS  1000 / CONFIG_FREERTOS_HZ
 
 
 void lvgl_driver(void);
-bool notify_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx);
-void lvgl_tick_increment(void *arg);
-void flush_cb(lv_display_t* disp, const lv_area_t* area, uint8_t* px_map);
-void set_resolution(lv_display_t* disp);
 esp_err_t lvgl_init(void);
 
 #ifdef CONFIG_CONNECTION_SPI
