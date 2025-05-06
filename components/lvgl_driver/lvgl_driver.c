@@ -115,6 +115,7 @@ static void lvgl_task(void * pvParameters)  {
     lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR); /* Circular scroll */
     lv_obj_set_width(label, lv_display_get_horizontal_resolution(display));
     lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 0);
+    lv_label_set_text(label, "Hello Espressif, Hello LVGL.");
 
     // Show text 3 sec
     vTaskDelay(pdMS_TO_TICKS(3000));
@@ -122,14 +123,12 @@ static void lvgl_task(void * pvParameters)  {
     while (1) {
         _lock_acquire(&lvgl_api_lock);  // Lock the mutex due to the LVGL APIs are not thread-safe
         lv_task_handler();
-
         if (esp_timer_get_time()/1000 - curtime > 1000) {
             curtime = esp_timer_get_time()/1000;
-
             char textlabel[20];
             sprintf(textlabel, "Running: %u\n", counter);
             printf(textlabel);
-            lv_label_set_text(label, "textlabel");
+            lv_label_set_text_fmt(label, "Runninc cycles: %d - run!", counter);
             counter++;
         } // Wait for next update
         _lock_release(&lvgl_api_lock);  // Actual sleep real time?
