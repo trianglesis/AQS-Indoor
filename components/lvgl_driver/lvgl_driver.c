@@ -119,69 +119,51 @@ static void set_resolution(lv_display_t* disp) {
 /*
 Simple for I2C display
 */
-static void lvgl_task(void * pvParameters)  {
-    int to_wait_ms = 10;
-    // Wait TS between cycles real time
-    TickType_t last_wake_time  = xTaskGetTickCount();
-    long curtime = esp_timer_get_time()/1000;
-    int counter = 0;
-    ESP_LOGI(TAG, "Starting LVGL task");
-    
-    lv_obj_t *label = lv_label_create(lv_scr_act());
-    lv_label_set_text(label, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam euismod egestas augue at semper. Etiam ut erat vestibulum, volutpat lectus a, laoreet lorem.");
-    lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
-    lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 0);
 
-    // Show text 3 sec
-    vTaskDelay(pdMS_TO_TICKS(3000));
-    // Handle LVGL tasks
-    while (1) {
-        vTaskDelay(pdMS_TO_TICKS(to_wait_ms));
-        lv_task_handler();
-        if (esp_timer_get_time()/1000 - curtime > 1000) {
-            curtime = esp_timer_get_time()/1000;
-
-            lv_label_set_text_fmt(label, "Running cycles: %d - run!", counter);
-
-            ESP_LOGI(TAG, "Running: %u", counter);
-        } // Wait for next update
-        counter++;
-        xTaskDelayUntil(&last_wake_time, DISPLAY_UPDATE_FREQ);
-    } // WHILE
-}
-
-static void example_lvgl_port_task(void *arg)
-{
+static void lvgl_task_i2c(void * pvParameters)  {
     ESP_LOGI(TAG, "Starting LVGL task");
     uint32_t time_till_next_ms = 0;
+
+    lv_obj_t *label = lv_label_create(lv_screen_active());
+    lv_obj_set_width(label, DISP_HOR_RES); // Limit the max width by actual pixels
+    // Long text to show display max width and height
+    lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
+    lv_label_set_text(label, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam euismod egestas augue at semper. Etiam ut erat vestibulum, volutpat lectus a, laoreet lorem.");
+    lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 0);
+    lv_obj_set_style_text_align(label, LV_ALIGN_TOP_MID, 0);
+    // Show text 3 sec
+    vTaskDelay(pdMS_TO_TICKS(3000));
+    
+    int counter = 0;
+    // Handle LVGL tasks
     while (1) {
         _lock_acquire(&lvgl_api_lock);
+
+        vTaskDelay(pdMS_TO_TICKS(10));
         time_till_next_ms = lv_timer_handler();
-        _lock_release(&lvgl_api_lock);
         // in case of triggering a task watch dog time out
         time_till_next_ms = MAX(time_till_next_ms, LVGL_TASK_MIN_DELAY_MS);
         // in case of lvgl display not ready yet
         time_till_next_ms = MIN(time_till_next_ms, LVGL_TASK_MAX_DELAY_MS);
-        usleep(1000 * time_till_next_ms);
-    }
-}
 
-void example_lvgl_demo_ui()
-{
-    lv_obj_t *scr = lv_display_get_screen_active(display);
-    lv_obj_t *label = lv_label_create(scr);
-    lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR); /* Circular scroll */
-    lv_label_set_text(label, "Hello Espressif, Hello LVGL.");
-    /* Size of the screen (if you use rotation 90 or 270, please use lv_display_get_vertical_resolution) */
-    lv_obj_set_width(label, lv_display_get_horizontal_resolution(display));
-    lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 0);
+        char textlabel[20];
+        sprintf(textlabel, "Running: %u", counter);
+        // lv_label_set_text(label, textlabel);
+        lv_label_set_text_fmt(label, "Running: %u", counter);
+        ESP_LOGI(TAG, "Running: %u", counter);
+        counter++;
+
+        _lock_release(&lvgl_api_lock);
+
+        vTaskDelay(pdMS_TO_TICKS(DISPLAY_UPDATE_FREQ));
+        usleep(1000 * time_till_next_ms);
+    } // WHILE
 }
 
 void graphics_i2c_draw(void) {
     ESP_LOGI(TAG, "Create LVGL task");
     // Create a set of tasks to read sensors and update LCD, LED and other elements
-    xTaskCreatePinnedToCore(lvgl_task, "i2c display task", 4096, NULL, 9, NULL, tskNO_AFFINITY);
-    ESP_LOGI(TAG, "Display LVGL Scroll Text");
+    xTaskCreatePinnedToCore(lvgl_task_i2c, "i2c display task", 8192, NULL, LVGL_TASK_PRIORITY, NULL, tskNO_AFFINITY);
 }
 
 /*
@@ -203,8 +185,9 @@ esp_err_t lvgl_init(void) {
     } else {
         ESP_LOGI(TAG, "Panel handle is OK!");
     }
-    lv_display_set_user_data(display, panel_handle);
-    lv_display_set_default(display); // Set this display as default for UI use
+    lv_display_set_user_data(display, panel_handle); // a custom pointer stored with lv_display_t object
+    lv_display_set_default(display);    // Set this display as default for UI use
+    set_resolution(display);            // Sometimes better to hard-set resolution
 
     // Different buffer usage
     #ifdef CONFIG_CONNECTION_SPI
@@ -232,6 +215,8 @@ esp_err_t lvgl_init(void) {
     lv_display_set_color_format(display, LV_COLOR_FORMAT_I1);
     lv_display_set_buffers(display, buf1, NULL, draw_buffer_sz, RENDER_MODE);
     #endif // CONFIG_CONNECTION
+    
+
 
     // set the callback which can copy the rendered image to an area of the display
     lv_display_set_flush_cb(display, flush_cb);
@@ -286,8 +271,6 @@ esp_err_t lvgl_init(void) {
         // lv_display_set_rotation(display, LV_DISPLAY_ROTATION_0);
     }
 
-    // Sometimes better to hard-set resolution
-    set_resolution(display);
 
     #ifdef CONFIG_CONNECTION_SPI
     /*
