@@ -13,15 +13,11 @@
 // My
 #include "lvgl_driver.h"            // LVGL required for most displays
 
-// Common handles for any display
-extern esp_lcd_panel_handle_t       panel_handle;
-extern esp_lcd_panel_io_handle_t    io_handle;
-
 #ifdef CONFIG_LV_CONF_SKIP
 #else
 // CUSTOM configured. Do not use now, use Kconfig
 #include "lvgl.h"
-#endif
+#endif  // LVGL
 
 #ifdef CONFIG_CONNECTION_SPI
 /*
@@ -73,18 +69,18 @@ I2C Config
 #include "driver/gpio.h"
 #include "esp_lcd_panel_ops.h"
 #include "esp_lcd_panel_vendor.h"
- // My implementation of most common functions
-#include "i2c_driver.h"
 // If needed
 #include "driver/i2c_master.h"
+// My implementation of most common functions
+#include "i2c_driver.h"
 
 // Pins
 #define DISP_I2C_SDA                CONFIG_COMMON_SDA_PIN
 #define DISP_I2C_SCL                CONFIG_COMMON_SCL_PIN
 #define DISP_I2C_ADR                CONFIG_DISP_I2C_ADR
 
-#define DISP_I2C_RST                -1
 #define LCD_PIXEL_CLOCK_HZ          (400 * 1000)
+#define DISP_I2C_RST                -1
 // Bit number used to represent command and parameter
 #define LCD_CMD_BITS                8
 #define LCD_PARAM_BITS              8
@@ -92,18 +88,26 @@ I2C Config
 /* LCD size SSD1306 */
 #define DISP_HOR_RES                128
 #define DISP_VER_RES                64
-#endif
+#endif // CONNECTIONS SPI/I2C
 
 // Common for all
+
+// Common handles for any display
+extern esp_lcd_panel_handle_t       panel_handle;
+extern esp_lcd_panel_io_handle_t    io_handle;
+
 void display_driver(void);
 esp_err_t display_init(void);
 
-// SPI Only
+
 #ifdef CONFIG_CONNECTION_SPI
+
 void BK_Init(void);
 void BK_Light(uint8_t Light);
 esp_err_t display_spi_init(void);
+
 #elif CONFIG_CONNECTION_I2C
 esp_err_t display_i2c_init(void);
-#endif
+
+#endif // CONNECTIONS SPI/I2C
 

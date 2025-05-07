@@ -26,7 +26,7 @@ void display_driver(void) {
     #elif CONFIG_CONNECTION_I2C
     ESP_LOGI(TAG, "DISP_I2C_SDA: %d", DISP_I2C_SDA);
     ESP_LOGI(TAG, "DISP_I2C_SCL: %d", DISP_I2C_SCL);
-    ESP_LOGI(TAG, "DISP_I2C_ADR: %d", DISP_I2C_ADR);
+    ESP_LOGI(TAG, "DISP_I2C_ADR: %x", DISP_I2C_ADR);
     #endif
     ESP_LOGI(TAG, "DISP_HOR_RES: %d", DISP_HOR_RES);
     ESP_LOGI(TAG, "DISP_VER_RES: %d", DISP_VER_RES);
@@ -165,8 +165,8 @@ esp_err_t display_i2c_init(void) {
     ESP_LOGI(TAG, "Run display i2c setup.");
     // I2C should be already init!
     i2c_master_bus_handle_t bus_handle = NULL;
-    ret = master_bus_get(&bus_handle);  // My
-    // ret = i2c_master_get_bus_handle(0, &bus_handle);
+    // ret = master_bus_get(&bus_handle);  // My
+    ret = i2c_master_get_bus_handle(0, &bus_handle);
     if (bus_handle == NULL || ret != ESP_OK) {
         ESP_LOGE(TAG, "I2C Bus should not be none at this stage!");
     }
@@ -179,11 +179,9 @@ esp_err_t display_i2c_init(void) {
         .lcd_cmd_bits = LCD_CMD_BITS,           // According to SSD1306 datasheet
         .lcd_param_bits = LCD_CMD_BITS,         // According to SSD1306 datasheet
         .dc_bit_offset = 6,                     // According to SSD1306 datasheet
-
     };
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c(bus_handle, &io_config, &io_handle));
-
-    // Wait for sensor to wake up, test address and stop measurement after
+    // Test display address to verify phisical connection.
     ESP_ERROR_CHECK(master_bus_probe_address(DISP_I2C_ADR, 50)); // Wait 50 ms
 
     ESP_LOGI(TAG, "Install SSD1306 panel driver");
@@ -205,9 +203,7 @@ esp_err_t display_i2c_init(void) {
 }
 #endif
 
-
 esp_err_t display_init(void) {
-    esp_err_t ret;
 
     display_driver();  // Debug info print
     #ifdef CONFIG_CONNECTION_SPI
@@ -222,12 +218,7 @@ esp_err_t display_init(void) {
 
     // Init LVGL for display and later use it
     ESP_LOGI(TAG, "LVGL Display graphics initialization!");
-    esp_log_level_set("lcd_panel", ESP_LOG_VERBOSE);
-    esp_log_level_set(TAG, ESP_LOG_VERBOSE);
-    ret = lvgl_init();
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "LVGL Display failed to initialize");
-    }
+    ESP_ERROR_CHECK(lvgl_init());
 
     // Draw different level of graphics at displays
     #ifdef CONFIG_CONNECTION_SPI

@@ -4,13 +4,21 @@ static const char *TAG = "lvgl";
 
 lv_disp_t *display;
 
+// LVGL library is not thread-safe, this example will call LVGL APIs from different tasks, so use a mutex to protect it
+static _lock_t lvgl_api_lock;
+
 void lvgl_driver(void) {
     printf(" - Init: lvgl_driver empty function call!\n\n");
-    ESP_LOGI(TAG, "CONNECTION_SPI: %d", CONNECTION_SPI);
-    ESP_LOGI(TAG, "CONNECTION_I2C: %d", CONNECTION_I2C);
+    // esp_log_level_set("lcd_panel", ESP_LOG_VERBOSE);
+    // esp_log_level_set(TAG, ESP_LOG_VERBOSE);
+    #ifdef CONFIG_CONNECTION_SPI
+    ESP_LOGI(TAG, "Display connected via CONNECTION_SPI: %d", CONNECTION_SPI);
+    #elif CONFIG_CONNECTION_I2C
+    ESP_LOGI(TAG, "Display connected via CONNECTION_I2C: %d", CONNECTION_I2C);
+    #endif // CONNECTIONS SPI/I2C
     ESP_LOGI(TAG, "BUFFER_SIZE: %d", BUFFER_SIZE);
     ESP_LOGI(TAG, "RENDER_MODE: %d", RENDER_MODE);
-    ESP_LOGI(TAG, "Display rotation is set to %d degree! Offsets X: %d Y: %d", ROTATE_DEGREE, Offset_X, Offset_Y);
+    ESP_LOGI(TAG, "Display rotation is set to %d degree! \n\t\t - Offsets X: %d Y: %d", ROTATE_DEGREE, Offset_X, Offset_Y);
 }
 
 static void lvgl_tick_increment(void *arg) {
@@ -33,8 +41,8 @@ static void lvgl_tick_init(void) {
 
 static bool notify_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx) {
     // this gets called when the DMA transfer of the buffer data has completed
-    lv_display_t *disp_driver = (lv_display_t *)user_ctx;
-    lv_display_flush_ready(disp_driver);
+    lv_display_t *disp_drv = (lv_display_t *)user_ctx;
+    lv_display_flush_ready(disp_drv);
     return false;
 }
 
@@ -55,8 +63,15 @@ static void flush_cb(lv_display_t* disp, const lv_area_t* area, uint8_t* px_map)
     int y1 = area->y1 + Offset_Y;
     int y2 = area->y2 + Offset_Y;
     
-    // Different way forr monoch disp
+    /*
+        This is different draw implementation for MONOCHROMATIC displays
+    */
     #ifdef CONFIG_CONNECTION_I2C
+
+    // This is necessary because LVGL reserves 2 x 4 bytes in the buffer, as these are assumed to be used as a palette. Skip the palette here
+    // More information about the monochrome, please refer to https://docs.lvgl.io/9.2/porting/display.html#monochrome-displays
+    px_map += LVGL_PALETTE_SIZE;
+
     // To use LV_COLOR_FORMAT_I1, we need an extra buffer to hold the converted data
     static uint8_t oled_buffer[BUFFER_SIZE];
 
@@ -96,6 +111,7 @@ static void flush_cb(lv_display_t* disp, const lv_area_t* area, uint8_t* px_map)
 
 static void set_resolution(lv_display_t* disp) {
     // Enforce if needed
+    ESP_LOGI(TAG, "Set resolution for panel and lvgl display: HOR: %d VERT: %d", DISP_HOR_RES, DISP_VER_RES);
     lv_display_set_resolution(disp, DISP_HOR_RES, DISP_VER_RES);
     lv_display_set_physical_resolution(disp, DISP_HOR_RES, DISP_VER_RES);
 }
@@ -128,7 +144,7 @@ static void lvgl_task(void * pvParameters)  {
             char textlabel[20];
             sprintf(textlabel, "Running: %u\n", counter);
             printf(textlabel);
-            lv_label_set_text_fmt(label, "Runninc cycles: %d - run!", counter);
+            lv_label_set_text_fmt(label, "Running cycles: %d - run!", counter);
             counter++;
         } // Wait for next update
         _lock_release(&lvgl_api_lock);  // Actual sleep real time?
@@ -136,9 +152,45 @@ static void lvgl_task(void * pvParameters)  {
     } // WHILE
 }
 
+static void example_lvgl_port_task(void *arg)
+{
+    ESP_LOGI(TAG, "Starting LVGL task");
+    uint32_t time_till_next_ms = 0;
+    while (1) {
+        _lock_acquire(&lvgl_api_lock);
+        time_till_next_ms = lv_timer_handler();
+        _lock_release(&lvgl_api_lock);
+        // in case of triggering a task watch dog time out
+        time_till_next_ms = MAX(time_till_next_ms, LVGL_TASK_MIN_DELAY_MS);
+        // in case of lvgl display not ready yet
+        time_till_next_ms = MIN(time_till_next_ms, LVGL_TASK_MAX_DELAY_MS);
+        usleep(1000 * time_till_next_ms);
+    }
+}
+
+void example_lvgl_demo_ui()
+{
+    lv_obj_t *scr = lv_display_get_screen_active(display);
+    lv_obj_t *label = lv_label_create(scr);
+    lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR); /* Circular scroll */
+    lv_label_set_text(label, "Hello Espressif, Hello LVGL.");
+    /* Size of the screen (if you use rotation 90 or 270, please use lv_display_get_vertical_resolution) */
+    lv_obj_set_width(label, lv_display_get_horizontal_resolution(display));
+    lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 0);
+}
+
 void graphics_i2c_draw(void) {
+    ESP_LOGI(TAG, "Create LVGL task");
+    
+    // xTaskCreate(example_lvgl_port_task, "LVGL", 8192, NULL, LVGL_TASK_PRIORITY, NULL);
+    // ESP_LOGI(TAG, "Display LVGL Scroll Text");
+    
+    // // Lock the mutex due to the LVGL APIs are not thread-safe
+    // _lock_acquire(&lvgl_api_lock);
+    // example_lvgl_demo_ui();
+    // _lock_release(&lvgl_api_lock);
+    
     // Create a set of tasks to read sensors and update LCD, LED and other elements
-    // xTaskCreatePinnedToCore(lvgl_task, "i2c display task", LVGL_TASK_STACK_SIZE, NULL, LVGL_TASK_PRIORITY, NULL, tskNO_AFFINITY);
     xTaskCreatePinnedToCore(lvgl_task, "i2c display task", 8192, NULL, 9, NULL, tskNO_AFFINITY);
     ESP_LOGI(TAG, "Display LVGL Scroll Text");
 }
@@ -153,36 +205,42 @@ void graphics_spi_draw(void) {
 }
 
 esp_err_t lvgl_init(void) {
-    ESP_LOGI(TAG, "Initialize LVGL library");
-    // Init
-    lv_init(); 
+    lvgl_driver(); // Debug
+    lv_init(); // Init
 
     display = lv_display_create(DISP_HOR_RES, DISP_VER_RES);
+    if (panel_handle == NULL) {
+        ESP_LOGE(TAG, "Panel handle is null!");
+    } else {
+        ESP_LOGI(TAG, "Panel handle is OK!");
+    }
     lv_display_set_user_data(display, panel_handle);
     lv_display_set_default(display); // Set this display as default for UI use
 
+    // Different buffer usage
     #ifdef CONFIG_CONNECTION_SPI
-    // Buffers
+    /* 
+        SPI config 
+        Two buffers for coured OLED, render PARTIAL
+    */
     void* buf1 = NULL;
     void* buf2 = NULL;
     buf1 = heap_caps_calloc(1, BUFFER_SIZE, MALLOC_CAP_INTERNAL |  MALLOC_CAP_DMA);
     buf2 = heap_caps_calloc(1, BUFFER_SIZE, MALLOC_CAP_INTERNAL |  MALLOC_CAP_DMA);
     assert(buf1);
     assert(buf2);
-    #elif CONFIG_CONNECTION_I2C
-    void* buf1 = NULL;
-    size_t draw_buffer_sz = BUFFER_SIZE + LVGL_PALETTE_SIZE;
-    buf1 = heap_caps_calloc(1, BUFFER_SIZE, MALLOC_CAP_INTERNAL |  MALLOC_CAP_8BIT);
-    assert(buf1);
-    #endif // CONFIG_CONNECTION
-
-    // Different buffer usage
-    #ifdef CONFIG_CONNECTION_SPI
-    // Two buffers for coured OLED, render PARTIAL
     lv_display_set_buffers(display, buf1, buf2, BUFFER_SIZE, RENDER_MODE);
     #elif CONFIG_CONNECTION_I2C
+    /* 
+        I2C config 
+        One buffer for mono OLED, render FULL
+    */
+    void* buf1 = NULL;
+    size_t draw_buffer_sz = BUFFER_SIZE + LVGL_PALETTE_SIZE;
+    ESP_LOGI(TAG, "Set buffer for monochromatic display, size: %u", draw_buffer_sz);
+    buf1 = heap_caps_calloc(1, BUFFER_SIZE, MALLOC_CAP_INTERNAL |  MALLOC_CAP_8BIT);
+    assert(buf1);
     lv_display_set_color_format(display, LV_COLOR_FORMAT_I1);
-    // One buffer for mono OLED, render FULL
     lv_display_set_buffers(display, buf1, NULL, draw_buffer_sz, RENDER_MODE);
     #endif // CONFIG_CONNECTION
 
@@ -196,8 +254,8 @@ esp_err_t lvgl_init(void) {
     // W (1442) lcd_panel.io.spi: Callback on_color_trans_done was already set and now it was overwritten!
 
     /* Register done callback */
-    ESP_RETURN_ON_ERROR(esp_lcd_panel_io_register_event_callbacks(io_handle, &cbs, display), TAG, "esp_lcd_panel_io_register_event_callbacks error"); // I have tried to use 
-    
+    esp_lcd_panel_io_register_event_callbacks(io_handle, &cbs, display);
+    /* Timer set in func */
     lvgl_tick_init(); // timer
 
     /* Landscape orientation:
@@ -207,7 +265,6 @@ esp_err_t lvgl_init(void) {
         lv_display_set_rotation(display, LV_DISPLAY_ROTATION_90);
         esp_lcd_panel_mirror(panel_handle, true, false);
         esp_lcd_panel_swap_xy(panel_handle, true);
-
     180
         lv_display_set_rotation(display, LV_DISPLAY_ROTATION_180);
         esp_lcd_panel_mirror(panel_handle, true, true);
@@ -236,24 +293,25 @@ esp_err_t lvgl_init(void) {
         esp_lcd_panel_mirror(panel_handle, false, true);
         esp_lcd_panel_swap_xy(panel_handle, true);
     } else {
-        lv_display_set_rotation(display, LV_DISPLAY_ROTATION_0);
+        ESP_LOGI(TAG, "No totation specified, do not use rotation.");
+        // lv_display_set_rotation(display, LV_DISPLAY_ROTATION_0);
     }
 
-
     // Sometimes better to hard-set resolution
-    #ifdef CONFIG_CONNECTION_SPI
     set_resolution(display);
-    #endif // CONFIG_CONNECTION
 
     #ifdef CONFIG_CONNECTION_SPI
-    // Drop any theme if exist
+    /*
+        Drop any theme if exist
+        Skip for i2c
+    */
     bool is_def = lv_theme_default_is_inited();
     if (is_def) {
         // drop the default theme
         ESP_LOGI(TAG, "Drop the default theme");
         lv_theme_default_deinit();
     }
-    #endif // CONFIG_CONNECTION
+    #endif // CONNECTION SPI
 
     return ESP_OK;
 }
