@@ -54,8 +54,8 @@ void lvgl_task_i2c(void * pvParameters)  {
     lv_obj_set_style_text_align(aqi_lbl, LV_TEXT_ALIGN_RIGHT, 0);
 
     lv_obj_align(co2_lbl, LV_ALIGN_TOP_LEFT, 0, 0); 
-    lv_obj_align(temp_lbl, LV_ALIGN_LEFT_MID, 0, 10); 
-    lv_obj_align(humid_lbl, LV_ALIGN_BOTTOM_LEFT, 0, 20); 
+    lv_obj_align(temp_lbl, LV_ALIGN_LEFT_MID, 0, 0); 
+    lv_obj_align(humid_lbl, LV_ALIGN_BOTTOM_LEFT, 0, 0); 
     lv_obj_align(pressure_lbl, LV_ALIGN_TOP_RIGHT, 0, 0); 
     lv_obj_align(aqi_lbl, LV_ALIGN_BOTTOM_RIGHT, 0, 0); 
     
@@ -64,7 +64,6 @@ void lvgl_task_i2c(void * pvParameters)  {
     vTaskDelay(pdMS_TO_TICKS(500));
     
     int to_wait_ms = 10;
-    int counter = 0;
     long curtime = esp_timer_get_time()/1000;
     struct BMESensor bme680_readings; // data type should be same as queue item type
     struct SCD4XSensor scd4x_readings; // data type should be same as queue item type
