@@ -13,6 +13,9 @@
 #include "ui.h"
 // Use display, we need panel_handle and io_handle
 #include "display_driver.h"
+// Use sensors queues global vars
+#include "sensor_co2.h"
+#include "sensor_temp.h"
 
 // Check default lvgl conf
 #ifdef CONFIG_LV_CONF_SKIP
@@ -46,7 +49,7 @@
 #else
 #endif // CONFIG_ROTATE
 #elif CONFIG_CONNECTION_I2C
-#define DISPLAY_UPDATE_FREQ     2500
+#define DISPLAY_UPDATE_FREQ     5000
 #define CONNECTION_SPI          0
 #define CONNECTION_I2C          1
 // Use offset only for I2C

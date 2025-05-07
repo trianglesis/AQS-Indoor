@@ -29,20 +29,46 @@ void lvgl_task_i2c(void * pvParameters)  {
     
     lv_lock();
     // Create a simple label
-    lv_obj_t *label = lv_label_create(lv_screen_active());
-    lv_label_set_text(label, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam euismod egestas augue at semper. Etiam ut erat vestibulum, volutpat lectus a, laoreet lorem.");
+    lv_obj_t *co2_lbl = lv_label_create(lv_screen_active());
+    lv_obj_t *temp_lbl = lv_label_create(lv_screen_active());
+    lv_obj_t *humid_lbl = lv_label_create(lv_screen_active());
+    lv_obj_t *pressure_lbl = lv_label_create(lv_screen_active());
+    lv_obj_t *aqi_lbl = lv_label_create(lv_screen_active());
+
+    lv_label_set_text(co2_lbl, "CO2: 8888 ppm");
+    lv_label_set_text(temp_lbl, "t: 99 C");
+    lv_label_set_text(humid_lbl, "Hum: 100%%");
+    lv_label_set_text(pressure_lbl, "Atm: hpa");
+    lv_label_set_text(aqi_lbl, "Atm: hpa");
     
-    lv_obj_set_width(label, DISP_HOR_RES); // Works OK
-    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0); // Works OK
-    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);  // Works OK
+    lv_obj_set_width(co2_lbl, DISP_HOR_RES);
+    lv_obj_set_width(temp_lbl, DISP_HOR_RES);
+    lv_obj_set_width(humid_lbl, DISP_HOR_RES);
+    lv_obj_set_width(pressure_lbl, DISP_HOR_RES);
+    lv_obj_set_width(aqi_lbl, DISP_HOR_RES);
+
+    lv_obj_set_style_text_align(co2_lbl, LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_style_text_align(temp_lbl, LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_style_text_align(humid_lbl, LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_style_text_align(pressure_lbl, LV_TEXT_ALIGN_RIGHT, 0);
+    lv_obj_set_style_text_align(aqi_lbl, LV_TEXT_ALIGN_RIGHT, 0);
+
+    lv_obj_align(co2_lbl, LV_ALIGN_TOP_LEFT, 0, 0); 
+    lv_obj_align(temp_lbl, LV_ALIGN_LEFT_MID, 0, 10); 
+    lv_obj_align(humid_lbl, LV_ALIGN_BOTTOM_LEFT, 0, 20); 
+    lv_obj_align(pressure_lbl, LV_ALIGN_TOP_RIGHT, 0, 0); 
+    lv_obj_align(aqi_lbl, LV_ALIGN_BOTTOM_RIGHT, 0, 0); 
     
     lv_unlock();
 
-    // Show text 3 sec
-    vTaskDelay(pdMS_TO_TICKS(3000));
+    vTaskDelay(pdMS_TO_TICKS(500));
     
+    int to_wait_ms = 10;
     int counter = 0;
     long curtime = esp_timer_get_time()/1000;
+    struct BMESensor bme680_readings; // data type should be same as queue item type
+    struct SCD4XSensor scd4x_readings; // data type should be same as queue item type
+    const TickType_t xTicksToWait = pdMS_TO_TICKS(to_wait_ms);
 
     // Handle LVGL tasks
     while (1) {
@@ -51,14 +77,18 @@ void lvgl_task_i2c(void * pvParameters)  {
         if (esp_timer_get_time()/1000 - curtime > 1000) {
             curtime = esp_timer_get_time()/1000;
         } // Timer
-        
+
+        xQueuePeek(mq_co2, (void *)&scd4x_readings, xTicksToWait);
+        xQueuePeek(mq_bme680, (void *)&bme680_readings, xTicksToWait);
+
         lv_lock();
-        lv_label_set_text_fmt(label, "Running: %d", counter);
+        lv_label_set_text_fmt(co2_lbl, "%d ppm", scd4x_readings.co2_ppm);
+        lv_label_set_text_fmt(temp_lbl, "%.0f C", bme680_readings.temperature);
+        lv_label_set_text_fmt(humid_lbl, "%.0f %%", bme680_readings.humidity);
+        lv_label_set_text_fmt(pressure_lbl, "%.0f hpa", bme680_readings.pressure);
+        lv_label_set_text_fmt(aqi_lbl, "AQI %.0d", bme680_readings.air_q_index);
         lv_unlock();
-        
-        ESP_LOGI(TAG, "Updated counter: %d", counter);
-        counter++;
-        
+               
         vTaskDelay(pdMS_TO_TICKS(DISPLAY_UPDATE_FREQ));
     } // WHILE
 }
