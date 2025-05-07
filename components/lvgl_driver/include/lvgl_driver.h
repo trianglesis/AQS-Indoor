@@ -23,7 +23,7 @@
 
 // Rotate and compensate buffer change
 #ifdef CONFIG_CONNECTION_SPI
-#define DISPLAY_UPDATE_FREQ     1000
+#define DISPLAY_UPDATE_FREQ     2500
 #define CONNECTION_I2C          0
 #define CONNECTION_SPI          1
 // Use offset only for Waveshare
@@ -46,7 +46,7 @@
 #else
 #endif // CONFIG_ROTATE
 #elif CONFIG_CONNECTION_I2C
-#define DISPLAY_UPDATE_FREQ     1000
+#define DISPLAY_UPDATE_FREQ     2500
 #define CONNECTION_SPI          0
 #define CONNECTION_I2C          1
 // Use offset only for I2C
@@ -97,20 +97,3 @@ extern lv_disp_t *display;
 
 void lvgl_driver(void);
 esp_err_t lvgl_init(void);
-
-#ifdef CONFIG_CONNECTION_SPI
-/*
-TODO Add extra graphics similarly to:
-- https://github.com/trianglesis/Air_Quality_station/blob/171f9959632b4a9d2c10f1fab73dca86c0ced4c2/main/main.c#L53
-
-As separate function with task
-*/
-void graphics_spi_draw(void);
-
-#elif CONFIG_CONNECTION_I2C
-/*
-Included simple text and icos for i2c display
-*/
-void graphics_i2c_draw(void);
-
-#endif // CONFIG_CONNECTION_

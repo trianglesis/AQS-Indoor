@@ -2,10 +2,9 @@
 
 #ifdef CONFIG_CONNECTION_SPI
 static ledc_channel_config_t ledc_channel;
-static const char *TAG = "oled-display-spi";
-
+static const char *TAG = "SPI-oled";
 #elif CONFIG_CONNECTION_I2C
-static const char *TAG = "oled-display-i2c";
+static const char *TAG = "I2C-oled";
 #endif
 
 /*
@@ -14,8 +13,8 @@ static const char *TAG = "oled-display-i2c";
 esp_lcd_panel_handle_t panel_handle = NULL;
 esp_lcd_panel_io_handle_t io_handle = NULL;
 
-void display_driver(void) {
-    printf(" - Init: display_driver empty function call!\n\n");
+void display_driver_info(void) {
+    printf(" - Init: display_driver_info empty function call!\n\n");
     #ifdef CONFIG_CONNECTION_SPI
     ESP_LOGI(TAG, "DISP_SPI_SCLK: %d", DISP_SPI_SCLK);
     ESP_LOGI(TAG, "DISP_SPI_MOSI: %d", DISP_SPI_MOSI);
@@ -26,18 +25,18 @@ void display_driver(void) {
     #elif CONFIG_CONNECTION_I2C
     ESP_LOGI(TAG, "DISP_I2C_SDA: %d", DISP_I2C_SDA);
     ESP_LOGI(TAG, "DISP_I2C_SCL: %d", DISP_I2C_SCL);
-    ESP_LOGI(TAG, "DISP_I2C_ADR: %x", DISP_I2C_ADR);
+    ESP_LOGI(TAG, "DISP_I2C_ADR: 0x%x", DISP_I2C_ADR);
     #endif
     ESP_LOGI(TAG, "DISP_HOR_RES: %d", DISP_HOR_RES);
     ESP_LOGI(TAG, "DISP_VER_RES: %d", DISP_VER_RES);
 }
 
+#ifdef CONFIG_CONNECTION_SPI
 /*
     LCD from waveshare board
 */
-#ifdef CONFIG_CONNECTION_SPI  
 
-esp_err_t display_spi_init(void) {
+static esp_err_t display_spi_init(void) {
     // Skip SPI init, if SD Card is already there
     // LCD initialization - enable from example
     if (SDCard_Size) {
@@ -118,7 +117,7 @@ esp_err_t display_spi_init(void) {
     return ESP_OK;
 }
 
-void BK_Init(void) {
+static void BK_Init(void) {
     ESP_LOGI(TAG, "Turn off LCD backlight");
     gpio_config_t bk_gpio_config = {
         .mode = GPIO_MODE_OUTPUT,
@@ -145,7 +144,7 @@ void BK_Init(void) {
     ledc_fade_func_install(0);
 }
 
-void BK_Light(uint8_t Light) {
+static void BK_Light(uint8_t Light) {
     ESP_LOGI(TAG, "Set LCD backlight");
     if(Light > 100) Light = 100;
     uint16_t Duty = LEDC_MAX_Duty-(81*(100-Light));
@@ -156,17 +155,19 @@ void BK_Light(uint8_t Light) {
 
 }
 
+#elif CONFIG_CONNECTION_I2C
 /*
 I2C Display
 */
-#elif CONFIG_CONNECTION_I2C
-esp_err_t display_i2c_init(void) {
+
+static esp_err_t display_i2c_init(void) {
     esp_err_t ret;
+    
     ESP_LOGI(TAG, "Run display i2c setup.");
     // I2C should be already init!
     i2c_master_bus_handle_t bus_handle = NULL;
-    // ret = master_bus_get(&bus_handle);  // My
-    ret = i2c_master_get_bus_handle(0, &bus_handle);
+    ret = master_bus_get(&bus_handle);  // My
+    // ret = i2c_master_get_bus_handle(0, &bus_handle);
     if (bus_handle == NULL || ret != ESP_OK) {
         ESP_LOGE(TAG, "I2C Bus should not be none at this stage!");
     }
@@ -201,31 +202,25 @@ esp_err_t display_i2c_init(void) {
     ESP_LOGI(TAG, "Display panel installed!");
     return ESP_OK;
 }
-#endif
+
+#endif  // CONFIG_CONNECTION
 
 esp_err_t display_init(void) {
+    display_driver_info();  // Debug info print
 
-    display_driver();  // Debug info print
     #ifdef CONFIG_CONNECTION_SPI
-    ESP_LOGI(TAG, "SPI Display panel installation!");
     // Init as SPI
+    ESP_LOGI(TAG, "SPI Display panel installation!");
     display_spi_init();
     #elif CONFIG_CONNECTION_I2C
-    ESP_LOGI(TAG, "I2C Display panel installation!");
     // Init as I2C
+    ESP_LOGI(TAG, "I2C Display panel installation!");
     display_i2c_init();
     #endif
 
     // Init LVGL for display and later use it
     ESP_LOGI(TAG, "LVGL Display graphics initialization!");
     ESP_ERROR_CHECK(lvgl_init());
-
-    // Draw different level of graphics at displays
-    #ifdef CONFIG_CONNECTION_SPI
-    graphics_spi_draw();
-    #elif CONFIG_CONNECTION_I2C
-    graphics_i2c_draw();
-    #endif
 
     return ESP_OK;
 }

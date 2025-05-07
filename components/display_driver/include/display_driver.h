@@ -98,16 +98,3 @@ extern esp_lcd_panel_io_handle_t    io_handle;
 
 void display_driver(void);
 esp_err_t display_init(void);
-
-
-#ifdef CONFIG_CONNECTION_SPI
-
-void BK_Init(void);
-void BK_Light(uint8_t Light);
-esp_err_t display_spi_init(void);
-
-#elif CONFIG_CONNECTION_I2C
-esp_err_t display_i2c_init(void);
-
-#endif // CONNECTIONS SPI/I2C
-
