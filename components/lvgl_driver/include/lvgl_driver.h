@@ -23,7 +23,7 @@
 
 // Rotate and compensate buffer change
 #ifdef CONFIG_CONNECTION_SPI
-#define DISPLAY_UPDATE_FREQ 2500
+#define DISPLAY_UPDATE_FREQ     1000
 #define CONNECTION_I2C          0
 #define CONNECTION_SPI          1
 // Use offset only for Waveshare
@@ -46,7 +46,7 @@
 #else
 #endif // CONFIG_ROTATE
 #elif CONFIG_CONNECTION_I2C
-#define DISPLAY_UPDATE_FREQ 2500
+#define DISPLAY_UPDATE_FREQ     1000
 #define CONNECTION_SPI          0
 #define CONNECTION_I2C          1
 // Use offset only for I2C

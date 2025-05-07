@@ -12,4 +12,4 @@ idf_component_register(
                         "include"
 )
 
-message("REQUIRES:               'lvgl_driver':            ${requires}")
+# message("REQUIRES:               'lvgl_driver':            ${requires}")
