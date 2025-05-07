@@ -38,8 +38,8 @@ void lvgl_task_i2c(void * pvParameters)  {
     lv_label_set_text(co2_lbl, "CO2: 8888 ppm");
     lv_label_set_text(temp_lbl, "t: 99 C");
     lv_label_set_text(humid_lbl, "Hum: 100%%");
-    lv_label_set_text(pressure_lbl, "Atm: hpa");
-    lv_label_set_text(aqi_lbl, "Atm: hpa");
+    lv_label_set_text(pressure_lbl, "999 hpa");
+    lv_label_set_text(aqi_lbl, "AQI 99");
     
     lv_obj_set_width(co2_lbl, DISP_HOR_RES);
     lv_obj_set_width(temp_lbl, DISP_HOR_RES);
