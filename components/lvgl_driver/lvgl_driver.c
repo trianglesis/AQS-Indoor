@@ -160,7 +160,6 @@ void lvgl_task_i2c_sq_line(void * pvParameters)  {
         } else {
             lv_label_set_text(ui_Network, "None");
             lv_label_set_text(ui_NetworkAddress, "0.0.0.0");
-
         }
 
         lv_unlock();

@@ -33,6 +33,16 @@ static const char *TAG = "co2station";
 // only define xCoreID CORE1 as 1 if this is a multiple core processor target, else define it as tskNO_AFFINITY
 #define CORE1       ((CONFIG_FREERTOS_NUMBER_OF_CORES > 1) ? 1 : tskNO_AFFINITY)
 
+/*
+All data collected from each sensor now can be saved at the SDCard
+Create the 'logs' directory at the root.
+Decide how to rotate logs.
+If there are 100-500 lines - create a new log, and rename an old one?
+*/
+void save_to_log(void) {
+
+}
+
 
 void app_main(void)
 {
