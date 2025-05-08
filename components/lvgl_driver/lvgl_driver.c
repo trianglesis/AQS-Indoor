@@ -5,6 +5,11 @@
 #include "battery_driver.h"
 #include "sensor_co2.h"
 #include "sensor_temp.h"
+#include "littlefs_driver.h"  // Used/free space at LittleFS
+#include "card_driver.h"      // Used/free space at SDCard
+#include "wifi.h"             // WiFi Mode and connected users, DHCP IP
+
+
 static const char *TAG = "lvgl";
 
 lv_disp_t *display;
@@ -141,6 +146,23 @@ void lvgl_task_i2c_sq_line(void * pvParameters)  {
         lv_label_set_text_fmt(ui_Pressure, "%.0fhpa", bme680_readings.pressure);
         lv_label_set_text_fmt(ui_airQuality, "AQI %.0d", bme680_readings.air_q_index);
         lv_label_set_text_fmt(ui_Battery, "%.0dmV", battery_readings.voltage);
+        // Other
+        lv_label_set_text_fmt(ui_LittleFSUsed, "%.0fKB", littlefs_used);
+        lv_label_set_text_fmt(ui_SDCardFree, "%.0fGB", sd_free);
+        
+        // Network info
+        if (wifi_ap_mode == true && found_wifi == false) {
+            lv_label_set_text_fmt(ui_Network, "AP: %d", connected_users);
+            lv_label_set_text_fmt(ui_NetworkAddress, "%s", ip_string);
+        } else if (found_wifi == true) {
+            lv_label_set_text(ui_Network, "STA");
+            lv_label_set_text_fmt(ui_NetworkAddress, "%s", ip_string);
+        } else {
+            lv_label_set_text(ui_Network, "None");
+            lv_label_set_text(ui_NetworkAddress, "0.0.0.0");
+
+        }
+
         lv_unlock();
                
         vTaskDelay(pdMS_TO_TICKS(DISPLAY_UPDATE_FREQ));

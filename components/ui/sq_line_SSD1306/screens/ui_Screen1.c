@@ -16,14 +16,14 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_align(ui_Battery, LV_ALIGN_TOP_RIGHT);
     lv_label_set_text(ui_Battery, "500mV");
     lv_obj_set_style_text_align(ui_Battery, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Battery, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Battery, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Network = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_Network, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Network, LV_SIZE_CONTENT);    /// 1
     lv_label_set_text(ui_Network, "Wifi");
     lv_obj_set_style_text_align(ui_Network, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Network, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Network, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_LittleFSUsed = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_LittleFSUsed, LV_SIZE_CONTENT);   /// 1

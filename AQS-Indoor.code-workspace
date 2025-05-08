@@ -68,7 +68,8 @@
 			"esp_lcd_panel_io_interface.h": "c",
 			"freertos.h": "c",
 			"compare": "c",
-			"cstdint": "c"
+			"cstdint": "c",
+			"ui_helpers.h": "c"
 		}
 	}
 }

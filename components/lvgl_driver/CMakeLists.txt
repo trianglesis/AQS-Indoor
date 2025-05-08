@@ -1,6 +1,16 @@
 idf_build_get_property(target IDF_TARGET)
 
-set(requires "display_driver" "sensor_co2" "sensor_temp" "battery_driver" "lvgl" "esp_timer" "ui")
+set(requires "display_driver" 
+             "sensor_co2" 
+             "sensor_temp" 
+             "battery_driver" 
+             "littlefs_driver" 
+             "card_driver" 
+             "wifi" 
+             "lvgl" 
+             "esp_timer" 
+             "ui"
+)
 
 
 idf_component_register(

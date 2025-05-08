@@ -64,6 +64,7 @@ void app_main(void)
     ESP_ERROR_CHECK(fs_setup());
     ESP_ERROR_CHECK(card_init());
     ESP_ERROR_CHECK(start_webserver());
+    // TODO: Try to pass a struct with all vars related to data we want to display
     ESP_ERROR_CHECK(display_init());       // With LVGL and task init. i2c used too
     
     // Init in order of importance
