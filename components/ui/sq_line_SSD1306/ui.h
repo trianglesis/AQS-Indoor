@@ -30,6 +30,7 @@ extern lv_obj_t * ui_airQuality;
 extern lv_obj_t * ui_Humidity;
 extern lv_obj_t * ui_Temperature;
 extern lv_obj_t * ui_Pressure;
+extern lv_obj_t * ui_Border;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_Battery;
 extern lv_obj_t * uic_Network;

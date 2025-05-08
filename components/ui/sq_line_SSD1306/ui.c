@@ -22,6 +22,7 @@ lv_obj_t * ui_airQuality;
 lv_obj_t * ui_Humidity;
 lv_obj_t * ui_Temperature;
 lv_obj_t * ui_Pressure;
+lv_obj_t * ui_Border;
 // CUSTOM VARIABLES
 lv_obj_t * uic_Battery;
 lv_obj_t * uic_Network;

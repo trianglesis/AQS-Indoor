@@ -16,14 +16,14 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_align(ui_Battery, LV_ALIGN_TOP_RIGHT);
     lv_label_set_text(ui_Battery, "500mV");
     lv_obj_set_style_text_align(ui_Battery, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Battery, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Battery, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Network = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_Network, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Network, LV_SIZE_CONTENT);    /// 1
     lv_label_set_text(ui_Network, "Wifi");
     lv_obj_set_style_text_align(ui_Network, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Network, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Network, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_LittleFSUsed = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_LittleFSUsed, LV_SIZE_CONTENT);   /// 1
@@ -54,19 +54,19 @@ void ui_Screen1_screen_init(void)
     ui_co2count = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_co2count, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_co2count, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_co2count, -1);
-    lv_obj_set_y(ui_co2count, -10);
-    lv_obj_set_align(ui_co2count, LV_ALIGN_RIGHT_MID);
+    lv_obj_set_x(ui_co2count, 0);
+    lv_obj_set_y(ui_co2count, -8);
+    lv_obj_set_align(ui_co2count, LV_ALIGN_CENTER);
     lv_label_set_text(ui_co2count, "2000");
     lv_obj_set_style_text_align(ui_co2count, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_co2count, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_co2count, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_co2ppm = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_co2ppm, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_co2ppm, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_co2ppm, -1);
-    lv_obj_set_y(ui_co2ppm, -1);
-    lv_obj_set_align(ui_co2ppm, LV_ALIGN_RIGHT_MID);
+    lv_obj_set_x(ui_co2ppm, 0);
+    lv_obj_set_y(ui_co2ppm, 2);
+    lv_obj_set_align(ui_co2ppm, LV_ALIGN_CENTER);
     lv_label_set_text(ui_co2ppm, "ppm");
     lv_obj_set_style_text_font(ui_co2ppm, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
 
@@ -83,9 +83,9 @@ void ui_Screen1_screen_init(void)
     ui_Humidity = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_Humidity, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Humidity, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Humidity, 1);
-    lv_obj_set_y(ui_Humidity, 2);
-    lv_obj_set_align(ui_Humidity, LV_ALIGN_LEFT_MID);
+    lv_obj_set_x(ui_Humidity, -1);
+    lv_obj_set_y(ui_Humidity, -12);
+    lv_obj_set_align(ui_Humidity, LV_ALIGN_RIGHT_MID);
     lv_label_set_text(ui_Humidity, "100%");
     lv_obj_set_style_text_align(ui_Humidity, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Humidity, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -109,6 +109,16 @@ void ui_Screen1_screen_init(void)
     lv_label_set_text(ui_Pressure, "992hpa");
     lv_obj_set_style_text_align(ui_Pressure, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Pressure, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Border = lv_obj_create(ui_Screen1);
+    lv_obj_set_width(ui_Border, 128);
+    lv_obj_set_height(ui_Border, 1);
+    lv_obj_set_x(ui_Border, 0);
+    lv_obj_set_y(ui_Border, 14);
+    lv_obj_set_align(ui_Border, LV_ALIGN_TOP_MID);
+    lv_obj_remove_flag(ui_Border, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_Border, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Border, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     uic_Battery = ui_Battery;
     uic_Network = ui_Network;
