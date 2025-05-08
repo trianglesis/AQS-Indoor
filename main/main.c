@@ -80,6 +80,8 @@ void app_main(void)
     // Init in order of importance
     captive_portal();   // 2
 
+    // TODO: Add file logs
+    // TODO: Check battery power
     // End
 }
 // END

@@ -208,8 +208,13 @@ ESP32 C6 have a `PIN 0` with `ADC1_CH0` use it.
 
 # Battery power
 
-Is not yet working, board cannot start. 
-Maybe voltage is too low under the load of all sensors?
+Cannot start:
+
+`I BOD: Brownout detector was triggered`
+
+[Doc](https://randomnerdtutorials.com/power-esp32-esp8266-solar-panels-battery-level-monitoring/)
+
+Must change the power scheme.
 
 # Debug and etc
 
