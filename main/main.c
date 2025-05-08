@@ -21,10 +21,10 @@ In order of importance during init
 #include "i2c_driver.h"
 #include "sensor_co2.h"
 #include "sensor_temp.h"
+#include "battery_driver.h"
 #include "littlefs_driver.h"
 #include "card_driver.h"
 #include "display_driver.h"
-#include "battery_driver.h"
 #include "webserver.h"
 
 // Empty files - placeholders
@@ -55,10 +55,10 @@ void app_main(void)
             1.2 Add MBE680 sensor to the BUS, stop it and move on
         Proceed with all other modules while sensors are warming up!
     */
+    ESP_ERROR_CHECK(battery_one_shot_init()); // With queue and task init.
     ESP_ERROR_CHECK(master_bus_init());
     ESP_ERROR_CHECK(scd40_sensor_init());
     ESP_ERROR_CHECK(bme680_sensor_init());
-    ESP_ERROR_CHECK(battery_one_shot_init()); // With queue and task init.
 
     /* Startup sequence:
     2. Wifi setup, AP mode if no known networks found, STA mode if found one.

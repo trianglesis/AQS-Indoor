@@ -16,14 +16,13 @@
 // External
 #include "bme680.h"
 
+#define PORT 0
 #define BME680_I2C_ADDR_0 CONFIG_BME680_I2C_ADDR_0
 #define BME680_I2C_ADDR_1 CONFIG_BME680_I2C_ADDR_1
 
 #define BME680_MEASUREMENT_FREQ CONFIG_BME680_MEASUREMENT_FREQ  // Sensor can only provide it once for 5 sec!
 
 extern QueueHandle_t mq_bme680;
-
-#define PORT 0
 
 struct BMESensor {
     float temperature;

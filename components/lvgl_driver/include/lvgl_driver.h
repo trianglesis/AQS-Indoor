@@ -10,19 +10,20 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "lvgl.h"
-#include "ui.h"
 // Use display, we need panel_handle and io_handle
 #include "display_driver.h"
 // Use sensors queues global vars
 #include "sensor_co2.h"
 #include "sensor_temp.h"
 #include "battery_driver.h"
+// SQ Line
+#include "ui.h"
 
 // Check default lvgl conf
 #ifdef CONFIG_LV_CONF_SKIP
 #else
 // CUSTOM configured. Do not use now, use Kconfig
-#include "lvgl.h"
+#include "lv_conf.h"
 #endif
 
 // Rotate and compensate buffer change

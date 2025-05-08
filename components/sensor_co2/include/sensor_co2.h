@@ -24,7 +24,6 @@
 extern QueueHandle_t mq_co2;
 extern i2c_master_dev_handle_t scd41_handle;
 
-
 struct SCD4XSensor {
     float temperature;
     float humidity;
