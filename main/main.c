@@ -47,7 +47,7 @@ void app_main(void)
             1.2 Add MBE680 sensor to the BUS, stop it and move on
         Proceed with all other modules while sensors are warming up!
     */
-    ESP_ERROR_CHECK(master_bus_init());   // Init I2C master bus early
+    ESP_ERROR_CHECK(master_bus_init());   // Init I2C master bus
     ESP_ERROR_CHECK(battery_one_shot_init()); // With queue and task init.
     ESP_ERROR_CHECK(scd40_sensor_init());   // With queue and task init.
     ESP_ERROR_CHECK(bme680_sensor_init());  // With queue and task init.

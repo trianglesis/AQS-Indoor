@@ -114,7 +114,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_width(ui_Border, 128);
     lv_obj_set_height(ui_Border, 1);
     lv_obj_set_x(ui_Border, 0);
-    lv_obj_set_y(ui_Border, 15);
+    lv_obj_set_y(ui_Border, 16);
     lv_obj_set_align(ui_Border, LV_ALIGN_TOP_MID);
     lv_obj_remove_flag(ui_Border, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_Border, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);

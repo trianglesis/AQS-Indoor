@@ -92,6 +92,18 @@ i2c-tools> i2cdetect
 
 - Show info
 
+SquareLine Studio project is easily installed:
+
+![SQLine](pics/SSD1306/SquareLineUI_Example.png)
+
+Here is an attempt to draw an `invisible` line just to mark the border between different pixel colour matrixes.
+
+![UI on screen](pics/SSD1306/Screen_UI.jpg)
+
+This is a pixel border between two colour zones:
+
+![Pixel Border](pics/SSD1306/PixelBprder.jpg)
+
 ## LVGL
 
 Check float enabled, or UI will not show you float numbers.
