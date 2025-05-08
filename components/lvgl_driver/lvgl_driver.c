@@ -1,5 +1,9 @@
 #include "lvgl_driver.h"
 
+// Only import sensors queues and structs definition
+#include "battery_driver.h"
+#include "sensor_co2.h"
+#include "sensor_temp.h"
 static const char *TAG = "lvgl";
 
 lv_disp_t *display;

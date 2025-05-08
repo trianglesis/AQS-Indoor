@@ -12,10 +12,7 @@
 #include "lvgl.h"
 // Use display, we need panel_handle and io_handle
 #include "display_driver.h"
-// Use sensors queues global vars
-#include "sensor_co2.h"
-#include "sensor_temp.h"
-#include "battery_driver.h"
+
 // SQ Line
 #include "ui.h"
 
