@@ -16,6 +16,7 @@
 // Use sensors queues global vars
 #include "sensor_co2.h"
 #include "sensor_temp.h"
+#include "battery_driver.h"
 
 // Check default lvgl conf
 #ifdef CONFIG_LV_CONF_SKIP

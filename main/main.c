@@ -58,6 +58,7 @@ void app_main(void)
     ESP_ERROR_CHECK(master_bus_init());
     ESP_ERROR_CHECK(scd40_sensor_init());
     ESP_ERROR_CHECK(bme680_sensor_init());
+    ESP_ERROR_CHECK(battery_one_shot_init()); // With queue and task init.
 
     /* Startup sequence:
     2. Wifi setup, AP mode if no known networks found, STA mode if found one.
@@ -72,7 +73,6 @@ void app_main(void)
     ESP_ERROR_CHECK(card_init());
     ESP_ERROR_CHECK(start_webserver());
     ESP_ERROR_CHECK(display_init());          // With LVGL and task init.
-    ESP_ERROR_CHECK(battery_one_shot_init()); // With queue and task init.
     
     // Init in order of importance
     captive_portal();   // 2

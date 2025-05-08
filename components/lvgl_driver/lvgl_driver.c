@@ -72,6 +72,7 @@ void lvgl_task_i2c(void * pvParameters)  {
     long curtime = esp_timer_get_time()/1000;
     struct BMESensor bme680_readings; // data type should be same as queue item type
     struct SCD4XSensor scd4x_readings; // data type should be same as queue item type
+    struct BattSensor battery_readings; // data type should be same as queue item type
     const TickType_t xTicksToWait = pdMS_TO_TICKS(to_wait_ms);
 
     // Handle LVGL tasks
@@ -84,7 +85,7 @@ void lvgl_task_i2c(void * pvParameters)  {
 
         xQueuePeek(mq_co2, (void *)&scd4x_readings, xTicksToWait);
         xQueuePeek(mq_bme680, (void *)&bme680_readings, xTicksToWait);
-        // Add voltage measurement queue
+        xQueuePeek(mq_batt, (void *)&battery_readings, xTicksToWait);
 
         lv_lock();
         lv_label_set_text_fmt(co2_lbl, "%d ppm", scd4x_readings.co2_ppm);
@@ -92,7 +93,7 @@ void lvgl_task_i2c(void * pvParameters)  {
         lv_label_set_text_fmt(humid_lbl, "%.0f %%", bme680_readings.humidity);
         lv_label_set_text_fmt(pressure_lbl, "%.0f hpa", bme680_readings.pressure);
         lv_label_set_text_fmt(aqi_lbl, "AQI %.0d", bme680_readings.air_q_index);
-        // Add voltage
+        lv_label_set_text_fmt(volt, "AQI %.0d", battery_readings.voltage);
         lv_unlock();
                
         vTaskDelay(pdMS_TO_TICKS(DISPLAY_UPDATE_FREQ));

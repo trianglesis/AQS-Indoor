@@ -30,10 +30,8 @@ void battery_measure_task(void *pvParameters) {
 
     vTaskDelay(pdMS_TO_TICKS(1000)); // Wait
     TickType_t last_wake_time  = xTaskGetTickCount();  
-
     while (1) {
         struct BattSensor battery_readings = {};
-        
         ESP_ERROR_CHECK(adc_oneshot_read(param->adc1_handle, ADC1_CHAN0, &adc_raw[0][0]));
         ESP_LOGI(TAG, "ADC%d Channel[%d] Raw Data: %d", ADC_UNIT_1 + 1, ADC1_CHAN0, adc_raw[0][0]);
         if (param->do_calibration1_chan0) {
