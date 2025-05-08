@@ -71,8 +71,8 @@ void app_main(void)
     ESP_ERROR_CHECK(fs_setup());
     ESP_ERROR_CHECK(card_init());
     ESP_ERROR_CHECK(start_webserver());
-    ESP_ERROR_CHECK(display_init());
-    ESP_ERROR_CHECK(battery_one_shot_init());
+    ESP_ERROR_CHECK(display_init());          // With LVGL and task init.
+    ESP_ERROR_CHECK(battery_one_shot_init()); // With queue and task init.
     
     // Init in order of importance
     captive_portal();   // 2

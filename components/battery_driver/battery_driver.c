@@ -8,11 +8,13 @@ QueueHandle_t mq_batt;
 static int adc_raw[2][10];
 static int voltage[2][10];
 
-typedef struct {
+typedef struct adc_task_parameters *adc_task_param_t;
+
+struct adc_task_parameters {
     adc_oneshot_unit_handle_t adc1_handle;
     bool do_calibration1_chan0;
     adc_cali_handle_t adc1_cali_chan0_handle;
-} adc_task_param_t;
+};
 
 void battery_driver_info(void) {
     printf(" - Init: battery_driver_info empty function call!\n\n");
@@ -22,8 +24,9 @@ void battery_driver_info(void) {
     ESP_LOGI(TAG, "ADC1_CHAN0: %d", ADC1_CHAN0);
 }
 
-void battery_measure_task(void * pvParameters) {
-    adc_task_param_t *param = (adc_task_param_t *)pvParameters;
+void battery_measure_task(void *pvParameters) {
+
+    adc_task_param_t param = pvParameters;
 
     vTaskDelay(pdMS_TO_TICKS(1000)); // Wait
     TickType_t last_wake_time  = xTaskGetTickCount();  
@@ -131,12 +134,13 @@ esp_err_t battery_one_shot_init(void) {
     bool do_calibration1_chan0 = adc_calibr_init(ADC_UNIT_1, ADC1_CHAN0, ADC_ATTEN, &adc1_cali_chan0_handle);
 
     // Start task
-    adc_task_param_t adc_task_param = {
-        .adc1_handle = adc1_handle,
-        .do_calibration1_chan0 = do_calibration1_chan0,
-        .adc1_cali_chan0_handle = adc1_cali_chan0_handle,
-    };
-    xTaskCreatePinnedToCore(battery_measure_task, "adc-batt", 4096, (void *)&adc_task_param, 4, NULL, tskNO_AFFINITY);
+    adc_task_param_t handle = calloc(1, sizeof(struct adc_task_parameters) + sizeof(adc1_handle) + sizeof(do_calibration1_chan0) + sizeof(adc1_cali_chan0_handle));
+
+    handle->adc1_handle = adc1_handle;
+    handle->do_calibration1_chan0 = do_calibration1_chan0;
+    handle->adc1_cali_chan0_handle = adc1_cali_chan0_handle;
+
+    xTaskCreatePinnedToCore(battery_measure_task, "adc-batt", 4096, handle, 4, NULL, tskNO_AFFINITY);
 
     return ESP_OK;
 }
