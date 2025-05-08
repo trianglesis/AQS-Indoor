@@ -14,7 +14,7 @@
 // Use display, we need panel_handle and io_handle
 #include "display_driver.h"
 // SQ Line
-#include "ui.h"
+#include "ui_load.h"
 
 // Check default lvgl conf
 #ifdef CONFIG_LV_CONF_SKIP

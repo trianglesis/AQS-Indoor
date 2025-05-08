@@ -1,4 +1,5 @@
 #include "lvgl_driver.h"
+#include "ui_load.h"
 
 // Only import sensors queues and structs definition
 #include "battery_driver.h"
@@ -30,7 +31,7 @@ Simple drawings for I2C display
 */
 void lvgl_task_i2c(void * pvParameters)  {
     ESP_LOGI(TAG, "Starting LVGL task");
-    
+
     lv_lock();
     // Create a simple label
     lv_obj_t *co2_lbl = lv_label_create(lv_screen_active());
@@ -98,6 +99,48 @@ void lvgl_task_i2c(void * pvParameters)  {
         lv_label_set_text_fmt(pressure_lbl, "%.0f hpa", bme680_readings.pressure);
         lv_label_set_text_fmt(aqi_lbl, "AQI %.0d", bme680_readings.air_q_index);
         lv_label_set_text_fmt(volt, "%.0d mV", battery_readings.voltage);
+        lv_unlock();
+               
+        vTaskDelay(pdMS_TO_TICKS(DISPLAY_UPDATE_FREQ));
+    } // WHILE
+}
+
+/*
+Squareline studio drawings
+*/
+void lvgl_task_i2c_sq_line(void * pvParameters)  {
+    ESP_LOGI(TAG, "Starting LVGL task");
+
+    // Depends on which connection display uses
+    load_graphics();  // Same as ui_init();
+    vTaskDelay(pdMS_TO_TICKS(500));
+    
+    int to_wait_ms = 10;
+    long curtime = esp_timer_get_time()/1000;
+    struct BMESensor bme680_readings; // data type should be same as queue item type
+    struct SCD4XSensor scd4x_readings; // data type should be same as queue item type
+    struct BattSensor battery_readings; // data type should be same as queue item type
+    const TickType_t xTicksToWait = pdMS_TO_TICKS(to_wait_ms);
+
+    // Handle LVGL tasks
+    while (1) {
+        vTaskDelay(pdMS_TO_TICKS(10));  // idle between cycles
+        lv_task_handler();
+        if (esp_timer_get_time()/1000 - curtime > 1000) {
+            curtime = esp_timer_get_time()/1000;
+        } // Timer
+
+        xQueuePeek(mq_co2, (void *)&scd4x_readings, xTicksToWait);
+        xQueuePeek(mq_bme680, (void *)&bme680_readings, xTicksToWait);
+        xQueuePeek(mq_batt, (void *)&battery_readings, xTicksToWait);
+
+        lv_lock();
+        lv_label_set_text_fmt(ui_co2count, "%d ppm", scd4x_readings.co2_ppm);
+        lv_label_set_text_fmt(ui_Temperature, "%.0f C", bme680_readings.temperature);
+        lv_label_set_text_fmt(ui_Humidity, "%.0f %%", bme680_readings.humidity);
+        lv_label_set_text_fmt(ui_Pressure, "%.0f hpa", bme680_readings.pressure);
+        lv_label_set_text_fmt(ui_airQuality, "AQI %.0d", bme680_readings.air_q_index);
+        lv_label_set_text_fmt(ui_Battery, "%.0d mV", battery_readings.voltage);
         lv_unlock();
                
         vTaskDelay(pdMS_TO_TICKS(DISPLAY_UPDATE_FREQ));
@@ -318,7 +361,8 @@ esp_err_t lvgl_init(void) {
     #elif CONFIG_CONNECTION_I2C
     // Now create a task
     ESP_LOGI(TAG, "Create LVGL task");
-    xTaskCreatePinnedToCore(lvgl_task_i2c, "i2c display task", 8192, NULL, 9, NULL, tskNO_AFFINITY);
+    // xTaskCreatePinnedToCore(lvgl_task_i2c, "i2c display task", 8192, NULL, 9, NULL, tskNO_AFFINITY);
+    xTaskCreatePinnedToCore(lvgl_task_i2c_sq_line, "i2c display task SqLine", 8192, NULL, 9, NULL, tskNO_AFFINITY);
     #endif
 
     return ESP_OK;
