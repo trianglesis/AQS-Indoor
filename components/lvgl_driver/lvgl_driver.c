@@ -135,7 +135,7 @@ void lvgl_task_i2c_sq_line(void * pvParameters)  {
         xQueuePeek(mq_batt, (void *)&battery_readings, xTicksToWait);
 
         lv_lock();
-        lv_label_set_text_fmt(ui_co2count, "%d ppm", scd4x_readings.co2_ppm);
+        lv_label_set_text_fmt(ui_co2count, "%d", scd4x_readings.co2_ppm);
         lv_label_set_text_fmt(ui_Temperature, "%.0f C", bme680_readings.temperature);
         lv_label_set_text_fmt(ui_Humidity, "%.0f %%", bme680_readings.humidity);
         lv_label_set_text_fmt(ui_Pressure, "%.0f hpa", bme680_readings.pressure);

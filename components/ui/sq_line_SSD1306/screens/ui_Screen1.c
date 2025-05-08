@@ -54,18 +54,18 @@ void ui_Screen1_screen_init(void)
     ui_co2count = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_co2count, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_co2count, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_co2count, -4);
-    lv_obj_set_y(ui_co2count, -5);
+    lv_obj_set_x(ui_co2count, -1);
+    lv_obj_set_y(ui_co2count, -10);
     lv_obj_set_align(ui_co2count, LV_ALIGN_RIGHT_MID);
     lv_label_set_text(ui_co2count, "2000");
     lv_obj_set_style_text_align(ui_co2count, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_co2count, &lv_font_montserrat_26, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_co2count, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_co2ppm = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_co2ppm, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_co2ppm, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_co2ppm, -4);
-    lv_obj_set_y(ui_co2ppm, 10);
+    lv_obj_set_x(ui_co2ppm, -1);
+    lv_obj_set_y(ui_co2ppm, -1);
     lv_obj_set_align(ui_co2ppm, LV_ALIGN_RIGHT_MID);
     lv_label_set_text(ui_co2ppm, "ppm");
     lv_obj_set_style_text_font(ui_co2ppm, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -74,41 +74,41 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_width(ui_airQuality, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_airQuality, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_airQuality, 0);
-    lv_obj_set_y(ui_airQuality, -15);
-    lv_obj_set_align(ui_airQuality, LV_ALIGN_LEFT_MID);
+    lv_obj_set_y(ui_airQuality, -10);
+    lv_obj_set_align(ui_airQuality, LV_ALIGN_BOTTOM_RIGHT);
     lv_label_set_text(ui_airQuality, "AQI 88");
     lv_obj_set_style_text_align(ui_airQuality, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_airQuality, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_airQuality, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Humidity = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_Humidity, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Humidity, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Humidity, 0);
-    lv_obj_set_y(ui_Humidity, 5);
+    lv_obj_set_x(ui_Humidity, 1);
+    lv_obj_set_y(ui_Humidity, 2);
     lv_obj_set_align(ui_Humidity, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Humidity, "100%");
     lv_obj_set_style_text_align(ui_Humidity, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Humidity, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Humidity, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Temperature = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_Temperature, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Temperature, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Temperature, 0);
-    lv_obj_set_y(ui_Temperature, -5);
+    lv_obj_set_x(ui_Temperature, 1);
+    lv_obj_set_y(ui_Temperature, -12);
     lv_obj_set_align(ui_Temperature, LV_ALIGN_LEFT_MID);
-    lv_label_set_text(ui_Temperature, "35 C");
+    lv_label_set_text(ui_Temperature, "35C");
     lv_obj_set_style_text_align(ui_Temperature, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Temperature, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Temperature, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Pressure = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_Pressure, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Pressure, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Pressure, 0);
-    lv_obj_set_y(ui_Pressure, 15);
+    lv_obj_set_x(ui_Pressure, 1);
+    lv_obj_set_y(ui_Pressure, 14);
     lv_obj_set_align(ui_Pressure, LV_ALIGN_LEFT_MID);
-    lv_label_set_text(ui_Pressure, "992 hpa");
+    lv_label_set_text(ui_Pressure, "992hpa");
     lv_obj_set_style_text_align(ui_Pressure, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Pressure, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Pressure, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     uic_Battery = ui_Battery;
     uic_Network = ui_Network;

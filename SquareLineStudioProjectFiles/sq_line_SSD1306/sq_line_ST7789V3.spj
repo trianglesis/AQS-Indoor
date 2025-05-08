@@ -886,8 +886,8 @@
                 "flags": 17,
                 "strtype": "OBJECT/Position",
                 "intarray": [
-                  -4,
-                  -5
+                  -1,
+                  -10
                 ],
                 "InheritedType": 7
               },
@@ -989,7 +989,7 @@
                       {
                         "nid": 10450,
                         "strtype": "_style/Text_Font",
-                        "strval": "montserrat_26",
+                        "strval": "montserrat_20",
                         "InheritedType": 3
                       }
                     ],
@@ -1052,8 +1052,8 @@
                 "flags": 17,
                 "strtype": "OBJECT/Position",
                 "intarray": [
-                  -4,
-                  10
+                  -1,
+                  -1
                 ],
                 "InheritedType": 7
               },
@@ -1213,7 +1213,7 @@
                 "strtype": "OBJECT/Position",
                 "intarray": [
                   0,
-                  -15
+                  -10
                 ],
                 "InheritedType": 7
               },
@@ -1230,7 +1230,7 @@
               {
                 "nid": 70,
                 "strtype": "OBJECT/Align",
-                "strval": "LEFT_MID",
+                "strval": "BOTTOM_RIGHT",
                 "InheritedType": 3
               },
               {
@@ -1315,7 +1315,7 @@
                       {
                         "nid": 10450,
                         "strtype": "_style/Text_Font",
-                        "strval": "montserrat_10",
+                        "strval": "montserrat_12",
                         "InheritedType": 3
                       }
                     ],
@@ -1378,8 +1378,8 @@
                 "flags": 17,
                 "strtype": "OBJECT/Position",
                 "intarray": [
-                  0,
-                  5
+                  1,
+                  2
                 ],
                 "InheritedType": 7
               },
@@ -1481,7 +1481,7 @@
                       {
                         "nid": 10450,
                         "strtype": "_style/Text_Font",
-                        "strval": "montserrat_10",
+                        "strval": "montserrat_12",
                         "InheritedType": 3
                       }
                     ],
@@ -1545,8 +1545,8 @@
                 "flags": 17,
                 "strtype": "OBJECT/Position",
                 "intarray": [
-                  0,
-                  -5
+                  1,
+                  -12
                 ],
                 "InheritedType": 7
               },
@@ -1628,7 +1628,7 @@
               {
                 "nid": 1030,
                 "strtype": "LABEL/Text",
-                "strval": "35 C",
+                "strval": "35C",
                 "InheritedType": 10
               },
               {
@@ -1648,7 +1648,7 @@
                       {
                         "nid": 10450,
                         "strtype": "_style/Text_Font",
-                        "strval": "montserrat_10",
+                        "strval": "montserrat_12",
                         "InheritedType": 3
                       }
                     ],
@@ -1711,8 +1711,8 @@
                 "flags": 17,
                 "strtype": "OBJECT/Position",
                 "intarray": [
-                  0,
-                  15
+                  1,
+                  14
                 ],
                 "InheritedType": 7
               },
@@ -1794,7 +1794,7 @@
               {
                 "nid": 1030,
                 "strtype": "LABEL/Text",
-                "strval": "992 hpa",
+                "strval": "992hpa",
                 "InheritedType": 10
               },
               {
@@ -1814,7 +1814,7 @@
                       {
                         "nid": 10450,
                         "strtype": "_style/Text_Font",
-                        "strval": "montserrat_10",
+                        "strval": "montserrat_12",
                         "InheritedType": 3
                       }
                     ],
@@ -1985,7 +1985,7 @@
     "uiExportFolderPath": "D:\\Projects\\ESP\\ESP32-C6-OLED\\AQS-Indoor\\components\\ui\\sq_line_SSD1306",
     "projectExportFolderPath": "D:\\Projects\\ESP\\ESP32-C6-OLED\\AQS-Indoor",
     "custom_variable_prefix": "uic",
-    "backup_cnt": 32,
+    "backup_cnt": 37,
     "autosave_cnt": 0,
     "group_color_cnt": 0,
     "lvgl_version": "9.2.2",
