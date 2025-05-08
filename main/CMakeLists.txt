@@ -23,6 +23,7 @@ idf_component_register(
                     card_driver
                     webserver
                     display_driver
+                    battery_driver
                     lvgl_driver
                     led_driver
                     ui

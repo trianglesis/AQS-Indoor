@@ -1,0 +1,16 @@
+menu "AQS ADC Battery"
+
+    config ADC_PIN
+        int "ADC Pin"
+        default 0 if IDF_TARGET_ESP32C6
+        default 0
+        help
+            ADC Pin where is battery voltage pin attached AFTER resistors!
+    
+    config ADC_MEASUREMENT_FREQ
+        int "Voltage Measure request frequency ms"
+        default 5000
+        help
+            How long should we wait before getting next measurement. Default 5 sec!
+
+endmenu

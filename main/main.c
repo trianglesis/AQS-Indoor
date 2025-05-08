@@ -24,6 +24,7 @@ In order of importance during init
 #include "littlefs_driver.h"
 #include "card_driver.h"
 #include "display_driver.h"
+#include "battery_driver.h"
 #include "webserver.h"
 
 // Empty files - placeholders
@@ -71,6 +72,7 @@ void app_main(void)
     ESP_ERROR_CHECK(card_init());
     ESP_ERROR_CHECK(start_webserver());
     ESP_ERROR_CHECK(display_init());
+    ESP_ERROR_CHECK(battery_one_shot_init());
     
     // Init in order of importance
     captive_portal();   // 2

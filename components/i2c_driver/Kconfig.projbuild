@@ -9,10 +9,10 @@ menu "AQS I2C Master Bus"
     
     config COMMON_SCL_PIN
         int "SCL GPIO Num"
-        default 19 if IDF_TARGET_ESP32C6
-        default 1
+        default 3 if IDF_TARGET_ESP32C6
+        default 3
         help
-            SCL Pin - common for multiple sensors
+            ADC attenuation parameter. Different parameters determine the range of the ADC.
 
     config I2C_FREQ_HZ
         int "Master Frequency"

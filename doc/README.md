@@ -55,7 +55,7 @@ Initial files:
 ## Simple OLED
 
 - [ALi](https://www.aliexpress.com/item/1005006035385704.html)
-- 
+- [Setup example](https://github.com/trianglesis/Monochromatic_168x64/blob/dd3de94a450a443e910fca3291d5ad1612539b91/README.md)
 
 ```txt
 128*64 LED display module for Arduino, supports many control chip.
@@ -91,6 +91,12 @@ i2c-tools> i2cdetect
 ```
 
 - Show info
+
+## LVGL
+
+Check float enabled, or UI will not show you float numbers.
+
+`LV_USE_FLOAT`
 
 # SD Card
 
@@ -170,6 +176,21 @@ i2cconfig  --port=0 --freq=100000 --sda=9 --scl=18
 ## IDF Components
 
 [Read](../managed_components/idf_components.md)
+
+# ADC
+
+For measuring battery charge.
+
+Battery 18650 cell in the case with charge\discharge\overcharge usb-c module is connected to the board via voltage bust module. 
+- Charging module if giving 4.2 volts.
+- Bosster is giving 5.03 volts.
+- Voltage divider is dropping voltage to 0.333V
+
+[Voltage Divider](https://raw.org/tool/voltage-divider-calculator/)
+- Using 100K and 10K resistors from example.
+
+ESP32 C6 have a `PIN 0` with `ADC1_CH0` use it.
+
 
 # Debug and etc
 
