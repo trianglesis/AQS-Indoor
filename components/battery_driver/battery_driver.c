@@ -95,7 +95,7 @@ static void tear_down(bool do_calibration1_chan0, adc_oneshot_unit_handle_t adc1
 /*
 Always create queue first, at the very beginning.
 */
-void create_mq_co2() {
+void create_mq_battery() {
     // Message Queue
     mq_batt = xQueueGenericCreate(1, sizeof(struct BattSensor), queueQUEUE_TYPE_SET);
     if (!mq_batt) {
@@ -109,7 +109,7 @@ void create_mq_co2() {
 */
 esp_err_t battery_one_shot_init(void) {
     battery_driver_info();  // Debug
-    create_mq_co2(); // Queue always
+    create_mq_battery(); // Queue always
     
     // Unit
     adc_oneshot_unit_handle_t adc1_handle;
