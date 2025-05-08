@@ -104,6 +104,8 @@ This is a pixel border between two colour zones:
 
 ![Pixel Border](pics/SSD1306/PixelBprder.jpg)
 
+It seems like this border is sitiated between 15th and 16th pixel.
+
 ## LVGL
 
 Check float enabled, or UI will not show you float numbers.
