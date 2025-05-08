@@ -206,6 +206,11 @@ Battery 18650 cell in the case with charge\discharge\overcharge usb-c module is 
 ESP32 C6 have a `PIN 0` with `ADC1_CH0` use it.
 
 
+# Battery power
+
+Is not yet working, board cannot start. 
+Maybe voltage is too low under the load of all sensors?
+
 # Debug and etc
 
 - [JTAG](https://docs.espressif.com/projects/esp-idf/en/v5.4.1/esp32c6/api-guides/jtag-debugging/index.html)
