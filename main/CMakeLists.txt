@@ -1,35 +1,24 @@
 
-# TODO: Or move it into external component too?
-# Add sources from SquareLine Studio export directory
-file(GLOB_RECURSE SRC_UI ${CMAKE_SOURCE_DIR} 
-                        "ui/exported/*.c"
-                        "ui/exported/components/*.c"
-                        "ui/exported/screens/*.c"
-                        "ui/exported/images/*.c"
-)
+
 
 idf_component_register(
     SRCS 
                     "main.c"
-                    ${SRC_UI}
-
     PRIV_REQUIRES 
                     spi_flash
     REQUIRES 
-                    a_menu
-                    wifi
-                    captive_portal
-                    littlefs_driver
-                    card_driver
-                    webserver
-                    display_driver
                     battery_driver
-                    lvgl_driver
-                    led_driver
-                    ui
+                    captive_portal
+                    card_driver
+                    display_driver
                     i2c_driver
+                    led_driver
+                    littlefs_driver
+                    lvgl_driver
                     sensor_co2
                     sensor_temp
+                    webserver
+                    wifi
     INCLUDE_DIRS 
                     ""
 )

@@ -580,15 +580,6 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
-# AQS Project Configurations
-#
-
-#
-# This is separate section for project configuration
-#
-# end of AQS Project Configurations
-
-#
 # AQS ADC Battery
 #
 CONFIG_ADC_PIN=0

@@ -12,27 +12,19 @@
 #include "esp_err.h"
 #include "esp_mac.h"
 
-/*
-Custom components
-In order of importance during init
-*/
 // Function modules
-#include "wifi.h"
-#include "i2c_driver.h"
-#include "sensor_co2.h"
-#include "sensor_temp.h"
 #include "battery_driver.h"
-#include "littlefs_driver.h"
 #include "card_driver.h"
 #include "display_driver.h"
+#include "i2c_driver.h"
+#include "littlefs_driver.h"
+#include "sensor_co2.h"
+#include "sensor_temp.h"
 #include "webserver.h"
+#include "wifi.h"
 
 // Empty files - placeholders
 #include "captive_portal.h"
-// LVGL locally installed
-#include "lvgl.h"
-// SquareLine Studio export
-#include "ui.h"
 
 static const char *TAG = "co2station";
 
@@ -55,10 +47,10 @@ void app_main(void)
             1.2 Add MBE680 sensor to the BUS, stop it and move on
         Proceed with all other modules while sensors are warming up!
     */
+    ESP_ERROR_CHECK(master_bus_init());   // Init I2C master bus early
     ESP_ERROR_CHECK(battery_one_shot_init()); // With queue and task init.
-    ESP_ERROR_CHECK(master_bus_init());
-    ESP_ERROR_CHECK(scd40_sensor_init());
-    ESP_ERROR_CHECK(bme680_sensor_init());
+    ESP_ERROR_CHECK(scd40_sensor_init());   // With queue and task init.
+    ESP_ERROR_CHECK(bme680_sensor_init());  // With queue and task init.
 
     /* Startup sequence:
     2. Wifi setup, AP mode if no known networks found, STA mode if found one.
@@ -72,22 +64,11 @@ void app_main(void)
     ESP_ERROR_CHECK(fs_setup());
     ESP_ERROR_CHECK(card_init());
     ESP_ERROR_CHECK(start_webserver());
-    ESP_ERROR_CHECK(display_init());          // With LVGL and task init.
+    ESP_ERROR_CHECK(display_init());       // With LVGL and task init. i2c used too
     
     // Init in order of importance
     captive_portal();   // 2
 
-    // TODO: Create a separate module for graphics?
-    ui_init_fake();     // 8
-
-    /* Make a queue for each sensor
-        Assign a task:
-        - Wait 5 seconds before loop
-        - Sleep real time betteen measurements with xTaskDelayUntil
-    */
-    vTaskDelay(pdMS_TO_TICKS(500));
-    task_co2();
-    task_bme680();
     // End
 }
 // END

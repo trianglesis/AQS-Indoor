@@ -45,7 +45,7 @@ void lvgl_task_i2c(void * pvParameters)  {
     lv_label_set_text(humid_lbl, "Hum: 100%%");
     lv_label_set_text(pressure_lbl, "999 hpa");
     lv_label_set_text(aqi_lbl, "AQI 99");
-    lv_label_set_text(volt, "0.333V");
+    lv_label_set_text(volt, "333 mV");
     
     lv_obj_set_width(co2_lbl, DISP_HOR_RES);
     lv_obj_set_width(temp_lbl, DISP_HOR_RES);
@@ -97,7 +97,7 @@ void lvgl_task_i2c(void * pvParameters)  {
         lv_label_set_text_fmt(humid_lbl, "%.0f %%", bme680_readings.humidity);
         lv_label_set_text_fmt(pressure_lbl, "%.0f hpa", bme680_readings.pressure);
         lv_label_set_text_fmt(aqi_lbl, "AQI %.0d", bme680_readings.air_q_index);
-        lv_label_set_text_fmt(volt, "%.0d v", battery_readings.voltage);
+        lv_label_set_text_fmt(volt, "%.0d mV", battery_readings.voltage);
         lv_unlock();
                
         vTaskDelay(pdMS_TO_TICKS(DISPLAY_UPDATE_FREQ));

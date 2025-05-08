@@ -1,16 +1,21 @@
-
 idf_build_get_property(target IDF_TARGET)
 
+# Add sources from SquareLine Studio export directory
+file(GLOB_RECURSE SRC_UI ${CMAKE_SOURCE_DIR} 
+                        "ui/exported/*.c"
+                        "ui/exported/components/*.c"
+                        "ui/exported/screens/*.c"
+                        "ui/exported/images/*.c"
+)
+
 set(requires "display_driver" "sensor_co2" "sensor_temp" "battery_driver" "lvgl" "esp_timer" "ui" )
-set(priv_requires "")
 
 idf_component_register(
         SRCS 
                         "lvgl_driver.c"
+                        ${SRC_UI}
         REQUIRES        
                         "${requires}" 
-        PRIV_REQUIRES
-                        "${priv_requires}"
         INCLUDE_DIRS    
                         "include"
 )

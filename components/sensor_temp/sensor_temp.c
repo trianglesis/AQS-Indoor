@@ -118,6 +118,13 @@ void create_mq_bme680() {
     }
 }
 
+void task_bme680() {
+    // Put measurements into the queue
+    create_mq_bme680();
+    // Start task
+    xTaskCreatePinnedToCore(bme680_reading, "bme680_reading", 4096, NULL, 4, NULL, tskNO_AFFINITY);
+}
+
 /*
 Get I2C bus 
 Add sensor at it, and use device handle
@@ -140,12 +147,10 @@ esp_err_t bme680_sensor_init(void) {
         assert(dev_hdl);
     }
     print_registers(dev_hdl);
+
+    // Create a queue and start task
+    task_bme680();
     return ESP_OK;
 }
 
-void task_bme680() {
-    // Put measurements into the queue
-    create_mq_bme680();
-    // Start task
-    xTaskCreatePinnedToCore(bme680_reading, "bme680_reading", 4096, NULL, 4, NULL, tskNO_AFFINITY);
-}
+

@@ -60,6 +60,53 @@ void co2_scd4x_reading(void * pvParameters) {
     } // WHILE
 }
 
+
+/*
+Led HUE based on CO2 levels as task
+    xQueueReceive - destroy the message
+    xQueuePeek - read the message, not destroying
+*/
+void led_co2(void * pvParameters) {
+    // Read from the queue
+    struct SCD4XSensor scd4x_readings; // data type should be same as queue item type
+    // Wait for queue
+    const TickType_t xTicksToWait = pdMS_TO_TICKS(10);
+    // Wait TS between cycles real time
+    TickType_t last_wake_time  = xTaskGetTickCount();
+    while (1) {
+        xQueuePeek(mq_co2, (void *)&scd4x_readings, xTicksToWait);
+        // Update LED colour
+        led_co2_severity(scd4x_readings.co2_ppm);
+        // Classical approach sleep in ticks
+        // vTaskDelay(pdMS_TO_TICKS(CONFIG_CO2_LED_UPDATE_FREQ));  // idle between cycles
+        // Actual sleep real time?
+        xTaskDelayUntil(&last_wake_time, CONFIG_CO2_LED_UPDATE_FREQ);
+    } // WHILE
+}
+
+
+/*
+Always create queue first, at the very beginning.
+*/
+void create_mq_co2() {
+    // Message Queue
+    mq_co2 = xQueueGenericCreate(1, sizeof(struct SCD4XSensor), queueQUEUE_TYPE_SET);
+    if (!mq_co2) {
+        ESP_LOGE(TAG, "queue creation failed");
+    }
+}
+
+void task_co2() {
+    // Task CO2 requires LED
+    led_init();
+    // Put measurements into the queue
+    create_mq_co2();
+    // Cycle getting measurements
+    xTaskCreatePinnedToCore(co2_scd4x_reading, "co2_scd4x_reading", 4096, NULL, 4, NULL, tskNO_AFFINITY);
+    // Change LED color based on CO2 severity level
+    xTaskCreatePinnedToCore(led_co2, "led_co2", 4096, NULL, 8, NULL, tskNO_AFFINITY);
+}
+
 /*
 Get I2C bus 
 Add SCD40 sensor at it, and use device handle
@@ -131,52 +178,7 @@ esp_err_t scd40_sensor_init(void) {
         // Wait moved into the task init part
     }
 
+    // Create a queue and start task
+    task_co2(); 
     return ESP_OK;
-}
-
-
-/*
-Led HUE based on CO2 levels as task
-    xQueueReceive - destroy the message
-    xQueuePeek - read the message, not destroying
-*/
-void led_co2(void * pvParameters) {
-    // Read from the queue
-    struct SCD4XSensor scd4x_readings; // data type should be same as queue item type
-    // Wait for queue
-    const TickType_t xTicksToWait = pdMS_TO_TICKS(10);
-    // Wait TS between cycles real time
-    TickType_t last_wake_time  = xTaskGetTickCount();
-    while (1) {
-        xQueuePeek(mq_co2, (void *)&scd4x_readings, xTicksToWait);
-        // Update LED colour
-        led_co2_severity(scd4x_readings.co2_ppm);
-        // Classical approach sleep in ticks
-        // vTaskDelay(pdMS_TO_TICKS(CONFIG_CO2_LED_UPDATE_FREQ));  // idle between cycles
-        // Actual sleep real time?
-        xTaskDelayUntil(&last_wake_time, CONFIG_CO2_LED_UPDATE_FREQ);
-    } // WHILE
-}
-
-
-/*
-Always create queue first, at the very beginning.
-*/
-void create_mq_co2() {
-    // Message Queue
-    mq_co2 = xQueueGenericCreate(1, sizeof(struct SCD4XSensor), queueQUEUE_TYPE_SET);
-    if (!mq_co2) {
-        ESP_LOGE(TAG, "queue creation failed");
-    }
-}
-
-void task_co2() {
-    // Task CO2 requires LED
-    led_init();
-    // Put measurements into the queue
-    create_mq_co2();
-    // Cycle getting measurements
-    xTaskCreatePinnedToCore(co2_scd4x_reading, "co2_scd4x_reading", 4096, NULL, 4, NULL, tskNO_AFFINITY);
-    // Change LED color based on CO2 severity level
-    xTaskCreatePinnedToCore(led_co2, "led_co2", 4096, NULL, 8, NULL, tskNO_AFFINITY);
 }
