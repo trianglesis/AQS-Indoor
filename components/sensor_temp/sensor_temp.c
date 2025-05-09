@@ -25,45 +25,42 @@ void bme680_reading(void * pvParameters) {
     while (1) {
         esp_err_t result;
         struct BMESensor bme680_readings = {};
+        bme680_data_t data;
 
         // 9 profiles?
-        // for(uint8_t i = 0; i < dev_hdl->dev_config.heater_profile_size; i++) {
-        //     bme680_data_t data;
-        //     result = bme680_get_data_by_heater_profile(dev_hdl, i, &data);
-        //     if(result != ESP_OK) {
-        //         ESP_LOGE(TAG, "bme680 device read failed (%s)", esp_err_to_name(result));
-        //     }
-        //     ESP_LOGI(TAG, "Index Air(°C) Dew-Point(°C) Humidity(%%) Pressure(hPa) Gas-Resistance(kΩ) Gas-Range Gas-Valid Gas-Index Heater-Stable IAQ-Score");
-        //     ESP_LOGI(TAG, "%u\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%u\t%s\t%u\t%s\t%u (%s)",
-        //         i,
-        //         data.air_temperature,
-        //         data.dewpoint_temperature,
-        //         data.relative_humidity,
-        //         data.barometric_pressure/100,
-        //         data.gas_resistance/1000,
-        //         data.gas_range,
-        //         data.gas_valid ? "yes" : "no",
-        //         data.gas_index,
-        //         data.heater_stable ? "yes" : "no",
-        //         data.iaq_score, bme680_air_quality_to_string(data.iaq_score));
-        //     vTaskDelay(pdMS_TO_TICKS(250));
-        // }
+        for(uint8_t i = 0; i < dev_hdl->dev_config.heater_profile_size; i++) {
+            result = bme680_get_data_by_heater_profile(dev_hdl, i, &data);
+            if(result != ESP_OK) {
+                ESP_LOGE(TAG, "bme680 device read failed (%s)", esp_err_to_name(result));
+            }
+            // ESP_LOGI(TAG, "Index Air(°C) Dew-Point(°C) Humidity(%%) Pressure(hPa) Gas-Resistance(kΩ) Gas-Range Gas-Valid Gas-Index Heater-Stable IAQ-Score");
+            // ESP_LOGI(TAG, "%u\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%u\t%s\t%u\t%s\t%u (%s)",
+            //     i,
+            //     data.air_temperature,
+            //     data.dewpoint_temperature,
+            //     data.relative_humidity,
+            //     data.barometric_pressure/100,
+            //     data.gas_resistance/1000,
+            //     data.gas_range,
+            //     data.gas_valid ? "yes" : "no",
+            //     data.gas_index,
+            //     data.heater_stable ? "yes" : "no",
+            //     data.iaq_score, bme680_air_quality_to_string(data.iaq_score));
+            vTaskDelay(pdMS_TO_TICKS(250));
+        }
         
         // Simple?
-        bme680_data_t data;
-        result = bme680_get_data(dev_hdl, &data);
-        if(result != ESP_OK) {
-            ESP_LOGE(TAG, "bme680 device read failed (%s)", esp_err_to_name(result));
-        }
+        // result = bme680_get_data(dev_hdl, &data);
+        // if(result != ESP_OK) {
+        //     ESP_LOGE(TAG, "bme680 device read failed (%s)", esp_err_to_name(result));
+        // }
         // Once per measure
         bme680_readings.temperature = data.air_temperature;
         bme680_readings.humidity = data.relative_humidity;
         bme680_readings.pressure = data.barometric_pressure/100;
         bme680_readings.resistance = data.gas_resistance/1000;
         bme680_readings.air_q_index = data.iaq_score;
-
-        ESP_LOGI(TAG, " \t Air(°C) \t Hum(%%) \t hPa \t\t Res(kΩ) \t Stable \t IAQ \t (Level) ");
-        ESP_LOGI(TAG, " \t %.2f \t\t %.2f \t\t %.2f \t %.2f \t %s \t\t %d \t (%s) ",
+        ESP_LOGI(TAG, "t:%.2fC; Humidity:%.2f%%; Pressure:%.2fhpa; Resistance:%.2f; Stable:%s: AQI:%d (%s)",
             data.air_temperature,
             data.relative_humidity,
             data.barometric_pressure/100,

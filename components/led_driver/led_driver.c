@@ -5,13 +5,11 @@ static const char *TAG = "LED-WS2812B";
 
 static led_strip_handle_t led_strip;
 
-
 int random_int_range(int min, int max) {    
     // Return random int from the range.
     // Use to blink led with random values.
     return min + (esp_random() % (max - min + 1));
 }
-
 
 void led_driver(void) {
     printf(" - Init: sensor_co2 empty function call!\n\n");
@@ -47,8 +45,8 @@ void led_co2_severity(int co2_ppm) {
     float hue_calc = (1 - t) * 96;
     // https://cplusplus.com/reference/cstdio/printf/
     // ESP_LOGI(TAG, "CO2 lvl = %d co2 min = %4.2f HUE = %4.2f t = %4.2f", co2_ppm, co2, hue_calc, t);
-    ESP_LOGI(TAG, " \t\t HUE \t Saturation \t Value ");
-    ESP_LOGI(TAG, " \t\t %.0f \t %d \t\t %d ", hue_calc, LED_COLOUR_SATURATION, LED_COLOUR_VALUE);
+    ESP_LOGD(TAG, " \t\t HUE \t Saturation \t Value ");
+    ESP_LOGD(TAG, " \t\t %.0f \t %d \t\t %d ", hue_calc, LED_COLOUR_SATURATION, LED_COLOUR_VALUE);
     for (int i = 0; i < LED_STRIP_LED_COUNT; i++) {
         led_control_hsv(led_strip, i, hue_calc, LED_COLOUR_SATURATION, LED_COLOUR_VALUE);
     }
