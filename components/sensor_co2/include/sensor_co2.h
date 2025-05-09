@@ -18,6 +18,7 @@
 #include "sensirion_i2c.h"
 
 #define I2C_SCD40_ADDRESS CONFIG_I2C_SCD40_ADDRESS
+// TODO: Change to minutes: 1 minute X 60 seconds X 1000 miliseconds
 #define CO2_MEASUREMENT_FREQ CONFIG_CO2_MEASUREMENT_FREQ  // Sensor can only provide it once for 5 sec!
 #define CO2_LED_UPDATE_FREQ CONFIG_CO2_LED_UPDATE_FREQ
 

@@ -16,6 +16,7 @@
 
 #define ADC_PIN                 CONFIG_ADC_PIN
 #define ADC1_CHAN0              ADC_CHANNEL_0
+// TODO: Change to minutes: 1 minute X 60 seconds X 1000 miliseconds
 #define ADC_MEASUREMENT_FREQ    CONFIG_ADC_MEASUREMENT_FREQ
 #define ADC_ATTEN               ADC_ATTEN_DB_12
 

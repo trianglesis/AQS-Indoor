@@ -19,7 +19,7 @@
 #define PORT 0
 #define BME680_I2C_ADDR_0 CONFIG_BME680_I2C_ADDR_0
 #define BME680_I2C_ADDR_1 CONFIG_BME680_I2C_ADDR_1
-
+// TODO: Change to minutes: 1 minute X 60 seconds X 1000 miliseconds
 #define BME680_MEASUREMENT_FREQ CONFIG_BME680_MEASUREMENT_FREQ  // Sensor can only provide it once for 5 sec!
 
 extern QueueHandle_t mq_bme680;

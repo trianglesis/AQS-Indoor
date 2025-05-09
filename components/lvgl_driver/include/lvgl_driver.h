@@ -25,6 +25,8 @@
 
 // Rotate and compensate buffer change
 #ifdef CONFIG_CONNECTION_SPI
+// TODO: Move to config
+// TODO: Change to seconds: 1 second X 1000 miliseconds
 #define DISPLAY_UPDATE_FREQ     2500
 #define CONNECTION_I2C          0
 #define CONNECTION_SPI          1
@@ -48,6 +50,8 @@
 #else
 #endif // CONFIG_ROTATE
 #elif CONFIG_CONNECTION_I2C
+// TODO: Move to config
+// TODO: Change to seconds: 1 second X 1000 miliseconds
 #define DISPLAY_UPDATE_FREQ     5000
 #define CONNECTION_SPI          0
 #define CONNECTION_I2C          1
