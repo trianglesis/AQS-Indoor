@@ -21,7 +21,7 @@
 #include "sensor_co2.h"
 #include "sensor_temp.h"
 #include "webserver.h"
-#include "wifi.h"
+#include "wifi.h" // ??
 
 // Empty files - placeholders
 #include "captive_portal.h"
@@ -44,41 +44,35 @@ void save_to_log(void) {
 }
 
 
-void app_main(void)
-{
+void app_main(void) {
     //Allow other core to finish initialization
     vTaskDelay(pdMS_TO_TICKS(10));
     ESP_LOGI(TAG, "Init...");
-
-    /*
-        1. Start i2c master bus and add devices to warm them up during setup of all other modules
-            1.1 Add SCD4x sensor to the BUS, check address, stop measuremenets
-                1.1.1 Led init under CO2 Sensor.
-            1.2 Add MBE680 sensor to the BUS, stop it and move on
-        Proceed with all other modules while sensors are warming up!
-    */
-    ESP_ERROR_CHECK(master_bus_init());   // Init I2C master bus
-    ESP_ERROR_CHECK(battery_one_shot_init()); // With queue and task init.
-    ESP_ERROR_CHECK(scd40_sensor_init());   // With queue and task init.
-    ESP_ERROR_CHECK(bme680_sensor_init());  // With queue and task init.
-
     /* Startup sequence:
-    2. Wifi setup, AP mode if no known networks found, STA mode if found one.
-    3. LittleFS init and read\write sensor states and calibration data
-    4. SD Card init and start\continue writing sensors
-
-    x. LCD Display init and show picture
-    x. Web Server start as soon as WiFi is ok
+        1. Master bus init.
+            1.1 Init SCD4X sensor, queue and task.
+            1.1.1 SCD4X also init LED on the board and control its colour.
+            1.2 Init BME680 sensor, queue and task.
+        2. Init battery mesurement with ADC, qeue and task.
+        3. LittleFS with initial web pages.
+        4. SDCard with updated web pages, logs, database, etc (and future config and calibration data?).
+        5. Display SPI or I2C.
+        6. Wifi - optional, with webserver and captive portal.
     */
-    ESP_ERROR_CHECK(wifi_setup());
+    // Startup
+    ESP_ERROR_CHECK(master_bus_init());         // Init I2C master bus
+    ESP_ERROR_CHECK(battery_one_shot_init());   // With queue and task init.
+    ESP_ERROR_CHECK(scd40_sensor_init());       // With queue and task init.
+    ESP_ERROR_CHECK(bme680_sensor_init());      // With queue and task init.
+
     ESP_ERROR_CHECK(fs_setup());
     ESP_ERROR_CHECK(card_init());
-    ESP_ERROR_CHECK(start_webserver());
+    
     // TODO: Try to pass a struct with all vars related to data we want to display
     ESP_ERROR_CHECK(display_init());       // With LVGL and task init. i2c used too
     
-    // Init in order of importance
-    captive_portal();   // 2
+    // Wifi, then Webserver and Captive Portal
+    ESP_ERROR_CHECK(wifi_setup());
 
     // TODO: Add file logs
     // TODO: Check battery power

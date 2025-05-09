@@ -24,6 +24,8 @@ extern QueueHandle_t mq_batt;
 struct BattSensor {
     int adc_raw;
     int voltage;
+    int voltage_m;
+    int percentage;
 };
 
 

@@ -31,6 +31,7 @@ extern lv_obj_t * ui_Humidity;
 extern lv_obj_t * ui_Temperature;
 extern lv_obj_t * ui_Pressure;
 extern lv_obj_t * ui_Border;
+extern lv_obj_t * ui_batteryVoltage;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_Battery;
 extern lv_obj_t * uic_Network;
@@ -43,6 +44,7 @@ extern lv_obj_t * uic_airQuality;
 extern lv_obj_t * uic_Humidity;
 extern lv_obj_t * uic_Temperature;
 extern lv_obj_t * uic_Pressure;
+extern lv_obj_t * uic_batteryVoltage;
 
 // EVENTS
 

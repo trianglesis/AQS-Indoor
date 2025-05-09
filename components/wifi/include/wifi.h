@@ -16,6 +16,17 @@
 #include "lwip/sys.h"
 #include "lwip/inet.h"
 
+// Start WebServer and Captive portal after Wifi
+#include "webserver.h"
+#include "captive_portal.h"
+
+// Skip WiFi init, Skip WebServer init and captive portal
+#ifdef CONFIG_USE_WIFI_WEB
+#define USE_WIFI_WEB 1
+#else 
+#define USE_WIFI_WEB 0
+#endif
+
 // Connect to local WIFi (STA)
 #define SSID                        CONFIG_WIFI_SSID
 #define PWD                         CONFIG_WIFI_PASSWORD

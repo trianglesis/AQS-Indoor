@@ -10,7 +10,7 @@ static const char *TAG = "webserver";
 static const char *TAG_FS = "fileserver";
 
 
-void webserver(void) {
+void webserver_info(void) {
     printf(" - Init: webserver empty function call!\n\n");
     ESP_LOGI(TAG, "USERNAME: %s", USERNAME);
     ESP_LOGI(TAG, "PASSWORD: %s", PASSWORD);
@@ -669,7 +669,7 @@ esp_err_t start_fileserver(void) {
 
 esp_err_t start_webserver(void) {
     // Init
-    webserver();
+    webserver_info();
     ESP_LOGI(TAG, "Starting webserver");
     
     // TODO: Detect if we are in AP mode - do not host file server, if STA mode - host file server

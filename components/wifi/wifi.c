@@ -21,10 +21,10 @@ static wifi_config_t wifi_ap_config = { 0 };
 static wifi_config_t wifi_sta_config = { 0 };
 
 
-
-void wifi(void) {
+void wifi_debug(void) {
     printf("1 - Init: wifi empty function call!\n\n");
 
+    ESP_LOGI(TAG, "USE_WIFI_WEB: %d", USE_WIFI_WEB);
     ESP_LOGI(TAG, "WIFI_SSID: %s", WIFI_SSID);
     ESP_LOGI(TAG, "WIFI_PASS: %s", WIFI_PASS);
     ESP_LOGI(TAG, "WIFI_CHANNEL: %d", WIFI_CHANNEL);
@@ -230,45 +230,58 @@ void event_group(void) {
 * 
 */
 esp_err_t wifi_setup(void) {
-    esp_err_t ret;
-    // wifi();             // 1
 
-    ESP_LOGI(TAG, "Starting Wifi, init MVS, Events");
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    #ifdef CONFIG_USE_WIFI_WEB
+    if(!USE_WIFI_WEB) {
+        ESP_LOGI(TAG, "SKIPPED: Wifi, Webserver and Captive portal!");
+    } else {
+        esp_err_t ret;
+        wifi_debug();             // 1
 
-    // Secure storage
-    nvs_load();
-    vTaskDelay(pdMS_TO_TICKS(10));
+        ESP_LOGI(TAG, "Starting Wifi, init MVS, Events");
+        ESP_ERROR_CHECK(esp_netif_init());
+        ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-    /* Initialize event group */
-    event_group();
-    vTaskDelay(pdMS_TO_TICKS(10));
+        // Secure storage
+        nvs_load();
+        vTaskDelay(pdMS_TO_TICKS(10));
 
-    /*Initialize WiFi */
-    ESP_LOGI(TAG, "Init WiFi config default.");
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-    
-    ESP_LOGI(TAG, "WiFi Set mode APP-STA.");
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
+        /* Initialize event group */
+        event_group();
+        vTaskDelay(pdMS_TO_TICKS(10));
 
-    /* Initialize AP */
-    wifi_init_softap();
+        /*Initialize WiFi */
+        ESP_LOGI(TAG, "Init WiFi config default.");
+        wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+        ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+        
+        ESP_LOGI(TAG, "WiFi Set mode APP-STA.");
+        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
 
-    /* Initialize STA */
-    wifi_init_sta();
+        /* Initialize AP */
+        wifi_init_softap();
 
-    /* Start WiFi */
-    ESP_LOGI(TAG, "Start Init WiFi...");
-    vTaskDelay(pdMS_TO_TICKS(10));
-    ESP_ERROR_CHECK(esp_wifi_start());
+        /* Initialize STA */
+        wifi_init_sta();
 
-    /* Now check known network OR start AP if None */
-    ret = wifi_establishing();
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Cannot setup Wifi any mode!");
+        /* Start WiFi */
+        ESP_LOGI(TAG, "Start Init WiFi...");
+        vTaskDelay(pdMS_TO_TICKS(10));
+        ESP_ERROR_CHECK(esp_wifi_start());
+
+        /* Now check known network OR start AP if None */
+        ret = wifi_establishing();
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "Cannot setup Wifi any mode!");
+        }
+
+        // Start webserver here after wifi init
+        ESP_ERROR_CHECK(start_webserver());
+        captive_portal();   // 2
     }
+    #else
+    ESP_LOGI(TAG, "SKIPPED: Wifi, Webserver and Captive portal!");
+    #endif
 
     return ESP_OK;
 }

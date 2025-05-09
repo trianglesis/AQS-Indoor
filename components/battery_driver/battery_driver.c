@@ -27,6 +27,10 @@ void battery_driver_info(void) {
 void battery_measure_task(void *pvParameters) {
 
     adc_task_param_t param = pvParameters;
+    float max_perc = 100.0;
+    float min_perc = 0.1;
+    float max_volt = 2590.0;  // Fully charged, under esp32 load
+    float min_volt = 2100.0;  // Fully discharged, 
 
     vTaskDelay(pdMS_TO_TICKS(1000)); // Wait
     TickType_t last_wake_time  = xTaskGetTickCount();  
@@ -38,8 +42,15 @@ void battery_measure_task(void *pvParameters) {
             ESP_ERROR_CHECK(adc_cali_raw_to_voltage(param->adc1_cali_chan0_handle, adc_raw[0][0], &voltage[0][0]));
             ESP_LOGI(TAG, "ADC%d Channel[%d] Cali Voltage: %d mV", ADC_UNIT_1 + 1, ADC1_CHAN0, voltage[0][0]);
         }
+        // TODO: Add voltage formula to get real battery voltage
+
         battery_readings.adc_raw = adc_raw[0][0];
-        battery_readings.voltage = voltage[0][0];
+        battery_readings.voltage = voltage[0][0] / 1000;
+        battery_readings.voltage_m = voltage[0][0];
+        
+        float batteryLevel = max_perc + (((battery_readings.voltage_m - max_volt) * (min_perc -  max_perc)) / (min_volt - max_volt));
+        battery_readings.percentage = batteryLevel;
+        ESP_LOGI(TAG, "RAW: %d; Cali: V:%d; Converted V %d; Battery percentage: %d", battery_readings.adc_raw, battery_readings.voltage_m, battery_readings.voltage_m, battery_readings.percentage);
 
         xQueueOverwrite(mq_batt, (void *)&battery_readings);
         xTaskDelayUntil(&last_wake_time, ADC_MEASUREMENT_FREQ);

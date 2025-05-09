@@ -23,6 +23,7 @@ lv_obj_t * ui_Humidity;
 lv_obj_t * ui_Temperature;
 lv_obj_t * ui_Pressure;
 lv_obj_t * ui_Border;
+lv_obj_t * ui_batteryVoltage;
 // CUSTOM VARIABLES
 lv_obj_t * uic_Battery;
 lv_obj_t * uic_Network;
@@ -35,6 +36,7 @@ lv_obj_t * uic_airQuality;
 lv_obj_t * uic_Humidity;
 lv_obj_t * uic_Temperature;
 lv_obj_t * uic_Pressure;
+lv_obj_t * uic_batteryVoltage;
 
 // EVENTS
 lv_obj_t * ui____initial_actions0;

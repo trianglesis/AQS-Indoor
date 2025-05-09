@@ -51,6 +51,8 @@ Initial files:
 
 [LVGL](../managed_components/idf_components.md)
 
+[ICONS](https://www.flaticon.com/search?word=gauge)
+
 
 ## Simple OLED
 
@@ -200,10 +202,79 @@ Battery 18650 cell in the case with charge\discharge\overcharge usb-c module is 
 - Bosster is giving 5.03 volts.
 - Voltage divider is dropping voltage to 0.333V
 
+## Voltage diviner
+
 [Voltage Divider](https://raw.org/tool/voltage-divider-calculator/)
+
 - Using 100K and 10K resistors from example.
+- UPD: Switched `47K` and `100K`, now using `100K` as drop to ground `(neutral, negative)` and `47K` as measuring protectionf for ADC `pin 0`. 
+
+Now it shows `3247mV` which is closer to real.
+
+## PIN ACD
 
 ESP32 C6 have a `PIN 0` with `ADC1_CH0` use it.
+
+Real voltage formula from [doc](https://randomnerdtutorials.com/power-esp32-esp8266-solar-panels-battery-level-monitoring/)
+
+```text
+Vout = (Vin*R2)/(R1+R2)
+
+Vout = (4.2 * 100000) / (10000 + 100000) = 3.8V
+              420000  /  110000          = 3.8 - bit extra for GPIO
+
+Vout = (4.2 * 100000) / (20000 + 100000) = 3.5V
+              420000  /  120000          = 3.5 - bit extra for GPIO
+
+New 47k for even lower voltage
+Vout = (4.2 * 100000) / (47000 + 100000) = 2.8V
+              420000  /  147000          = 2.8 - this is battery 100% charged
+
+OR reversed (used old 10K, now replaced with 47K)
+
+Vout = (4.2 * 10000) / (10000 + 100000)   = 380mV
+              42000  /  110000            = 380mV - this is battery 100% charged
+```
+
+## Get percentage
+
+Linear interpolation:
+
+```text
+We know:
+- MAX voltage       x1  - Get this value from full charged battery under the real load.
+- MIN voltage       x2  - Get this value as soon as battery dies or powered off by charging board protectiion.
+- MAX percent:      y1  - Desired 100%
+- MIN percent:      y2  - Minimal possible charge 0.1% or 1%
+- Current voltage   x   - From ADC calubrated output
+
+Don't know
+- Current percent:  y   - we need to calculate it using linear interpolation
+```
+
+By the formula:
+
+```cpp
+float max_perc = 100.0;
+float min_perc = 0.1;
+float max_volt = 2590.0;  // Fully charged, under esp32 load
+float min_volt = 2100.0;  // Fully discharged, 
+float batteryLevel = max_perc + (((battery_readings.voltage_m - max_volt) * (min_perc -  max_perc)) / (min_volt - max_volt));
+
+// Some code ...
+ESP_LOGI(TAG, "RAW: %d; Cali: V:%d; Converted V %d; Battery percentage: %d", battery_readings.adc_raw, battery_readings.voltage_m, battery_readings.voltage_m, battery_readings.percentage);
+```
+
+Result:
+
+``log
+I (1001528) adc-battery: ADC1 Channel[0] Raw Data: 2529
+I (1001528) adc-battery: ADC1 Channel[0] Cali Voltage: 2542 mV
+I (1001528) adc-battery: RAW: 2529; Cali: V:2542; Converted V 2542; Battery percentage: 90
+```
+
+Measurements are a bit off, sometimes dropping to from 93% to 50% and than back. 
+Maybe it can become better if we use continuoius mode or measure oneshot for three times in a row getting the max value.
 
 
 # Battery power
@@ -213,8 +284,15 @@ Cannot start:
 `I BOD: Brownout detector was triggered`
 
 [Doc](https://randomnerdtutorials.com/power-esp32-esp8266-solar-panels-battery-level-monitoring/)
+[Reddit comment](https://www.reddit.com/r/esp32/comments/sa73xs/comment/htsybyz/)
 
 Must change the power scheme.
+This converter is probably cheap and unstable, can only work with esp32 5V if no Wifi used.
+
+![cheap](pics/converter/shitverter.png)
+
+Temporary solution: add wifi Off option, and skip wifi AP\STA, Webserver and captive portal setup.
+The board is working fine now.
 
 # Debug and etc
 

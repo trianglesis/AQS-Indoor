@@ -144,7 +144,8 @@ void lvgl_task_i2c_sq_line(void * pvParameters)  {
         lv_label_set_text_fmt(ui_Humidity, "%.0f%%", bme680_readings.humidity);
         lv_label_set_text_fmt(ui_Pressure, "%.0fhpa", bme680_readings.pressure);
         lv_label_set_text_fmt(ui_airQuality, "AQI %.0d", bme680_readings.air_q_index);
-        lv_label_set_text_fmt(ui_Battery, "%.0dmV", battery_readings.voltage);
+        lv_label_set_text_fmt(ui_Battery, "%d%%", battery_readings.percentage);
+        lv_label_set_text_fmt(ui_batteryVoltage, "%.0dmV", battery_readings.voltage_m);
         // Other
         lv_label_set_text_fmt(ui_LittleFSUsed, "%.0fKB", littlefs_used);
         lv_label_set_text_fmt(ui_SDCardFree, "%.0fGB", sd_free);
@@ -156,8 +157,8 @@ void lvgl_task_i2c_sq_line(void * pvParameters)  {
             lv_label_set_text(ui_Network, "STA");
             lv_label_set_text_fmt(ui_NetworkAddress, "%s", ip_string);
         } else {
-            lv_label_set_text(ui_Network, "None");
-            lv_label_set_text(ui_NetworkAddress, "0.0.0.0");
+            lv_label_set_text(ui_Network, "--");
+            lv_label_set_text(ui_NetworkAddress, "--");
         }
         lv_unlock();
         vTaskDelay(pdMS_TO_TICKS(DISPLAY_UPDATE_FREQ));

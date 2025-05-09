@@ -69,7 +69,10 @@
 			"freertos.h": "c",
 			"compare": "c",
 			"cstdint": "c",
-			"ui_helpers.h": "c"
+			"ui_helpers.h": "c",
+			"task.h": "c",
+			"semphr.h": "c",
+			"cmath": "c"
 		}
 	}
 }

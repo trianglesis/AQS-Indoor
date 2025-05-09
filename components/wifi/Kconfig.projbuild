@@ -1,5 +1,12 @@
 menu "AQS Wifi"
 
+    menu "Wifi Enable"
+        config USE_WIFI_WEB
+            bool "Use Wifi and Webserver"
+            help 
+                Disabling this will also disable Webserver startup.
+    endmenu
+
     menu "Wifi SoftAP Configuration"
         comment "SoftAP Configuration"
 
