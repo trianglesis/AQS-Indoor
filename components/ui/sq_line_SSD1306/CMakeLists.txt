@@ -1,6 +1,14 @@
 SET(SOURCES screens/ui_Screen1.c
     ui.c
     components/ui_comp_hook.c
-    ui_helpers.c)
+    ui_helpers.c
+    images/ui_img_wifi_15px_png.c
+    images/ui_img_wifi_ap_x15_png.c
+    images/ui_img_1836401811.c
+    images/ui_img_1409770133.c
+    images/ui_img_battery_80_x15_png.c
+    images/ui_img_1528503493.c
+    images/ui_img_521089986.c
+    images/ui_img_1346903651.c)
 
 add_library(ui ${SOURCES})

@@ -32,6 +32,14 @@ extern lv_obj_t * ui_Temperature;
 extern lv_obj_t * ui_Pressure;
 extern lv_obj_t * ui_Border;
 extern lv_obj_t * ui_batteryVoltage;
+extern lv_obj_t * ui_wifiDisabled;
+extern lv_obj_t * ui_wifiApMode;
+extern lv_obj_t * ui_wifiStaMode;
+extern lv_obj_t * ui_BatteryFull;
+extern lv_obj_t * ui_Battery80;
+extern lv_obj_t * ui_BatteryHalf;
+extern lv_obj_t * ui_BatteryLow;
+extern lv_obj_t * ui_BatteryEmpty;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_Battery;
 extern lv_obj_t * uic_Network;
@@ -45,10 +53,28 @@ extern lv_obj_t * uic_Humidity;
 extern lv_obj_t * uic_Temperature;
 extern lv_obj_t * uic_Pressure;
 extern lv_obj_t * uic_batteryVoltage;
+extern lv_obj_t * uic_wifiDisabled;
+extern lv_obj_t * uic_wifiApMode;
+extern lv_obj_t * uic_wifiStaMode;
+extern lv_obj_t * uic_BatteryFull;
+extern lv_obj_t * uic_Battery80;
+extern lv_obj_t * uic_BatteryHalf;
+extern lv_obj_t * uic_BatteryLow;
+extern lv_obj_t * uic_BatteryEmpty;
 
 // EVENTS
 
 extern lv_obj_t * ui____initial_actions0;
+
+// IMAGES AND IMAGE SETS
+LV_IMG_DECLARE(ui_img_wifi_15px_png);    // assets/wifi_15px.png
+LV_IMG_DECLARE(ui_img_wifi_ap_x15_png);    // assets/wifi_ap_x15.png
+LV_IMG_DECLARE(ui_img_1836401811);    // assets/wi-fi_sta_x15.png
+LV_IMG_DECLARE(ui_img_1409770133);    // assets/full-battery_x15.png
+LV_IMG_DECLARE(ui_img_battery_80_x15_png);    // assets/battery_80_x15.png
+LV_IMG_DECLARE(ui_img_1528503493);    // assets/half-battery_x15.png
+LV_IMG_DECLARE(ui_img_521089986);    // assets/low-battery_x15.png
+LV_IMG_DECLARE(ui_img_1346903651);    // assets/empty-battery_x15.png
 
 // UI INIT
 void ui_init(void);

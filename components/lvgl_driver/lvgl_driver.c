@@ -144,22 +144,66 @@ void lvgl_task_i2c_sq_line(void * pvParameters)  {
         lv_label_set_text_fmt(ui_Humidity, "%.0f%%", bme680_readings.humidity);
         lv_label_set_text_fmt(ui_Pressure, "%.0fhpa", bme680_readings.pressure);
         lv_label_set_text_fmt(ui_airQuality, "AQI %.0d", bme680_readings.air_q_index);
-        lv_label_set_text_fmt(ui_Battery, "%d%%", battery_readings.percentage);
         lv_label_set_text_fmt(ui_batteryVoltage, "%.0dmV", battery_readings.voltage_m);
+        lv_label_set_text_fmt(ui_Battery, "%d%%", battery_readings.percentage);
         // Other
         lv_label_set_text_fmt(ui_LittleFSUsed, "%.0fKB", littlefs_used);
         lv_label_set_text_fmt(ui_SDCardFree, "%.0fGB", sd_free);
         // Network info
         if (wifi_ap_mode == true && found_wifi == false) {
-            lv_label_set_text_fmt(ui_Network, "AP: %d", connected_users);
+            lv_label_set_text_fmt(ui_Network, "%d", connected_users);
             lv_label_set_text_fmt(ui_NetworkAddress, "%s", ip_string);
+            lv_obj_remove_flag(ui_wifiApMode, LV_OBJ_FLAG_HIDDEN);
         } else if (found_wifi == true) {
-            lv_label_set_text(ui_Network, "STA");
+            lv_obj_add_flag(ui_Network, LV_OBJ_FLAG_HIDDEN);
             lv_label_set_text_fmt(ui_NetworkAddress, "%s", ip_string);
+            lv_obj_remove_flag(ui_wifiStaMode, LV_OBJ_FLAG_HIDDEN);
         } else {
-            lv_label_set_text(ui_Network, "--");
-            lv_label_set_text(ui_NetworkAddress, "--");
+            lv_obj_add_flag(ui_Network, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_NetworkAddress, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_wifiApMode, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_wifiStaMode, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_wifiDisabled, LV_OBJ_FLAG_HIDDEN);
         }
+        // Battery icon
+        if (battery_readings.percentage >= 85) {
+            lv_obj_remove_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_Battery80, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryEmpty, LV_OBJ_FLAG_HIDDEN);
+        } else if (battery_readings.percentage <= 84 && battery_readings.percentage >= 50 ) {
+            lv_obj_add_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_Battery80, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryEmpty, LV_OBJ_FLAG_HIDDEN);
+        } else if (battery_readings.percentage <= 50 && battery_readings.percentage >= 30 ) {
+            lv_obj_add_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_Battery80, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryEmpty, LV_OBJ_FLAG_HIDDEN);
+        } else if (battery_readings.percentage <= 29 && battery_readings.percentage >= 10 ) {
+            lv_obj_add_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_Battery80, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryEmpty, LV_OBJ_FLAG_HIDDEN);
+        } else if (battery_readings.percentage <= 9) {
+            lv_obj_add_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_Battery80, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryEmpty, LV_OBJ_FLAG_HIDDEN);
+        } else {
+            lv_obj_add_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_Battery80, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_BatteryEmpty, LV_OBJ_FLAG_HIDDEN);
+        }
+
         lv_unlock();
         vTaskDelay(pdMS_TO_TICKS(DISPLAY_UPDATE_FREQ));
     } // WHILE

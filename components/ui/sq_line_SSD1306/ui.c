@@ -24,6 +24,14 @@ lv_obj_t * ui_Temperature;
 lv_obj_t * ui_Pressure;
 lv_obj_t * ui_Border;
 lv_obj_t * ui_batteryVoltage;
+lv_obj_t * ui_wifiDisabled;
+lv_obj_t * ui_wifiApMode;
+lv_obj_t * ui_wifiStaMode;
+lv_obj_t * ui_BatteryFull;
+lv_obj_t * ui_Battery80;
+lv_obj_t * ui_BatteryHalf;
+lv_obj_t * ui_BatteryLow;
+lv_obj_t * ui_BatteryEmpty;
 // CUSTOM VARIABLES
 lv_obj_t * uic_Battery;
 lv_obj_t * uic_Network;
@@ -37,6 +45,14 @@ lv_obj_t * uic_Humidity;
 lv_obj_t * uic_Temperature;
 lv_obj_t * uic_Pressure;
 lv_obj_t * uic_batteryVoltage;
+lv_obj_t * uic_wifiDisabled;
+lv_obj_t * uic_wifiApMode;
+lv_obj_t * uic_wifiStaMode;
+lv_obj_t * uic_BatteryFull;
+lv_obj_t * uic_Battery80;
+lv_obj_t * uic_BatteryHalf;
+lv_obj_t * uic_BatteryLow;
+lv_obj_t * uic_BatteryEmpty;
 
 // EVENTS
 lv_obj_t * ui____initial_actions0;

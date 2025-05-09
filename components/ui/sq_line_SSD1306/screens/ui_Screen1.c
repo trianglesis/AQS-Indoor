@@ -13,15 +13,19 @@ void ui_Screen1_screen_init(void)
     ui_Battery = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_Battery, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Battery, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Battery, -17);
+    lv_obj_set_y(ui_Battery, 3);
     lv_obj_set_align(ui_Battery, LV_ALIGN_TOP_RIGHT);
     lv_label_set_text(ui_Battery, "88%");
     lv_obj_set_style_text_align(ui_Battery, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Battery, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Battery, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Network = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_Network, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Network, LV_SIZE_CONTENT);    /// 1
-    lv_label_set_text(ui_Network, "Wifi");
+    lv_obj_set_x(ui_Network, 20);
+    lv_obj_set_y(ui_Network, 1);
+    lv_label_set_text(ui_Network, "88");
     lv_obj_set_style_text_align(ui_Network, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Network, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
@@ -123,12 +127,89 @@ void ui_Screen1_screen_init(void)
     ui_batteryVoltage = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_batteryVoltage, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_batteryVoltage, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_batteryVoltage, 4);
+    lv_obj_set_x(ui_batteryVoltage, 0);
     lv_obj_set_y(ui_batteryVoltage, 5);
     lv_obj_set_align(ui_batteryVoltage, LV_ALIGN_TOP_MID);
     lv_label_set_text(ui_batteryVoltage, "2450mV");
     lv_obj_set_style_text_align(ui_batteryVoltage, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_batteryVoltage, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_wifiDisabled = lv_image_create(ui_Screen1);
+    lv_image_set_src(ui_wifiDisabled, &ui_img_wifi_15px_png);
+    lv_obj_set_width(ui_wifiDisabled, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_wifiDisabled, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_wifiDisabled, 1);
+    lv_obj_set_y(ui_wifiDisabled, 1);
+    lv_obj_add_flag(ui_wifiDisabled, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_remove_flag(ui_wifiDisabled, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_wifiApMode = lv_image_create(ui_Screen1);
+    lv_image_set_src(ui_wifiApMode, &ui_img_wifi_ap_x15_png);
+    lv_obj_set_width(ui_wifiApMode, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_wifiApMode, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_wifiApMode, 1);
+    lv_obj_set_y(ui_wifiApMode, 1);
+    lv_obj_add_flag(ui_wifiApMode, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_remove_flag(ui_wifiApMode, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_wifiStaMode = lv_image_create(ui_Screen1);
+    lv_image_set_src(ui_wifiStaMode, &ui_img_1836401811);
+    lv_obj_set_width(ui_wifiStaMode, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_wifiStaMode, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_wifiStaMode, 1);
+    lv_obj_set_y(ui_wifiStaMode, 1);
+    lv_obj_add_flag(ui_wifiStaMode, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_remove_flag(ui_wifiStaMode, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_BatteryFull = lv_image_create(ui_Screen1);
+    lv_image_set_src(ui_BatteryFull, &ui_img_1409770133);
+    lv_obj_set_width(ui_BatteryFull, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_BatteryFull, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_BatteryFull, -1);
+    lv_obj_set_y(ui_BatteryFull, 4);
+    lv_obj_set_align(ui_BatteryFull, LV_ALIGN_TOP_RIGHT);
+    lv_obj_add_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_remove_flag(ui_BatteryFull, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_Battery80 = lv_image_create(ui_Screen1);
+    lv_image_set_src(ui_Battery80, &ui_img_battery_80_x15_png);
+    lv_obj_set_width(ui_Battery80, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Battery80, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Battery80, -1);
+    lv_obj_set_y(ui_Battery80, 4);
+    lv_obj_set_align(ui_Battery80, LV_ALIGN_TOP_RIGHT);
+    lv_obj_add_flag(ui_Battery80, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_remove_flag(ui_Battery80, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_BatteryHalf = lv_image_create(ui_Screen1);
+    lv_image_set_src(ui_BatteryHalf, &ui_img_1528503493);
+    lv_obj_set_width(ui_BatteryHalf, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_BatteryHalf, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_BatteryHalf, -1);
+    lv_obj_set_y(ui_BatteryHalf, 4);
+    lv_obj_set_align(ui_BatteryHalf, LV_ALIGN_TOP_RIGHT);
+    lv_obj_add_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_remove_flag(ui_BatteryHalf, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_BatteryLow = lv_image_create(ui_Screen1);
+    lv_image_set_src(ui_BatteryLow, &ui_img_521089986);
+    lv_obj_set_width(ui_BatteryLow, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_BatteryLow, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_BatteryLow, -1);
+    lv_obj_set_y(ui_BatteryLow, 4);
+    lv_obj_set_align(ui_BatteryLow, LV_ALIGN_TOP_RIGHT);
+    lv_obj_add_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_remove_flag(ui_BatteryLow, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_BatteryEmpty = lv_image_create(ui_Screen1);
+    lv_image_set_src(ui_BatteryEmpty, &ui_img_1346903651);
+    lv_obj_set_width(ui_BatteryEmpty, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_BatteryEmpty, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_BatteryEmpty, -1);
+    lv_obj_set_y(ui_BatteryEmpty, 4);
+    lv_obj_set_align(ui_BatteryEmpty, LV_ALIGN_TOP_RIGHT);
+    lv_obj_add_flag(ui_BatteryEmpty, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_remove_flag(ui_BatteryEmpty, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     uic_Battery = ui_Battery;
     uic_Network = ui_Network;
@@ -142,5 +223,13 @@ void ui_Screen1_screen_init(void)
     uic_Temperature = ui_Temperature;
     uic_Pressure = ui_Pressure;
     uic_batteryVoltage = ui_batteryVoltage;
+    uic_wifiDisabled = ui_wifiDisabled;
+    uic_wifiApMode = ui_wifiApMode;
+    uic_wifiStaMode = ui_wifiStaMode;
+    uic_BatteryFull = ui_BatteryFull;
+    uic_Battery80 = ui_Battery80;
+    uic_BatteryHalf = ui_BatteryHalf;
+    uic_BatteryLow = ui_BatteryLow;
+    uic_BatteryEmpty = ui_BatteryEmpty;
 
 }
