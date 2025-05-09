@@ -55,7 +55,7 @@
                 "flags": 17,
                 "strtype": "OBJECT/Position",
                 "intarray": [
-                  -17,
+                  -18,
                   3
                 ],
                 "InheritedType": 7
@@ -224,7 +224,7 @@
                 "strtype": "OBJECT/Position",
                 "intarray": [
                   20,
-                  1
+                  3
                 ],
                 "InheritedType": 7
               },
@@ -326,7 +326,7 @@
                       {
                         "nid": 10450,
                         "strtype": "_style/Text_Font",
-                        "strval": "montserrat_12",
+                        "strval": "montserrat_10",
                         "InheritedType": 3
                       }
                     ],
@@ -2028,7 +2028,7 @@
                 "strtype": "OBJECT/Position",
                 "intarray": [
                   0,
-                  5
+                  3
                 ],
                 "InheritedType": 7
               },
@@ -2790,7 +2790,7 @@
               {
                 "nid": 1020,
                 "strtype": "IMAGE/Asset",
-                "strval": "assets/full-battery_x15.png",
+                "strval": "assets/battery_100_x16.png",
                 "InheritedType": 5
               },
               {
@@ -2962,7 +2962,7 @@
               {
                 "nid": 1020,
                 "strtype": "IMAGE/Asset",
-                "strval": "assets/battery_80_x15.png",
+                "strval": "assets/battery_80_x16.png",
                 "InheritedType": 5
               },
               {
@@ -3134,7 +3134,7 @@
               {
                 "nid": 1020,
                 "strtype": "IMAGE/Asset",
-                "strval": "assets/half-battery_x15.png",
+                "strval": "assets/battery_50_x16.png",
                 "InheritedType": 5
               },
               {
@@ -3306,7 +3306,7 @@
               {
                 "nid": 1020,
                 "strtype": "IMAGE/Asset",
-                "strval": "assets/low-battery_x15.png",
+                "strval": "assets/battery_10_x16.png",
                 "InheritedType": 5
               },
               {
@@ -3478,7 +3478,7 @@
               {
                 "nid": 1020,
                 "strtype": "IMAGE/Asset",
-                "strval": "assets/empty-battery_x15.png",
+                "strval": "assets/battery_died_x16.png",
                 "InheritedType": 5
               },
               {
@@ -3675,7 +3675,7 @@
     "uiExportFolderPath": "D:\\Projects\\ESP\\ESP32-C6-OLED\\AQS-Indoor\\components\\ui\\sq_line_SSD1306",
     "projectExportFolderPath": "D:\\Projects\\ESP\\ESP32-C6-OLED\\AQS-Indoor",
     "custom_variable_prefix": "uic",
-    "backup_cnt": 259,
+    "backup_cnt": 264,
     "autosave_cnt": 0,
     "group_color_cnt": 0,
     "lvgl_version": "9.2.2",

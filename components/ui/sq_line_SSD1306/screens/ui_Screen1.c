@@ -13,7 +13,7 @@ void ui_Screen1_screen_init(void)
     ui_Battery = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_Battery, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Battery, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Battery, -17);
+    lv_obj_set_x(ui_Battery, -18);
     lv_obj_set_y(ui_Battery, 3);
     lv_obj_set_align(ui_Battery, LV_ALIGN_TOP_RIGHT);
     lv_label_set_text(ui_Battery, "88%");
@@ -24,10 +24,10 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_width(ui_Network, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Network, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Network, 20);
-    lv_obj_set_y(ui_Network, 1);
+    lv_obj_set_y(ui_Network, 3);
     lv_label_set_text(ui_Network, "88");
     lv_obj_set_style_text_align(ui_Network, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Network, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Network, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_LittleFSUsed = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_LittleFSUsed, LV_SIZE_CONTENT);   /// 1
@@ -128,7 +128,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_width(ui_batteryVoltage, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_batteryVoltage, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_batteryVoltage, 0);
-    lv_obj_set_y(ui_batteryVoltage, 5);
+    lv_obj_set_y(ui_batteryVoltage, 3);
     lv_obj_set_align(ui_batteryVoltage, LV_ALIGN_TOP_MID);
     lv_label_set_text(ui_batteryVoltage, "2450mV");
     lv_obj_set_style_text_align(ui_batteryVoltage, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -162,7 +162,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_remove_flag(ui_wifiStaMode, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_BatteryFull = lv_image_create(ui_Screen1);
-    lv_image_set_src(ui_BatteryFull, &ui_img_1409770133);
+    lv_image_set_src(ui_BatteryFull, &ui_img_battery_100_x16_png);
     lv_obj_set_width(ui_BatteryFull, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_BatteryFull, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_BatteryFull, -1);
@@ -172,7 +172,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_remove_flag(ui_BatteryFull, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_Battery80 = lv_image_create(ui_Screen1);
-    lv_image_set_src(ui_Battery80, &ui_img_battery_80_x15_png);
+    lv_image_set_src(ui_Battery80, &ui_img_battery_80_x16_png);
     lv_obj_set_width(ui_Battery80, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Battery80, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Battery80, -1);
@@ -182,7 +182,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_remove_flag(ui_Battery80, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_BatteryHalf = lv_image_create(ui_Screen1);
-    lv_image_set_src(ui_BatteryHalf, &ui_img_1528503493);
+    lv_image_set_src(ui_BatteryHalf, &ui_img_battery_50_x16_png);
     lv_obj_set_width(ui_BatteryHalf, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_BatteryHalf, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_BatteryHalf, -1);
@@ -192,7 +192,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_remove_flag(ui_BatteryHalf, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_BatteryLow = lv_image_create(ui_Screen1);
-    lv_image_set_src(ui_BatteryLow, &ui_img_521089986);
+    lv_image_set_src(ui_BatteryLow, &ui_img_battery_10_x16_png);
     lv_obj_set_width(ui_BatteryLow, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_BatteryLow, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_BatteryLow, -1);
@@ -202,7 +202,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_remove_flag(ui_BatteryLow, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_BatteryEmpty = lv_image_create(ui_Screen1);
-    lv_image_set_src(ui_BatteryEmpty, &ui_img_1346903651);
+    lv_image_set_src(ui_BatteryEmpty, &ui_img_battery_died_x16_png);
     lv_obj_set_width(ui_BatteryEmpty, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_BatteryEmpty, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_BatteryEmpty, -1);

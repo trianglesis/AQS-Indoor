@@ -70,11 +70,11 @@ extern lv_obj_t * ui____initial_actions0;
 LV_IMG_DECLARE(ui_img_wifi_15px_png);    // assets/wifi_15px.png
 LV_IMG_DECLARE(ui_img_wifi_ap_x15_png);    // assets/wifi_ap_x15.png
 LV_IMG_DECLARE(ui_img_1836401811);    // assets/wi-fi_sta_x15.png
-LV_IMG_DECLARE(ui_img_1409770133);    // assets/full-battery_x15.png
-LV_IMG_DECLARE(ui_img_battery_80_x15_png);    // assets/battery_80_x15.png
-LV_IMG_DECLARE(ui_img_1528503493);    // assets/half-battery_x15.png
-LV_IMG_DECLARE(ui_img_521089986);    // assets/low-battery_x15.png
-LV_IMG_DECLARE(ui_img_1346903651);    // assets/empty-battery_x15.png
+LV_IMG_DECLARE(ui_img_battery_100_x16_png);    // assets/battery_100_x16.png
+LV_IMG_DECLARE(ui_img_battery_80_x16_png);    // assets/battery_80_x16.png
+LV_IMG_DECLARE(ui_img_battery_50_x16_png);    // assets/battery_50_x16.png
+LV_IMG_DECLARE(ui_img_battery_10_x16_png);    // assets/battery_10_x16.png
+LV_IMG_DECLARE(ui_img_battery_died_x16_png);    // assets/battery_died_x16.png
 
 // UI INIT
 void ui_init(void);

@@ -75,7 +75,6 @@ void app_main(void) {
     ESP_ERROR_CHECK(wifi_setup());
 
     // TODO: Add file logs
-    // TODO: Check battery power
     // End
 }
 // END

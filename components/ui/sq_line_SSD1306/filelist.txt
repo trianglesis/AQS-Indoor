@@ -5,8 +5,8 @@ ui_helpers.c
 images/ui_img_wifi_15px_png.c
 images/ui_img_wifi_ap_x15_png.c
 images/ui_img_1836401811.c
-images/ui_img_1409770133.c
-images/ui_img_battery_80_x15_png.c
-images/ui_img_1528503493.c
-images/ui_img_521089986.c
-images/ui_img_1346903651.c
+images/ui_img_battery_100_x16_png.c
+images/ui_img_battery_80_x16_png.c
+images/ui_img_battery_50_x16_png.c
+images/ui_img_battery_10_x16_png.c
+images/ui_img_battery_died_x16_png.c
