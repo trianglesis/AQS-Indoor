@@ -36,18 +36,25 @@ void battery_measure_task(void *pvParameters) {
     TickType_t last_wake_time  = xTaskGetTickCount();  
     while (1) {
         struct BattSensor battery_readings = {};
-        ESP_ERROR_CHECK(adc_oneshot_read(param->adc1_handle, ADC1_CHAN0, &adc_raw[0][0]));
-        ESP_LOGI(TAG, "ADC%d Channel[%d] Raw Data: %d", ADC_UNIT_1 + 1, ADC1_CHAN0, adc_raw[0][0]);
-        if (param->do_calibration1_chan0) {
-            ESP_ERROR_CHECK(adc_cali_raw_to_voltage(param->adc1_cali_chan0_handle, adc_raw[0][0], &voltage[0][0]));
-            ESP_LOGI(TAG, "ADC%d Channel[%d] Cali Voltage: %d mV", ADC_UNIT_1 + 1, ADC1_CHAN0, voltage[0][0]);
+        battery_readings.max_masured_voltage = 0;
+        // Loop for 3-5 measurements and choose one MAX
+        for (int i = 0; i < 5; ++i) {
+            ESP_ERROR_CHECK(adc_oneshot_read(param->adc1_handle, ADC1_CHAN0, &adc_raw[0][0]));
+            // ESP_LOGI(TAG, "Measure: %d -- ADC%d Channel[%d] Raw Data: %d", i, ADC_UNIT_1 + 1, ADC1_CHAN0, adc_raw[0][0]);
+            if (param->do_calibration1_chan0) {
+                ESP_ERROR_CHECK(adc_cali_raw_to_voltage(param->adc1_cali_chan0_handle, adc_raw[0][0], &voltage[0][0]));
+                // ESP_LOGI(TAG, "Measure: %d -- ADC%d Channel[%d] Cali Voltage: %d mV", i, ADC_UNIT_1 + 1, ADC1_CHAN0, voltage[0][0]);
+            }
+            if (battery_readings.max_masured_voltage < voltage[0][0]) {
+                battery_readings.max_masured_voltage = voltage[0][0];
+                battery_readings.adc_raw = adc_raw[0][0];
+                battery_readings.voltage = battery_readings.max_masured_voltage / 1000;
+                battery_readings.voltage_m = battery_readings.max_masured_voltage;
+            }
+            ESP_LOGI(TAG, "Try: %d; measured voltage: %d mV; max measured during this cycle: %d mV", i, voltage[0][0], battery_readings.max_masured_voltage);
+            vTaskDelay(pdMS_TO_TICKS(250));
         }
-        // TODO: Add voltage formula to get real battery voltage
-
-        battery_readings.adc_raw = adc_raw[0][0];
-        battery_readings.voltage = voltage[0][0] / 1000;
-        battery_readings.voltage_m = voltage[0][0];
-        
+        // Linear interpolation
         float batteryLevel = max_perc + (((battery_readings.voltage_m - max_volt) * (min_perc -  max_perc)) / (min_volt - max_volt));
         battery_readings.percentage = batteryLevel;
         ESP_LOGI(TAG, "RAW: %d; Cali: V:%d; Converted V %d; Battery percentage: %d", battery_readings.adc_raw, battery_readings.voltage_m, battery_readings.voltage_m, battery_readings.percentage);

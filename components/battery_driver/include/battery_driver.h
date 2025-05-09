@@ -26,6 +26,7 @@ struct BattSensor {
     int voltage;
     int voltage_m;
     int percentage;
+    int max_masured_voltage;
 };
 
 
