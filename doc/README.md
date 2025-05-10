@@ -340,12 +340,45 @@ Tested with i2c-tools: both addresses detected
 Setup test is OK!
 
 ```log
-I (591) sensor-co2: SCD40 COMMON_SDA_PIN: 4
-I (591) sensor-co2: SCD40 COMMON_SCL_PIN: 5
-I (601) sensor-co2: I2C_SCD40_ADDRESS: 62
-I (601) i2c-driver-my: Create I2C master device successfully!
-I (611) i2c-driver-my: Tested device address on the I2C BUS = OK!
+- Init:         Sensor CO2 SCD4x debug info!
+I (551) sensor-co2: SCD4x SDA_PIN: 4
+I (551) sensor-co2: SCD4x SCL_PIN: 5
+I (561) sensor-co2: SCD4x ADDRESS: 0x62
+I (561) sensor-co2: SCD4x CO2_MEASUREMENT_FREQ: 5000
+I (571) sensor-co2: SCD4x CO2_LED_UPDATE_FREQ: 15000
+I (571) sensor-co2: i2c bus is set and not null
+I (571) i2c-driver-my: Create I2C master device successfully!
+I (581) i2c-driver-my: Tested device address on the I2C BUS = OK!
+
+- Init:         Sensor BME680 debug info!
+I (5591) sensor-bme680: BME680 SDA_PIN: 4
+I (5601) sensor-bme680: BME680 SCL_PIN: 5
+I (5601) sensor-bme680: BME680 CONFIG_BME680_I2C_ADDR_0: 0x76
+I (5611) sensor-bme680: BME680 CONFIG_BME680_I2C_ADDR_1: 0x77
+I (5611) sensor-bme680: BME680 MEASUREMENT_FREQ: 5000
+I (5621) sensor-bme680: i2c bus is set and not null
+I (5671) bme680: bme680_setup_heater_profiles: rh_reg_data 75 | gw_reg_data 89
+I (5671) bme680: bme680_setup_heater_profiles: rh_reg_data 85 | gw_reg_data 89
+I (5681) bme680: bme680_setup_heater_profiles: rh_reg_data 95 | gw_reg_data 89
+I (5681) bme680: bme680_setup_heater_profiles: rh_reg_data 105 | gw_reg_data 89
+I (5691) bme680: bme680_setup_heater_profiles: rh_reg_data 115 | gw_reg_data 89
+I (5701) bme680: bme680_setup_heater_profiles: rh_reg_data 115 | gw_reg_data 89
+I (5711) bme680: bme680_setup_heater_profiles: rh_reg_data 105 | gw_reg_data 89
+I (5711) bme680: bme680_setup_heater_profiles: rh_reg_data 95 | gw_reg_data 89
+I (5721) bme680: bme680_setup_heater_profiles: rh_reg_data 85 | gw_reg_data 89
+I (5731) bme680: bme680_setup_heater_profiles: rh_reg_data 75 | gw_reg_data 89
+I (5751) i2c-driver-my: Tested device address on the I2C BUS = OK!
+I (5751) sensor-bme680: Variant Id          (0x00): 00000000
+I (5751) sensor-bme680: Configuration       (0x88): 10001000
+I (5751) sensor-bme680: Control Measurement (0x90): 10010000
+I (5761) sensor-bme680: Control Humidity    (0x04): 00000100
+I (5761) sensor-bme680: Control Gas 0       (0x00): 00000000
+I (5771) sensor-bme680: Control Gas 1       (0x19): 00011001
 ```
+
+Changed pins to 1 and 2 - works fine.
+
+Probably pin 0,1,2 was mixed at the breadboard.
 
 # Old
 
