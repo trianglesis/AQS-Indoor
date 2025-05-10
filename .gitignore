@@ -1,4 +1,5 @@
 .vscode/
+.vscode/settings.json
 .devcontainer/
 build/
 managed_components/espressif__led_strip/
