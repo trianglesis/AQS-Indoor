@@ -15,4 +15,10 @@ menu "AQS LVGL Graphics"
             bool "Rotate display 270 deg"
     endchoice
 
+    config DISPLAY_UPDATE_FREQ
+        int "How often redraw display with new data from sensors"
+        default 1
+        help
+            How often redraw display with new data from sensors in seconds.
+
 endmenu

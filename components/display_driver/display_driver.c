@@ -36,6 +36,43 @@ void display_driver_info(void) {
     LCD from waveshare board
 */
 
+void BK_Init(void) {
+    ESP_LOGI(TAG, "Turn off LCD backlight");
+    gpio_config_t bk_gpio_config = {
+        .mode = GPIO_MODE_OUTPUT,
+        .pin_bit_mask = 1ULL << DISP_SPI_BL
+    };
+    ESP_ERROR_CHECK(gpio_config(&bk_gpio_config));
+    
+    // 配置LEDC
+    ledc_timer_config_t ledc_timer = {
+        .duty_resolution = LEDC_TIMER_13_BIT,
+        .freq_hz = 5000,
+        .speed_mode = LEDC_LS_MODE,
+        .timer_num = LEDC_HS_TIMER,
+        .clk_cfg = LEDC_AUTO_CLK
+    };
+    ledc_timer_config(&ledc_timer);
+
+    ledc_channel.channel    = LEDC_HS_CH0_CHANNEL;
+    ledc_channel.duty       = 0;
+    ledc_channel.gpio_num   = DISP_SPI_BL;
+    ledc_channel.speed_mode = LEDC_LS_MODE;
+    ledc_channel.timer_sel  = LEDC_HS_TIMER;
+    ledc_channel_config(&ledc_channel);
+    ledc_fade_func_install(0);
+}
+
+void BK_Light(uint8_t Light) {
+    ESP_LOGI(TAG, "Set LCD backlight");
+    if(Light > 100) Light = 100;
+    uint16_t Duty = LEDC_MAX_Duty-(81*(100-Light));
+    if(Light == 0) Duty = 0;
+    // 设置PWM占空比
+    ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, Duty);
+    ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
+}
+
 static esp_err_t display_spi_init(void) {
     // Skip SPI init, if SD Card is already there
     // LCD initialization - enable from example
@@ -112,48 +149,11 @@ static esp_err_t display_spi_init(void) {
 
     ESP_LOGI(TAG, "Turn on LCD backlight first, to see display content early!");
     BK_Init();  // Back light
-    BK_Light(50);  // Less toxic
+    BK_Light(DISPL_BACKLIT_BRIGHTNESS);  // Less toxic
     ESP_LOGI(TAG, "Display panel installed!");
     return ESP_OK;
 }
 
-static void BK_Init(void) {
-    ESP_LOGI(TAG, "Turn off LCD backlight");
-    gpio_config_t bk_gpio_config = {
-        .mode = GPIO_MODE_OUTPUT,
-        .pin_bit_mask = 1ULL << DISP_SPI_BL
-    };
-    ESP_ERROR_CHECK(gpio_config(&bk_gpio_config));
-    
-    // 配置LEDC
-    ledc_timer_config_t ledc_timer = {
-        .duty_resolution = LEDC_TIMER_13_BIT,
-        .freq_hz = 5000,
-        .speed_mode = LEDC_LS_MODE,
-        .timer_num = LEDC_HS_TIMER,
-        .clk_cfg = LEDC_AUTO_CLK
-    };
-    ledc_timer_config(&ledc_timer);
-
-    ledc_channel.channel    = LEDC_HS_CH0_CHANNEL;
-    ledc_channel.duty       = 0;
-    ledc_channel.gpio_num   = DISP_SPI_BL;
-    ledc_channel.speed_mode = LEDC_LS_MODE;
-    ledc_channel.timer_sel  = LEDC_HS_TIMER;
-    ledc_channel_config(&ledc_channel);
-    ledc_fade_func_install(0);
-}
-
-static void BK_Light(uint8_t Light) {
-    ESP_LOGI(TAG, "Set LCD backlight");
-    if(Light > 100) Light = 100;
-    uint16_t Duty = LEDC_MAX_Duty-(81*(100-Light));
-    if(Light == 0) Duty = 0;
-    // 设置PWM占空比
-    ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, Duty);
-    ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
-
-}
 
 #elif CONFIG_CONNECTION_I2C
 /*

@@ -42,6 +42,9 @@ Example: Waveshare ESP32 C6 LCD
 #define DISP_SPI_CS                 CONFIG_DISP_GPIO_CS
 #define DISP_SPI_BL                 CONFIG_DISP_GPIO_BL
 
+// Brightness
+#define DISPL_BACKLIT_BRIGHTNESS    CONFIG_DISPL_BACKLIT_BRIGHTNESS
+
 /* LCD size */
 #define DISP_HOR_RES                172
 #define DISP_VER_RES                320

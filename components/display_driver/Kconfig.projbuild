@@ -26,6 +26,14 @@ menu "AQS LCD Display"
         help
             Display i2c address
 
+    config DISPL_BACKLIT_BRIGHTNESS
+        depends on CONNECTION_SPI
+        int "Brightness of LCD display backlight"
+        range 0 100
+        default 50
+        help
+            From 0 to 100
+
     config DISP_GPIO_SCLK
         depends on CONNECTION_SPI
         int "SCLK"

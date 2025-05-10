@@ -27,7 +27,7 @@
 #ifdef CONFIG_CONNECTION_SPI
 // TODO: Move to config
 // TODO: Change to seconds: 1 second X 1000 miliseconds
-#define DISPLAY_UPDATE_FREQ     2500
+#define DISPLAY_UPDATE_FREQ     CONFIG_DISPLAY_UPDATE_FREQ * 1000
 #define CONNECTION_I2C          0
 #define CONNECTION_SPI          1
 // Use offset only for Waveshare
@@ -52,7 +52,7 @@
 #elif CONFIG_CONNECTION_I2C
 // TODO: Move to config
 // TODO: Change to seconds: 1 second X 1000 miliseconds
-#define DISPLAY_UPDATE_FREQ     5000
+#define DISPLAY_UPDATE_FREQ     CONFIG_DISPLAY_UPDATE_FREQ * 1000
 #define CONNECTION_SPI          0
 #define CONNECTION_I2C          1
 // Use offset only for I2C
@@ -102,4 +102,5 @@ extern lv_disp_t *display;
 
 
 void lvgl_driver(void);
+bool notify_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx);
 esp_err_t lvgl_init(void);
