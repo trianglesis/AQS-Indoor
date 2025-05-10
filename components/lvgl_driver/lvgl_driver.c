@@ -13,8 +13,6 @@ static const char *TAG = "lvgl";
 
 lv_disp_t *display;
 
-// To use LV_COLOR_FORMAT_I1, we need an extra buffer to hold the converted data
-static uint8_t oled_buffer[BUFFER_SIZE];
 
 void lvgl_driver_info(void) {
     printf(" - Init: lvgl_driver_info empty function call!\n\n");
@@ -349,6 +347,8 @@ void flush_cb(lv_display_t* disp, const lv_area_t* area, uint8_t* px_map) {
     // This is necessary because LVGL reserves 2 x 4 bytes in the buffer, as these are assumed to be used as a palette. Skip the palette here
     // More information about the monochrome, please refer to https://docs.lvgl.io/9.2/porting/display.html#monochrome-displays
     px_map += LVGL_PALETTE_SIZE;
+    // To use LV_COLOR_FORMAT_I1, we need an extra buffer to hold the converted data
+    static uint8_t oled_buffer[BUFFER_SIZE];
 
     uint16_t hor_res = lv_display_get_physical_horizontal_resolution(disp);
     for (int y = y1; y <= y2; y++) {
@@ -505,7 +505,6 @@ esp_err_t lvgl_init(void) {
     // Each display type will have a separate task setup and graphics
     // Draw different level of graphics at displays
     #ifdef CONFIG_CONNECTION_SPI
-    ui_init_fake(); // NOTE: Always init UI from SquareLine Studio export!
     // Now create a task
     ESP_LOGI(TAG, "Create LVGL task");
     // TODO: Make task for SPI display
