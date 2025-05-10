@@ -20,7 +20,8 @@ The main functionality:
 
 ## Board
 
-`ESP32 C6` with OLED 1.47 from [Waveshare](https://www.waveshare.com/wiki/ESP32-C6-LCD-1.47)
+- Main: `ESP32 C6` with OLED 1.47 from [Waveshare](https://www.waveshare.com/wiki/ESP32-C6-LCD-1.47)
+- Test: `ESP32 C6` [Nano](https://github.com/wuxx/nanoESP32-C6/blob/master/README_en.md)
 
 ![alt text](doc/pic/300px-ESP32-C6-LCD-1.47.jpg)
 
@@ -28,9 +29,13 @@ The main functionality:
 
 `SDC41` CO2 sensor (generic from Ali) [Official link](https://sensirion.com/products/catalog/SCD41)
 
-# Temperature, humidity, pressure
+## Temperature, humidity, pressure
 
 `BME680` Generic sensor from Ali [ESPHome doc](https://esphome.io/components/sensor/bme680.html)
+
+## Display
+
+Test: simple I2C display monochromatic.
 
 # Etc
 
@@ -41,6 +46,10 @@ Some other stuff for battery power and casing is needed.
 Saving space and move setup instructions and how to [here](doc/README.md):
 
 Example setup based on official demo with LVGL and graphics from Square Line Studio: https://github.com/trianglesis/ESP32-C6-LCD-1.47-Test-LVGL
+
+# Project
+
+![PIC](doc/pics/project_pic.jpg)
 
 
 # Old
