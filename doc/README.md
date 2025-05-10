@@ -314,6 +314,14 @@ ESP_CONSOLE_UART
 ESP_CONSOLE_SECONDARY
 ```
 
+## Build images
+
+When moving from large test ESP32 with 8mb SPI I have a problem:
+
+`E (535) spi_flash: Detected size(4096k) smaller than the size in the binary image header(8192k). Probe failed.`
+
+Check `ESPTOOLPY_FLASHSIZE` should be 4Mb for Waveshare and 8Mb for bigger test board I use.
+
 # Old
 
 The old version, make as educational project is here:
