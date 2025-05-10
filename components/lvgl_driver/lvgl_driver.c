@@ -15,7 +15,7 @@ lv_disp_t *display;
 
 
 void lvgl_driver_info(void) {
-    printf(" - Init: lvgl_driver_info empty function call!\n\n");
+    printf("\n\n\t\t\t - Init: LVGL driver debug info!");
     // esp_log_level_set("lcd_panel", ESP_LOG_VERBOSE);
     // esp_log_level_set(TAG, ESP_LOG_VERBOSE);
     #ifdef CONFIG_CONNECTION_SPI

@@ -6,12 +6,12 @@ i2c_master_bus_handle_t bus_handle;
 static const char *TAG = "i2c-driver-my";
 
 
-void i2c_driver(void) {
-    printf(" - Init: i2c_driver empty function call!\n\n");
+void i2c_driver_info(void) {
+    printf("\n\n\t\t\t - Init: i2c_driver debug info!");
     ESP_LOGI(TAG, "COMMON_SDA_PIN: %d", COMMON_SDA_PIN);
     ESP_LOGI(TAG, "COMMON_SCL_PIN: %d", COMMON_SCL_PIN);
     ESP_LOGI(TAG, "I2C_FREQ_HZ: %d", I2C_FREQ_HZ);
-
+    ESP_LOGI(TAG, "I2C_PORT: %d", I2C_PORT);
 }
 
 
@@ -26,9 +26,7 @@ https://docs.espressif.com/projects/esp-idf/en/v5.4.1/esp32c6/api-reference/peri
 */
 esp_err_t master_bus_init() {
     esp_err_t ret;
-
-    i2c_driver();
-
+    i2c_driver_info();  // Debug info
     // New I2C bus setup, new driver used, from IDF 5.4+
     i2c_master_bus_config_t i2c_mst_config = {
         .clk_source = I2C_CLK_SRC_DEFAULT,

@@ -22,15 +22,13 @@ static wifi_config_t wifi_sta_config = { 0 };
 
 
 void wifi_debug(void) {
-    printf("1 - Init: wifi empty function call!\n\n");
-
+    printf("\n\n\t\t\t - Init: WiFi Driver debug info!");
     ESP_LOGI(TAG, "USE_WIFI_WEB: %d", USE_WIFI_WEB);
     ESP_LOGI(TAG, "WIFI_SSID: %s", WIFI_SSID);
     ESP_LOGI(TAG, "WIFI_PASS: %s", WIFI_PASS);
     ESP_LOGI(TAG, "WIFI_CHANNEL: %d", WIFI_CHANNEL);
     ESP_LOGI(TAG, "MAX_STA_CONN: %d", MAX_STA_CONN);
     ESP_LOGI(TAG, "MAX_TRANSMIT_POWER: %d", MAX_TRANSMIT_POWER);
-    
     ESP_LOGI(TAG, "connected_users: %d", connected_users);
     ESP_LOGI(TAG, "ip_string: %s", ip_string);
 }

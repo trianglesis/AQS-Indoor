@@ -10,7 +10,7 @@ const char *file_index_html = LFS_MOUNT_POINT"/index.html";
 const char *lfs_file_hello = LFS_MOUNT_POINT"/hello.txt";
 
 void littlefs_driver(void) {
-    printf(" - Init: littlefs_driver empty function call!\n\n");
+    printf("\n\n\t\t\t - Init: LittleFS (spi flash) driver debug info!");
     ESP_LOGI(TAG, "LFS_MOUNT_POINT: %s", LFS_MOUNT_POINT);
     ESP_LOGI(TAG, "LFS_PARTITION_NAME: %s", LFS_PARTITION_NAME);
 }

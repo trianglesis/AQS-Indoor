@@ -5,7 +5,7 @@ static const char *TAG = "ui-exported";
 
 
 void ui_init_info(void) {
-    printf(" - Init: SquareLine UI empty function call!\n\n");
+    printf("\n\n\t\t\t - Init: UI SquareLine Studio debug info!");
     #ifdef CONFIG_CONNECTION_SPI
     ESP_LOGI(TAG, "Put exported UI files in the dir /ui/sq_line_ST7789V3/");
     #elif CONFIG_CONNECTION_I2C

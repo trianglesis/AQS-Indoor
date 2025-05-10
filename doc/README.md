@@ -296,6 +296,9 @@ The board is working fine now.
 
 # Debug and etc
 
+
+## JTAG
+
 - [JTAG](https://docs.espressif.com/projects/esp-idf/en/v5.4.1/esp32c6/api-guides/jtag-debugging/index.html)
 
 With and without LP core
@@ -321,6 +324,28 @@ When moving from large test ESP32 with 8mb SPI I have a problem:
 `E (535) spi_flash: Detected size(4096k) smaller than the size in the binary image header(8192k). Probe failed.`
 
 Check `ESPTOOLPY_FLASHSIZE` should be 4Mb for Waveshare and 8Mb for bigger test board I use.
+
+## I2C Problems between boards
+
+Can't get I2C bus work after migration between boards.
+
+- CO2 Sensor shows 0ppm `I (12491) sensor-co2: CO2:0ppm; Temperature:-45.0; Humidity:0.0`
+- Temp sensor shows zeros also `I (24201) sensor-bme680: t:0.00C; Humidity:0.00%; Pressure:0.04hpa; Resistance:0.00; Stable:no: AQI:0 (Hazardous)`
+
+`I2C hardware timeout detected`
+
+Switched sensors between test stands, sensors works fine.
+Tested with i2c-tools: both addresses detected
+
+Setup test is OK!
+
+```log
+I (591) sensor-co2: SCD40 COMMON_SDA_PIN: 4
+I (591) sensor-co2: SCD40 COMMON_SCL_PIN: 5
+I (601) sensor-co2: I2C_SCD40_ADDRESS: 62
+I (601) i2c-driver-my: Create I2C master device successfully!
+I (611) i2c-driver-my: Tested device address on the I2C BUS = OK!
+```
 
 # Old
 

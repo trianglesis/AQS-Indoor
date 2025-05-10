@@ -7,11 +7,11 @@ QueueHandle_t mq_co2;  // Always init early, even empty!
 
 i2c_master_dev_handle_t scd41_handle; // Update as soon as all other 
 
-void sensor_co2(void) {
-    printf(" - Init: sensor_co2 empty function call!\n\n");
+void sensor_co2_info(void) {
+    printf("\n\n\t\t\t - Init: Sensor CO2 SCD4x debug info!");
     ESP_LOGI(TAG, "SCD40 COMMON_SDA_PIN: %d", COMMON_SDA_PIN);
     ESP_LOGI(TAG, "SCD40 COMMON_SCL_PIN: %d", COMMON_SCL_PIN);
-    ESP_LOGI(TAG, "I2C_SCD40_ADDRESS: %x", I2C_SCD40_ADDRESS);
+    ESP_LOGI(TAG, "I2C_SCD40_ADDRESS: 0x%x", I2C_SCD40_ADDRESS);
 }
 
 /*
@@ -118,8 +118,7 @@ TODO: Add SD card read\write option to save states:
 */
 esp_err_t scd40_sensor_init(void) {
     esp_err_t ret;
-
-    sensor_co2();  // Debug 
+    sensor_co2_info();  // Debug 
 
     i2c_device_config_t scd41_device = {
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,

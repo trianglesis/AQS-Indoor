@@ -10,7 +10,7 @@ bme680_handle_t dev_hdl;
 
 
 void sensor_temp(void) {
-    printf(" - Init: sensor_temp empty function call!\n\n");
+    printf("\n\n\t\t\t - Init: Sensor BME680 debug info!");
     ESP_LOGI(TAG, "BME680 COMMON_SDA_PIN: %d", COMMON_SDA_PIN);
     ESP_LOGI(TAG, "BME680 COMMON_SCL_PIN: %d", COMMON_SCL_PIN);
     ESP_LOGI(TAG, "BME680 BME680_MEASUREMENT_FREQ: %d", BME680_MEASUREMENT_FREQ);

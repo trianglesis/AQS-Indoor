@@ -12,7 +12,7 @@ int random_int_range(int min, int max) {
 }
 
 void led_driver(void) {
-    printf(" - Init: sensor_co2 empty function call!\n\n");
+    printf("\n\n\t\t\t - Init: LED driver debug info!");
     ESP_LOGI(TAG, "LED TIME_TICK_MS: %d", TIME_TICK_MS);
     ESP_LOGI(TAG, "LED LED_STRIP_LED_COUNT: %d", LED_STRIP_LED_COUNT);
     ESP_LOGI(TAG, "LED LED_STRIP_MODEL: %d", LED_STRIP_MODEL);

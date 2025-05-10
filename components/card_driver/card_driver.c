@@ -16,7 +16,7 @@ const char *sd_file_hello = SD_MOUNT_POINT"/hello.txt";
 
 
 void card_driver(void) {
-    printf(" - Init: card_driver empty function call!\n\n");
+    printf("\n\n\t\t\t - Init: SD Card Driver debug info!");
     ESP_LOGI(TAG, "SD_GPIO_MOSI: %d", SD_GPIO_MOSI);
     ESP_LOGI(TAG, "SD_GPIO_SCLK: %d", SD_GPIO_SCLK);
     ESP_LOGI(TAG, "SD_GPIO_MISO: %d", SD_GPIO_MISO);

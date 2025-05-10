@@ -17,7 +17,7 @@ struct adc_task_parameters {
 };
 
 void battery_driver_info(void) {
-    printf(" - Init: battery_driver_info empty function call!\n\n");
+    printf("\n\n\t\t\t - Init: Battery debug info!");
     ESP_LOGI(TAG, "ADC_MEASUREMENT_FREQ_MINUTES: %d", ADC_MEASUREMENT_FREQ_MINUTES);
     ESP_LOGI(TAG, "ADC_MEASUREMENT_LOOP_COUNT: %d", ADC_MEASUREMENT_LOOP_COUNT);
     ESP_LOGI(TAG, "ADC_ATTEN: %d", ADC_ATTEN);
