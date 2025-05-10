@@ -7,7 +7,7 @@ static const char *TAG = "i2c-driver-my";
 
 
 void i2c_driver_info(void) {
-    printf("\n\n\t\t\t - Init: i2c_driver debug info!");
+    printf("\n\n- Init:\t\ti2c_driver debug info!\n");
     ESP_LOGI(TAG, "COMMON_SDA_PIN: %d", COMMON_SDA_PIN);
     ESP_LOGI(TAG, "COMMON_SCL_PIN: %d", COMMON_SCL_PIN);
     ESP_LOGI(TAG, "I2C_FREQ_HZ: %d", I2C_FREQ_HZ);

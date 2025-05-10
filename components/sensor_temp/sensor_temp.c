@@ -10,7 +10,7 @@ bme680_handle_t dev_hdl;
 
 
 void sensor_temp(void) {
-    printf("\n\n\t\t\t - Init: Sensor BME680 debug info!");
+    printf("\n\n- Init:\t\tSensor BME680 debug info!\n");
     ESP_LOGI(TAG, "BME680 SDA_PIN: %d", BME680_SDA_PIN);
     ESP_LOGI(TAG, "BME680 SCL_PIN: %d", BME680_SCL_PIN);
     ESP_LOGI(TAG, "BME680 CONFIG_BME680_I2C_ADDR_0: 0x%x", CONFIG_BME680_I2C_ADDR_0);

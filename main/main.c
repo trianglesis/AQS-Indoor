@@ -61,9 +61,9 @@ void app_main(void) {
     */
     // Startup
     ESP_ERROR_CHECK(master_bus_init());         // Init I2C master bus
-    ESP_ERROR_CHECK(battery_one_shot_init());   // With queue and task init.
     ESP_ERROR_CHECK(scd40_sensor_init());       // With queue and task init.
     ESP_ERROR_CHECK(bme680_sensor_init());      // With queue and task init.
+    ESP_ERROR_CHECK(battery_one_shot_init());   // With queue and task init.
 
     ESP_ERROR_CHECK(fs_setup());
     ESP_ERROR_CHECK(card_init());

@@ -11,7 +11,7 @@ static const char *TAG_FS = "fileserver";
 
 
 void webserver_info(void) {
-    printf("\n\n\t\t\t - Init: WebServer debug info!");
+    printf("\n\n- Init:\t\tWebServer debug info!\n");
     ESP_LOGI(TAG, "USERNAME: %s", USERNAME);
     ESP_LOGI(TAG, "PASSWORD: %s", PASSWORD);
     ESP_LOGI(TAG, "BASIC_AUTH: %d", BASIC_AUTH);

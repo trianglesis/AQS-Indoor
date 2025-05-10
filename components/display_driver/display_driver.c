@@ -14,7 +14,7 @@ esp_lcd_panel_handle_t panel_handle = NULL;
 esp_lcd_panel_io_handle_t io_handle = NULL;
 
 void display_driver_info(void) {
-    printf("\n\n\t\t\t - Init: Display driver debug info!");
+    printf("\n\n- Init:\t\tDisplay driver debug info!\n");
     #ifdef CONFIG_CONNECTION_SPI
     ESP_LOGI(TAG, "DISP_SPI_SCLK: %d", DISP_SPI_SCLK);
     ESP_LOGI(TAG, "DISP_SPI_MOSI: %d", DISP_SPI_MOSI);

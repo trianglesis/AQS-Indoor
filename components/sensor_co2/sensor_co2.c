@@ -8,7 +8,7 @@ QueueHandle_t mq_co2;  // Always init early, even empty!
 i2c_master_dev_handle_t scd41_handle; // Update as soon as all other 
 
 void sensor_co2_info(void) {
-    printf("\n\n\t\t\t - Init: Sensor CO2 SCD4x debug info!");
+    printf("\n\n- Init:\t\tSensor CO2 SCD4x debug info!\n");
     ESP_LOGI(TAG, "SCD4x SDA_PIN: %d", SCD40_SDA_PIN);
     ESP_LOGI(TAG, "SCD4x SCL_PIN: %d", SCD40_SCL_PIN);
     ESP_LOGI(TAG, "SCD4x ADDRESS: 0x%x", I2C_SCD40_ADDRESS);

@@ -22,7 +22,7 @@ static wifi_config_t wifi_sta_config = { 0 };
 
 
 void wifi_debug(void) {
-    printf("\n\n\t\t\t - Init: WiFi Driver debug info!");
+    printf("\n\n- Init:\t\tWiFi Driver debug info!\n");
     ESP_LOGI(TAG, "USE_WIFI_WEB: %d", USE_WIFI_WEB);
     ESP_LOGI(TAG, "WIFI_SSID: %s", WIFI_SSID);
     ESP_LOGI(TAG, "WIFI_PASS: %s", WIFI_PASS);

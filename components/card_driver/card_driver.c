@@ -16,7 +16,7 @@ const char *sd_file_hello = SD_MOUNT_POINT"/hello.txt";
 
 
 void card_driver(void) {
-    printf("\n\n\t\t\t - Init: SD Card Driver debug info!");
+    printf("\n\n- Init:\t\tSD Card Driver debug info!\n");
     ESP_LOGI(TAG, "SD_GPIO_MOSI: %d", SD_GPIO_MOSI);
     ESP_LOGI(TAG, "SD_GPIO_SCLK: %d", SD_GPIO_SCLK);
     ESP_LOGI(TAG, "SD_GPIO_MISO: %d", SD_GPIO_MISO);
@@ -216,8 +216,8 @@ esp_err_t card_init(void) {
 void Flash_Searching(void) {
     if(esp_flash_get_physical_size(NULL, &Flash_Size) == ESP_OK) {
         Flash_Size = Flash_Size / (uint32_t)(1024 * 1024);
-        printf("Flash size: %ld MB\n", Flash_Size);
+        ESP_LOGI(TAG, "Flash size: %ld MB\n", Flash_Size);
     } else {
-        printf("Get flash size failed\n");
+        ESP_LOGI(TAG, "Get flash size failed\n");
     }
 }
