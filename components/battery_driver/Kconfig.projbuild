@@ -7,10 +7,28 @@ menu "AQS ADC Battery"
         help
             ADC Pin where is battery voltage pin attached AFTER resistors!
     
-    config ADC_MEASUREMENT_FREQ
-        int "Voltage Measure request frequency ms"
-        default 5000
+    config ADC_MEASUREMENT_LOOP_COUNT
+        int "Times to take one shot mesure"
+        default 5
         help
-            How long should we wait before getting next measurement. Default 5 sec!
+            How many times to check ADC one shot read in one go
+    
+    config ADC_MEASUREMENT_FREQ_MINUTES
+        int "Voltage Measure request frequency minues"
+        default 1
+        help
+            How long should we wait before getting next measurement. Default 1 minute!
+
+    config BATTERY_CHARGED_VOLTAGE
+        int "Voltage of fully charged battery"
+        default 2590
+        help
+            This this the voltage of 18650 cell measured between 100k and 10k resistors.
+
+    config BATTERY_DISCHARGED_VOLTAGE
+        int "Voltage of fully discharged battery"
+        default 2100
+        help
+            This this the voltage of 18650 cell measured between 100k and 10k resistors.
 
 endmenu

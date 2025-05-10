@@ -258,7 +258,7 @@ By the formula:
 float max_perc = 100.0;
 float min_perc = 0.1;
 float max_volt = 2590.0;  // Fully charged, under esp32 load
-float min_volt = 2100.0;  // Fully discharged, 
+float min_volt = 2043.0;  // Fully discharged, 
 float batteryLevel = max_perc + (((battery_readings.voltage_m - max_volt) * (min_perc -  max_perc)) / (min_volt - max_volt));
 
 // Some code ...
@@ -267,7 +267,7 @@ ESP_LOGI(TAG, "RAW: %d; Cali: V:%d; Converted V %d; Battery percentage: %d", bat
 
 Result:
 
-``log
+```log
 I (1001528) adc-battery: ADC1 Channel[0] Raw Data: 2529
 I (1001528) adc-battery: ADC1 Channel[0] Cali Voltage: 2542 mV
 I (1001528) adc-battery: RAW: 2529; Cali: V:2542; Converted V 2542; Battery percentage: 90

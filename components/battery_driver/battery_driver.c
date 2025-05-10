@@ -18,7 +18,8 @@ struct adc_task_parameters {
 
 void battery_driver_info(void) {
     printf(" - Init: battery_driver_info empty function call!\n\n");
-    ESP_LOGI(TAG, "ADC_MEASUREMENT_FREQ: %d", ADC_MEASUREMENT_FREQ);
+    ESP_LOGI(TAG, "ADC_MEASUREMENT_FREQ_MINUTES: %d", ADC_MEASUREMENT_FREQ_MINUTES);
+    ESP_LOGI(TAG, "ADC_MEASUREMENT_LOOP_COUNT: %d", ADC_MEASUREMENT_LOOP_COUNT);
     ESP_LOGI(TAG, "ADC_ATTEN: %d", ADC_ATTEN);
     ESP_LOGI(TAG, "ADC_PIN: %d", ADC_PIN);
     ESP_LOGI(TAG, "ADC1_CHAN0: %d", ADC1_CHAN0);
@@ -27,10 +28,12 @@ void battery_driver_info(void) {
 void battery_measure_task(void *pvParameters) {
 
     adc_task_param_t param = pvParameters;
-    float max_perc = 100.0;
-    float min_perc = 0.1;
-    float max_volt = 2590.0;  // Fully charged, under esp32 load
-    float min_volt = 2100.0;  // Fully discharged, 
+    int max_perc = 100;
+    int min_perc = 1;
+    int max_volt = BATTERY_CHARGED_VOLTAGE;  // Fully charged, under esp32 load
+    int min_volt = BATTERY_DISCHARGED_VOLTAGE;  // Fully discharged
+    uint64_t measure_freq = (uint64_t)ADC_MEASUREMENT_FREQ_MINUTES * 60 * 1000;
+    int loop_count = ADC_MEASUREMENT_LOOP_COUNT;
 
     vTaskDelay(pdMS_TO_TICKS(1000)); // Wait
     TickType_t last_wake_time  = xTaskGetTickCount();  
@@ -38,7 +41,7 @@ void battery_measure_task(void *pvParameters) {
         struct BattSensor battery_readings = {};
         battery_readings.max_masured_voltage = 0;
         // Loop for 3-5 measurements and choose one MAX
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < loop_count; ++i) {
             ESP_ERROR_CHECK(adc_oneshot_read(param->adc1_handle, ADC1_CHAN0, &adc_raw[0][0]));
             // ESP_LOGI(TAG, "Measure: %d -- ADC%d Channel[%d] Raw Data: %d", i, ADC_UNIT_1 + 1, ADC1_CHAN0, adc_raw[0][0]);
             if (param->do_calibration1_chan0) {
@@ -60,7 +63,7 @@ void battery_measure_task(void *pvParameters) {
         ESP_LOGI(TAG, "RAW: %d; Cali: V:%d; Converted V %d; Battery percentage: %d", battery_readings.adc_raw, battery_readings.voltage_m, battery_readings.voltage_m, battery_readings.percentage);
 
         xQueueOverwrite(mq_batt, (void *)&battery_readings);
-        xTaskDelayUntil(&last_wake_time, ADC_MEASUREMENT_FREQ);
+        xTaskDelayUntil(&last_wake_time, measure_freq);
     } // WHILE
 }
 
