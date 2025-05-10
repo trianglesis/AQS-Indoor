@@ -32,6 +32,7 @@ void lvgl_driver_info(void) {
 
 /*
 Simple drawings for I2C display
+Keep it as fallback option when SQ Line fails
 */
 void lvgl_task_i2c(void * pvParameters)  {
     ESP_LOGI(TAG, "Starting LVGL task");
@@ -113,7 +114,7 @@ void lvgl_task_i2c(void * pvParameters)  {
 Squareline studio drawings
 */
 void lvgl_task_i2c_sq_line(void * pvParameters)  {
-    ESP_LOGI(TAG, "Starting LVGL task");
+    ESP_LOGI(TAG, "Starting LVGL i2c display task");
 
     // Depends on which connection display uses
     load_graphics();  // Same as ui_init();
@@ -138,6 +139,8 @@ void lvgl_task_i2c_sq_line(void * pvParameters)  {
         xQueuePeek(mq_bme680, (void *)&bme680_readings, xTicksToWait);
         xQueuePeek(mq_batt, (void *)&battery_readings, xTicksToWait);
 
+        // If connection is wrong: just show logs
+        #ifdef CONFIG_CONNECTION_I2C
         lv_lock();
         lv_label_set_text_fmt(ui_co2count, "%d", scd4x_readings.co2_ppm);
         lv_label_set_text_fmt(ui_Temperature, "%.0fC", bme680_readings.temperature);
@@ -205,9 +208,96 @@ void lvgl_task_i2c_sq_line(void * pvParameters)  {
         }
 
         lv_unlock();
+        #else
+        ESP_LOGW(TAG, "Cannot start LVGL task for I2C display, it wasn't not set up!");
+        #endif // CONFIG_CONNECTION
+
         vTaskDelay(pdMS_TO_TICKS(DISPLAY_UPDATE_FREQ));
     } // WHILE
 }
+
+
+void lvgl_task_spi_sq_line(void * pvParameters)  {
+    ESP_LOGI(TAG, "Starting LVGL spi display task");
+
+    // Depends on which connection display uses
+    load_graphics();  // Same as ui_init();
+    vTaskDelay(pdMS_TO_TICKS(500));
+    int to_wait_ms = 10;
+    long curtime = esp_timer_get_time()/1000;
+    struct BMESensor bme680_readings; // data type should be same as queue item type
+    struct SCD4XSensor scd4x_readings; // data type should be same as queue item type
+    struct BattSensor battery_readings; // data type should be same as queue item type
+    const TickType_t xTicksToWait = pdMS_TO_TICKS(to_wait_ms);
+    // Handle LVGL tasks
+    while (1) {
+        vTaskDelay(pdMS_TO_TICKS(10));  // idle between cycles
+        lv_task_handler();
+        if (esp_timer_get_time()/1000 - curtime > 1000) {
+            curtime = esp_timer_get_time()/1000;
+        } // Timer
+
+        xQueuePeek(mq_co2, (void *)&scd4x_readings, xTicksToWait);
+        xQueuePeek(mq_bme680, (void *)&bme680_readings, xTicksToWait);
+        xQueuePeek(mq_batt, (void *)&battery_readings, xTicksToWait);
+        
+        #ifdef CONFIG_CONNECTION_SPI
+        lv_lock();
+        // CO2 Arc SDC41
+        lv_arc_set_value(ui_ArcCO2, scd4x_readings.co2_ppm);
+        lv_label_set_text_fmt(ui_LabelCo2Count, "%d", scd4x_readings.co2_ppm);
+        lv_label_set_text(ui_LabelCo2, "CO2");
+        lv_label_set_text(ui_LabelCo2Ppm, "ppm");
+
+        // Temerature, humidity etc: BME680
+        lv_bar_set_value(ui_BarTemperature, bme680_readings.temperature, LV_ANIM_ON);
+        lv_bar_set_value(ui_BarHumidity, bme680_readings.humidity, LV_ANIM_ON);
+
+        lv_label_set_text_fmt(ui_LabelTemperature, "%.0f", bme680_readings.temperature);
+        lv_label_set_text_fmt(ui_LabelHumidity, "%.0f", bme680_readings.humidity);
+        lv_label_set_text_fmt(ui_LabelPressure, "%.0f", bme680_readings.pressure);
+        lv_label_set_text_fmt(ui_LabelAirQualityIndx, "AQI %.0d", bme680_readings.air_q_index);
+
+        // Storage info
+        // lv_label_set_text_fmt(ui_Label4, "SD: %ld GB", SDCard_Size);
+        lv_label_set_text_fmt(ui_LabelSdFree, "SD: %.0fGB/%.0fGB free", sd_free, sd_total);
+        // Hardcode total as string 2Mb and save LCD space
+        // lv_label_set_text_fmt(ui_Label5, "LFS: %.0fKB/%.0fKB used", littlefs_used, littlefs_total);
+        lv_label_set_text_fmt(ui_LabelLfsUsed, "LFS: %.0fKB/2MB used", littlefs_used);
+        
+        // Network info
+        if (wifi_ap_mode == true && found_wifi == false) {
+            // Show Wifi AP icon if it's active and users connected count
+            lv_label_set_text_fmt(ui_LabelApUsers, "%d", connected_users);
+            lv_obj_remove_flag(ui_ImageAPMode, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_LabelApUsers, LV_OBJ_FLAG_HIDDEN);
+        } else if (found_wifi == true) {
+            // Show WiFi local Icon and IP
+            lv_label_set_text_fmt(ui_LabelipAdress, "%s", ip_string);
+            lv_obj_remove_flag(ui_ImageLocalWiFI, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_LabelipAdress, LV_OBJ_FLAG_HIDDEN);
+            // Hide AP mode icons
+            lv_obj_add_flag(ui_LabelApUsers, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_ImageAPMode, LV_OBJ_FLAG_HIDDEN);
+        } else {
+            // Lables and icons are hidden by default!
+            // Hide all other connection icons
+            lv_obj_add_flag(ui_LabelApUsers, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_ImageAPMode, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_LabelipAdress, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_ImageLocalWiFI, LV_OBJ_FLAG_HIDDEN);
+            // Show no WiFi Icon
+            lv_obj_remove_flag(ui_ImageNoWiFi, LV_OBJ_FLAG_HIDDEN);
+        }
+        lv_unlock();
+        #else
+        ESP_LOGW(TAG, "Cannot start LVGL task for SPI display, it wasn't set up!");
+        #endif // CONFIG_CONNECTION
+        vTaskDelay(pdMS_TO_TICKS(DISPLAY_UPDATE_FREQ));
+    } // WHILE
+}
+
+
 
 /*
 LVGL helper functions.
@@ -419,7 +509,7 @@ esp_err_t lvgl_init(void) {
     // Now create a task
     ESP_LOGI(TAG, "Create LVGL task");
     // TODO: Make task for SPI display
-    xTaskCreatePinnedToCore(lvgl_task_i2c, "i2c display task", 8192, NULL, 9, NULL, tskNO_AFFINITY);
+    xTaskCreatePinnedToCore(lvgl_task_spi_sq_line, "spi display task", 8192, NULL, 9, NULL, tskNO_AFFINITY);
     #elif CONFIG_CONNECTION_I2C
     // Now create a task
     ESP_LOGI(TAG, "Create LVGL task");
