@@ -16,11 +16,12 @@
 // External
 #include "bme680.h"
 
-#define PORT 0
-#define BME680_I2C_ADDR_0 CONFIG_BME680_I2C_ADDR_0
-#define BME680_I2C_ADDR_1 CONFIG_BME680_I2C_ADDR_1
+#define BME680_I2C_ADDR_0           CONFIG_BME680_I2C_ADDR_0
+#define BME680_I2C_ADDR_1           CONFIG_BME680_I2C_ADDR_1
+#define BME680_SDA_PIN              CONFIG_COMMON_SDA_PIN
+#define BME680_SCL_PIN              CONFIG_COMMON_SCL_PIN
 // TODO: Change to minutes: 1 minute X 60 seconds X 1000 miliseconds
-#define BME680_MEASUREMENT_FREQ CONFIG_BME680_MEASUREMENT_FREQ  // Sensor can only provide it once for 5 sec!
+#define BME680_MEASUREMENT_FREQ     CONFIG_BME680_MEASUREMENT_FREQ  // Sensor can only provide it once for 5 sec!
 
 extern QueueHandle_t mq_bme680;
 

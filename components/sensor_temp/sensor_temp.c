@@ -11,10 +11,15 @@ bme680_handle_t dev_hdl;
 
 void sensor_temp(void) {
     printf("\n\n\t\t\t - Init: Sensor BME680 debug info!");
-    ESP_LOGI(TAG, "BME680 COMMON_SDA_PIN: %d", COMMON_SDA_PIN);
-    ESP_LOGI(TAG, "BME680 COMMON_SCL_PIN: %d", COMMON_SCL_PIN);
-    ESP_LOGI(TAG, "BME680 BME680_MEASUREMENT_FREQ: %d", BME680_MEASUREMENT_FREQ);
-    ESP_LOGI(TAG, "PORT: %d", PORT);
+    ESP_LOGI(TAG, "BME680 SDA_PIN: %d", BME680_SDA_PIN);
+    ESP_LOGI(TAG, "BME680 SCL_PIN: %d", BME680_SCL_PIN);
+    ESP_LOGI(TAG, "BME680 CONFIG_BME680_I2C_ADDR_0: 0x%x", CONFIG_BME680_I2C_ADDR_0);
+    ESP_LOGI(TAG, "BME680 CONFIG_BME680_I2C_ADDR_1: 0x%x", CONFIG_BME680_I2C_ADDR_1);
+    ESP_LOGI(TAG, "BME680 MEASUREMENT_FREQ: %d", BME680_MEASUREMENT_FREQ);
+    // Check i2c bus
+    if (bus_handle != NULL) {
+        ESP_LOGI(TAG, "i2c bus is set and not null");
+    }
 }
 
 void bme680_reading(void * pvParameters) {
@@ -143,6 +148,7 @@ esp_err_t bme680_sensor_init(void) {
         ESP_LOGE(TAG, "bme680 handle init failed");
         assert(dev_hdl);
     }
+    ESP_ERROR_CHECK(master_bus_probe_address(BME680_I2C_ADDR_1, 50)); // Wait 50 ms
     print_registers(dev_hdl);
 
     // Create a queue and start task

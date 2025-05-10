@@ -9,9 +9,16 @@ i2c_master_dev_handle_t scd41_handle; // Update as soon as all other
 
 void sensor_co2_info(void) {
     printf("\n\n\t\t\t - Init: Sensor CO2 SCD4x debug info!");
-    ESP_LOGI(TAG, "SCD40 COMMON_SDA_PIN: %d", COMMON_SDA_PIN);
-    ESP_LOGI(TAG, "SCD40 COMMON_SCL_PIN: %d", COMMON_SCL_PIN);
-    ESP_LOGI(TAG, "I2C_SCD40_ADDRESS: 0x%x", I2C_SCD40_ADDRESS);
+    ESP_LOGI(TAG, "SCD4x SDA_PIN: %d", SCD40_SDA_PIN);
+    ESP_LOGI(TAG, "SCD4x SCL_PIN: %d", SCD40_SCL_PIN);
+    ESP_LOGI(TAG, "SCD4x ADDRESS: 0x%x", I2C_SCD40_ADDRESS);
+    ESP_LOGI(TAG, "SCD4x CO2_MEASUREMENT_FREQ: %d", CO2_MEASUREMENT_FREQ);
+    ESP_LOGI(TAG, "SCD4x CO2_LED_UPDATE_FREQ: %d", CO2_LED_UPDATE_FREQ);
+    // Check i2c bus
+    if (bus_handle != NULL) {
+        ESP_LOGI(TAG, "i2c bus is set and not null");
+    }
+
 }
 
 /*
