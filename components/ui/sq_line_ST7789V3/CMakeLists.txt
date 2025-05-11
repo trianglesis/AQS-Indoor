@@ -2,14 +2,20 @@ SET(SOURCES screens/ui_Screen1.c
     ui.c
     components/ui_comp_hook.c
     ui_helpers.c
+    images/ui_img_batt_full_x32_png.c
+    images/ui_img_batt_85_x32_png.c
+    images/ui_img_batt_half_x32_png.c
+    images/ui_img_batt_half_less_x32_png.c
+    images/ui_img_batt_low_x32_png.c
+    images/ui_img_signal_x32_png.c
+    images/ui_img_806973588.c
+    images/ui_img_wifi_x32_png.c
     images/ui_img_risk_165_142_png.c
-    images/ui_img_signal_x16_png.c
-    images/ui_img_wifi_x16_png.c
-    images/ui_img_1678184450.c
-    images/ui_img_wet_to_dry_h90_png.c
-    images/ui_img_hot_to_cold_h90_png.c
-    images/ui_img_thermometer_x32_png.c
-    images/ui_img_humidity_x32_png.c
-    images/ui_img_gauge_x16_png.c)
+    images/ui_img_air2_x32_png.c
+    images/ui_img_599688048.c
+    images/ui_img_1680534988.c
+    images/ui_img_humidity4_x32_png.c
+    images/ui_img_danger_x36_png.c
+    images/ui_img_warning_x36_png.c)
 
 add_library(ui ${SOURCES})

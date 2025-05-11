@@ -214,7 +214,6 @@ void lvgl_task_i2c_sq_line(void * pvParameters)  {
     } // WHILE
 }
 
-
 void lvgl_task_spi_sq_line(void * pvParameters)  {
     ESP_LOGI(TAG, "Starting LVGL spi display task");
 
@@ -242,51 +241,98 @@ void lvgl_task_spi_sq_line(void * pvParameters)  {
         #ifdef CONFIG_CONNECTION_SPI
         lv_lock();
         // CO2 Arc SDC41
-        lv_arc_set_value(ui_ArcCO2, scd4x_readings.co2_ppm);
-        lv_label_set_text_fmt(ui_LabelCo2Count, "%d", scd4x_readings.co2_ppm);
-        lv_label_set_text(ui_LabelCo2, "CO2");
-        lv_label_set_text(ui_LabelCo2Ppm, "ppm");
+        lv_arc_set_value(ui_Co2Severity, scd4x_readings.co2_ppm);
+        lv_label_set_text_fmt(ui_Co2Number, "%d", scd4x_readings.co2_ppm);
+        if (scd4x_readings.co2_ppm >= 1200 && scd4x_readings.co2_ppm <= 1300) {
+            lv_obj_remove_flag(ui_Warning, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_Danger, LV_OBJ_FLAG_HIDDEN);
+        } else if (scd4x_readings.co2_ppm >= 1300) {
+            lv_obj_remove_flag(ui_Danger, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_Warning, LV_OBJ_FLAG_HIDDEN);
+        } else {
+            lv_obj_add_flag(ui_Danger, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_Warning, LV_OBJ_FLAG_HIDDEN);
+        }
 
         // Temerature, humidity etc: BME680
-        lv_bar_set_value(ui_BarTemperature, bme680_readings.temperature, LV_ANIM_ON);
-        lv_bar_set_value(ui_BarHumidity, bme680_readings.humidity, LV_ANIM_ON);
+        lv_bar_set_value(ui_TemperatureBar, bme680_readings.temperature, LV_ANIM_ON);
+        lv_bar_set_value(ui_HumidityBar, bme680_readings.humidity, LV_ANIM_ON);
 
-        lv_label_set_text_fmt(ui_LabelTemperature, "%.0f", bme680_readings.temperature);
-        lv_label_set_text_fmt(ui_LabelHumidity, "%.0f", bme680_readings.humidity);
-        lv_label_set_text_fmt(ui_LabelPressure, "%.0f", bme680_readings.pressure);
-        lv_label_set_text_fmt(ui_LabelAirQualityIndx, "AQI %.0d", bme680_readings.air_q_index);
+        lv_label_set_text_fmt(ui_TemperatureNumber, "%.0f", bme680_readings.temperature);
+        lv_label_set_text_fmt(ui_HumidityNumber, "%.0f", bme680_readings.humidity);
+        lv_label_set_text_fmt(ui_AirPressureNumber, "%.0f", bme680_readings.pressure);
+        lv_label_set_text_fmt(ui_AQIndexNumber, "AQI %.0d", bme680_readings.air_q_index);
 
         // Storage info
         // lv_label_set_text_fmt(ui_Label4, "SD: %ld GB", SDCard_Size);
-        lv_label_set_text_fmt(ui_LabelSdFree, "SD: %.0fGB/%.0fGB free", sd_free, sd_total);
+        lv_label_set_text_fmt(ui_SdCardFree, "SD: %.0fGB", sd_free);
         // Hardcode total as string 2Mb and save LCD space
         // lv_label_set_text_fmt(ui_Label5, "LFS: %.0fKB/%.0fKB used", littlefs_used, littlefs_total);
-        lv_label_set_text_fmt(ui_LabelLfsUsed, "LFS: %.0fKB/2MB used", littlefs_used);
+        lv_label_set_text_fmt(ui_LfsUsed, "LFS: %.0fKB/2MB", littlefs_used);
         
         // Network info
         if (wifi_ap_mode == true && found_wifi == false) {
             // Show Wifi AP icon if it's active and users connected count
-            lv_label_set_text_fmt(ui_LabelApUsers, "%d", connected_users);
-            lv_obj_remove_flag(ui_ImageAPMode, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_remove_flag(ui_LabelApUsers, LV_OBJ_FLAG_HIDDEN);
+            lv_label_set_text_fmt(ui_UsersConnected, "%d", connected_users);
+            lv_obj_remove_flag(ui_WifiAP, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_UsersConnected, LV_OBJ_FLAG_HIDDEN);
         } else if (found_wifi == true) {
             // Show WiFi local Icon and IP
-            lv_label_set_text_fmt(ui_LabelipAdress, "%s", ip_string);
-            lv_obj_remove_flag(ui_ImageLocalWiFI, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_remove_flag(ui_LabelipAdress, LV_OBJ_FLAG_HIDDEN);
+            lv_label_set_text_fmt(ui_NetworkAddress, "%s", ip_string);
+            lv_obj_remove_flag(ui_WifiLocal, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_NetworkAddress, LV_OBJ_FLAG_HIDDEN);
             // Hide AP mode icons
-            lv_obj_add_flag(ui_LabelApUsers, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(ui_ImageAPMode, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_UsersConnected, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_WifiAP, LV_OBJ_FLAG_HIDDEN);
         } else {
             // Lables and icons are hidden by default!
             // Hide all other connection icons
-            lv_obj_add_flag(ui_LabelApUsers, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(ui_ImageAPMode, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(ui_LabelipAdress, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(ui_ImageLocalWiFI, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_UsersConnected, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_WifiAP, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_NetworkAddress, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_WifiLocal, LV_OBJ_FLAG_HIDDEN);
             // Show no WiFi Icon
-            lv_obj_remove_flag(ui_ImageNoWiFi, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_NoWifi, LV_OBJ_FLAG_HIDDEN);
         }
+        // Battery icon
+        if (battery_readings.percentage >= 85) {
+            lv_obj_remove_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_Battery85, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryHalfLess, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);
+        } else if (battery_readings.percentage <= 84 && battery_readings.percentage >= 50 ) {
+            lv_obj_add_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_Battery85, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryHalfLess, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);
+        } else if (battery_readings.percentage <= 50 && battery_readings.percentage >= 30 ) {
+            lv_obj_add_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_Battery85, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryHalfLess, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);
+        } else if (battery_readings.percentage <= 29 && battery_readings.percentage >= 10 ) {
+            lv_obj_add_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_Battery85, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_BatteryHalfLess, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);
+        } else if (battery_readings.percentage <= 9) {
+            lv_obj_add_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_Battery85, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_BatteryHalfLess, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);
+        } else {
+            lv_obj_add_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_Battery85, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryHalfLess, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);
+        }
+
         lv_unlock();
         #else
         ESP_LOGW(TAG, "Cannot start LVGL task for SPI display, it wasn't set up!");
@@ -294,7 +340,6 @@ void lvgl_task_spi_sq_line(void * pvParameters)  {
         vTaskDelay(pdMS_TO_TICKS(DISPLAY_UPDATE_FREQ));
     } // WHILE
 }
-
 
 
 /*
