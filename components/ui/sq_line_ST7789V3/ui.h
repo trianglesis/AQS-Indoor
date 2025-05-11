@@ -37,7 +37,6 @@ extern lv_obj_t * ui_AQIndexstatic;
 extern lv_obj_t * ui_AQIndexNumber;
 extern lv_obj_t * ui_AirPressureNumber;
 extern lv_obj_t * ui_AirPressureStatic;
-extern lv_obj_t * ui_AIR;
 extern lv_obj_t * ui_TemperatureBar;
 extern lv_obj_t * ui_HumidityBar;
 extern lv_obj_t * ui_TempHumidityPic;
@@ -47,6 +46,7 @@ extern lv_obj_t * ui_UsersConnected;
 extern lv_obj_t * ui_NetworkAddress;
 extern lv_obj_t * ui_LfsUsed;
 extern lv_obj_t * ui_SdCardFree;
+extern lv_obj_t * ui_AIR;
 extern lv_obj_t * ui_Danger;
 extern lv_obj_t * ui_Warning;
 // CUSTOM VARIABLES
@@ -89,10 +89,10 @@ LV_IMG_DECLARE(ui_img_signal_x32_png);    // assets/signal_x32.png
 LV_IMG_DECLARE(ui_img_806973588);    // assets/no-wifi_x32.png
 LV_IMG_DECLARE(ui_img_wifi_x32_png);    // assets/wifi_x32.png
 LV_IMG_DECLARE(ui_img_risk_165_142_png);    // assets/risk_165_142.png
-LV_IMG_DECLARE(ui_img_air2_x32_png);    // assets/air2_x32.png
 LV_IMG_DECLARE(ui_img_599688048);    // assets/Cold-to_hot_x125_x10.png
 LV_IMG_DECLARE(ui_img_1680534988);    // assets/Dry-to-wet_x125_x10.png
 LV_IMG_DECLARE(ui_img_humidity4_x32_png);    // assets/humidity4_x32.png
+LV_IMG_DECLARE(ui_img_air2_x32_png);    // assets/air2_x32.png
 LV_IMG_DECLARE(ui_img_danger_x36_png);    // assets/danger_x36.png
 LV_IMG_DECLARE(ui_img_warning_x36_png);    // assets/warning_x36.png
 

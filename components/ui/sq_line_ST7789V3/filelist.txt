@@ -11,9 +11,9 @@ images/ui_img_signal_x32_png.c
 images/ui_img_806973588.c
 images/ui_img_wifi_x32_png.c
 images/ui_img_risk_165_142_png.c
-images/ui_img_air2_x32_png.c
 images/ui_img_599688048.c
 images/ui_img_1680534988.c
 images/ui_img_humidity4_x32_png.c
+images/ui_img_air2_x32_png.c
 images/ui_img_danger_x36_png.c
 images/ui_img_warning_x36_png.c

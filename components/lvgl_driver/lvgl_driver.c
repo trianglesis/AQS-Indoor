@@ -243,13 +243,20 @@ void lvgl_task_spi_sq_line(void * pvParameters)  {
         // CO2 Arc SDC41
         lv_arc_set_value(ui_Co2Severity, scd4x_readings.co2_ppm);
         lv_label_set_text_fmt(ui_Co2Number, "%d", scd4x_readings.co2_ppm);
+        // High PPM CO2 warning
         if (scd4x_readings.co2_ppm >= 1200 && scd4x_readings.co2_ppm <= 1300) {
+            // ppm: more 1200 less 1300
             lv_obj_remove_flag(ui_Warning, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_Danger, LV_OBJ_FLAG_HIDDEN);
-        } else if (scd4x_readings.co2_ppm >= 1300) {
+            lv_obj_add_flag(ui_AIR, LV_OBJ_FLAG_HIDDEN);
+        } else if (scd4x_readings.co2_ppm >= 1301) {
+            // More 1300
             lv_obj_remove_flag(ui_Danger, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_Warning, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_AIR, LV_OBJ_FLAG_HIDDEN);
         } else {
+            // Below 1200
+            lv_obj_remove_flag(ui_AIR, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_Danger, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_Warning, LV_OBJ_FLAG_HIDDEN);
         }
@@ -261,7 +268,7 @@ void lvgl_task_spi_sq_line(void * pvParameters)  {
         lv_label_set_text_fmt(ui_TemperatureNumber, "%.0f", bme680_readings.temperature);
         lv_label_set_text_fmt(ui_HumidityNumber, "%.0f", bme680_readings.humidity);
         lv_label_set_text_fmt(ui_AirPressureNumber, "%.0f", bme680_readings.pressure);
-        lv_label_set_text_fmt(ui_AQIndexNumber, "AQI %.0d", bme680_readings.air_q_index);
+        lv_label_set_text_fmt(ui_AQIndexNumber, "%.0d", bme680_readings.air_q_index);
 
         // Storage info
         // lv_label_set_text_fmt(ui_Label4, "SD: %ld GB", SDCard_Size);
@@ -295,42 +302,42 @@ void lvgl_task_spi_sq_line(void * pvParameters)  {
             lv_obj_remove_flag(ui_NoWifi, LV_OBJ_FLAG_HIDDEN);
         }
         // Battery icon
-        if (battery_readings.percentage >= 85) {
-            lv_obj_remove_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN);
+        if (battery_readings.percentage >= 86) {
+            lv_obj_remove_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN); // 86 to 100
             lv_obj_add_flag(ui_Battery85, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_BatteryHalfLess, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);
-        } else if (battery_readings.percentage <= 84 && battery_readings.percentage >= 50 ) {
+        } else if (battery_readings.percentage <= 85 && battery_readings.percentage >= 65 ) {
             lv_obj_add_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_remove_flag(ui_Battery85, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_Battery85, LV_OBJ_FLAG_HIDDEN);  // 65 to 85
             lv_obj_add_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_BatteryHalfLess, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);
-        } else if (battery_readings.percentage <= 50 && battery_readings.percentage >= 30 ) {
+        } else if (battery_readings.percentage <= 64 && battery_readings.percentage >= 40 ) {
             lv_obj_add_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_Battery85, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_remove_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN); // 40 to 65
             lv_obj_add_flag(ui_BatteryHalfLess, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);
-        } else if (battery_readings.percentage <= 29 && battery_readings.percentage >= 10 ) {
+        } else if (battery_readings.percentage <= 39 && battery_readings.percentage >= 15 ) {
             lv_obj_add_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_Battery85, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_remove_flag(ui_BatteryHalfLess, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_BatteryHalfLess, LV_OBJ_FLAG_HIDDEN);  // 15 to 40
             lv_obj_add_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);
-        } else if (battery_readings.percentage <= 9) {
+        } else if (battery_readings.percentage <= 14) {
             lv_obj_add_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_Battery85, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_remove_flag(ui_BatteryHalfLess, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_BatteryHalfLess, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);  // Less than 15
         } else {
             lv_obj_add_flag(ui_BatteryFull, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_Battery85, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_BatteryHalf, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_BatteryHalfLess, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_remove_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(ui_BatteryLow, LV_OBJ_FLAG_HIDDEN);  // Unknown?
         }
 
         lv_unlock();

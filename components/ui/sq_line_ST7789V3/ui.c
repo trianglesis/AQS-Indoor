@@ -29,7 +29,6 @@ lv_obj_t * ui_AQIndexstatic;
 lv_obj_t * ui_AQIndexNumber;
 lv_obj_t * ui_AirPressureNumber;
 lv_obj_t * ui_AirPressureStatic;
-lv_obj_t * ui_AIR;
 lv_obj_t * ui_TemperatureBar;
 lv_obj_t * ui_HumidityBar;
 lv_obj_t * ui_TempHumidityPic;
@@ -39,6 +38,7 @@ lv_obj_t * ui_UsersConnected;
 lv_obj_t * ui_NetworkAddress;
 lv_obj_t * ui_LfsUsed;
 lv_obj_t * ui_SdCardFree;
+lv_obj_t * ui_AIR;
 lv_obj_t * ui_Danger;
 lv_obj_t * ui_Warning;
 // CUSTOM VARIABLES
@@ -73,8 +73,8 @@ lv_obj_t * ui____initial_actions0;
 // IMAGES AND IMAGE SETS
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
-#if LV_COLOR_DEPTH != 32
-    #error "LV_COLOR_DEPTH should be 32bit to match SquareLine Studio's settings"
+#if LV_COLOR_DEPTH != 16
+    #error "LV_COLOR_DEPTH should be 16bit to match SquareLine Studio's settings"
 #endif
 
 ///////////////////// ANIMATIONS ////////////////////
