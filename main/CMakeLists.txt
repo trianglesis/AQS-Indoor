@@ -19,6 +19,7 @@ idf_component_register(
                     sensor_temp
                     webserver
                     wifi
+                    sqlite_driver
     INCLUDE_DIRS 
                     ""
 )

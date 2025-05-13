@@ -5,8 +5,7 @@ static const char *TAG = "MAIN";
 
 char db_name[32];
 sqlite3 *db;
-extern MessageBufferHandle_t xMessageBufferQuery;
-
+MessageBufferHandle_t xMessageBufferQuery;
 
 void sqllite_info(void) {
     printf("\n\n- Init:\t\tSQLite Driver debug info!\n");
@@ -18,6 +17,9 @@ void setup_db(void) {
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", SD_MOUNT_POINT);
     sqlite3_initialize();
     ESP_LOGI(TAG, "Database setup finished!");
+    // Create Message Buffer
+	xMessageBufferQuery = xMessageBufferCreate(4096);
+	configASSERT( xMessageBufferQuery );
 }
 
 static int callback(void *data, int argc, char **argv, char **azColName) {

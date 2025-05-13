@@ -1,9 +1,11 @@
 idf_component_register(
     
                 SRCS 
-                            "sqlite_driver.c"
+                                "sqlite_driver.c"
+                PRIV_REQUIRES
+                                card_driver
                 REQUIRES
-                        vfs sdmmc card_driver sqlite3
+                                sqlite3
                 INCLUDE_DIRS 
-                            "include"
+                                "include"
 )

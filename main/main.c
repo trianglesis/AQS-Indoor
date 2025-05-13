@@ -21,7 +21,9 @@
 #include "sensor_co2.h"
 #include "sensor_temp.h"
 #include "webserver.h"
-#include "wifi.h" // ??
+#include "wifi.h" // Battery power via cheap bust converter won't work: brownout
+
+#include "sqlite_driver.h"
 
 // Empty files - placeholders
 #include "captive_portal.h"
@@ -75,6 +77,11 @@ void app_main(void) {
     ESP_ERROR_CHECK(wifi_setup());
 
     // TODO: Add file logs
+
+    // Adding SQLite
+    setup_db();
+    create_database();
+
     // End
 }
 // END

@@ -9,7 +9,7 @@
 
 
 #define DB_ROOT              SD_MOUNT_POINT
-
+extern MessageBufferHandle_t xMessageBufferQuery;
 
 void sqllite_info(void);
 void setup_db(void);
