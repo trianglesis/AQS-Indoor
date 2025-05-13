@@ -2,9 +2,7 @@
 .vscode/settings.json
 .devcontainer/
 build/
-managed_components/espressif__led_strip/
-managed_components/joltwallet__littlefs/
-managed_components/lvgl__lvgl/
+managed_components/
 sdkconfig
 sdkconfig.ci
 sdkconfig.old
