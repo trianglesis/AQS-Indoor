@@ -7,7 +7,6 @@ idf_component_register(
     PRIV_REQUIRES 
                     spi_flash
     REQUIRES 
-                    ntp_service
                     battery_driver
                     captive_portal
                     card_driver

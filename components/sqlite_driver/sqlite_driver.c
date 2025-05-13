@@ -20,6 +20,10 @@ void setup_db(void) {
     // Create Message Buffer
 	xMessageBufferQuery = xMessageBufferCreate(4096);
 	configASSERT( xMessageBufferQuery );
+
+    // Create DB 
+    check_or_create_tables();
+
 }
 
 static int callback(void *data, int argc, char **argv, char **azColName) {
@@ -58,7 +62,7 @@ int db_query(MessageBufferHandle_t xMessageBuffer, sqlite3 *db, const char *sql)
 	return rc;
 }
 
-void create_database(void) {
+void check_or_create_tables(void) {
     ESP_LOGI(TAG, "Create a new table if not exists!");
 	if (db_open(db_name, &db)) vTaskDelete(NULL);
 

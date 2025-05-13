@@ -13,7 +13,6 @@
 #include "esp_mac.h"
 
 // Function modules
-#include "ntp_service.h"
 #include "battery_driver.h"
 #include "card_driver.h"
 #include "display_driver.h"
@@ -74,15 +73,10 @@ void app_main(void) {
     // TODO: Try to pass a struct with all vars related to data we want to display
     ESP_ERROR_CHECK(display_init());       // With LVGL and task init. i2c used too
     
-    // Wifi, then Webserver and Captive Portal
-    ESP_ERROR_CHECK(wifi_setup());
-    ESP_ERROR_CHECK(start_ntp_service());
-
     // TODO: Add file logs
 
     // Adding SQLite
     setup_db();
-    create_database();
 
     // End
 }

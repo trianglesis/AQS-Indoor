@@ -13,4 +13,4 @@ extern MessageBufferHandle_t xMessageBufferQuery;
 
 void sqllite_info(void);
 void setup_db(void);
-void create_database(void);
+void check_or_create_tables(void);
