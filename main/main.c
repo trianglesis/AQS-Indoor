@@ -13,6 +13,7 @@
 #include "esp_mac.h"
 
 // Function modules
+#include "ntp_service.h"
 #include "battery_driver.h"
 #include "card_driver.h"
 #include "display_driver.h"
@@ -75,6 +76,7 @@ void app_main(void) {
     
     // Wifi, then Webserver and Captive Portal
     ESP_ERROR_CHECK(wifi_setup());
+    ESP_ERROR_CHECK(start_ntp_service());
 
     // TODO: Add file logs
 
