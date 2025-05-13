@@ -7,19 +7,19 @@ idf_component_register(
     PRIV_REQUIRES 
                     spi_flash
     REQUIRES 
+                    card_driver
+                    littlefs_driver
+                    sqlite_driver
                     battery_driver
                     captive_portal
-                    card_driver
                     display_driver
                     i2c_driver
                     led_driver
-                    littlefs_driver
                     lvgl_driver
                     sensor_co2
                     sensor_temp
                     webserver
                     wifi
-                    sqlite_driver
     INCLUDE_DIRS 
                     ""
 )

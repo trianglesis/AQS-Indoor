@@ -50,33 +50,40 @@ void app_main(void) {
     //Allow other core to finish initialization
     vTaskDelay(pdMS_TO_TICKS(10));
     ESP_LOGI(TAG, "Init...");
+    
     /* Startup sequence:
+        0. SDCard should start early!
+            web pages
+            logs
+            database
+            etc (and future config and calibration data?).
+        0. LittleFS 
+            initial web pages
+            Boot counters and other non secure data
         1. Master bus init.
             1.1 Init SCD4X sensor, queue and task.
             1.1.1 SCD4X also init LED on the board and control its colour.
             1.2 Init BME680 sensor, queue and task.
         2. Init battery mesurement with ADC, qeue and task.
-        3. LittleFS with initial web pages.
-        4. SDCard with updated web pages, logs, database, etc (and future config and calibration data?).
         5. Display SPI or I2C.
         6. Wifi - optional, with webserver and captive portal.
     */
     // Startup
+    ESP_ERROR_CHECK(card_init());
+    ESP_ERROR_CHECK(fs_setup());
+    // Adding SQLite
+    ESP_ERROR_CHECK(setup_db());  // Init right after SD Card passes OK and before everything else
+
     ESP_ERROR_CHECK(master_bus_init());         // Init I2C master bus
     ESP_ERROR_CHECK(scd40_sensor_init());       // With queue and task init.
     ESP_ERROR_CHECK(bme680_sensor_init());      // With queue and task init.
     ESP_ERROR_CHECK(battery_one_shot_init());   // With queue and task init.
 
-    ESP_ERROR_CHECK(fs_setup());
-    ESP_ERROR_CHECK(card_init());
-    
+
     // TODO: Try to pass a struct with all vars related to data we want to display
     ESP_ERROR_CHECK(display_init());       // With LVGL and task init. i2c used too
     
     // TODO: Add file logs
-
-    // Adding SQLite
-    setup_db();
 
     // End
 }

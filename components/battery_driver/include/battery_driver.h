@@ -13,6 +13,7 @@
 #include "esp_adc/adc_cali.h"
 #include "esp_adc/adc_cali_scheme.h"
 
+#include "sqlite_driver.h"
 
 #define ADC_PIN                             CONFIG_ADC_PIN
 #define ADC1_CHAN0                          ADC_CHANNEL_0

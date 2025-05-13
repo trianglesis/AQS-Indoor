@@ -63,6 +63,10 @@ void battery_measure_task(void *pvParameters) {
         ESP_LOGI(TAG, "RAW: %d; Cali: V:%d; Converted V %d; Battery percentage: %d", battery_readings.adc_raw, battery_readings.voltage_m, battery_readings.voltage_m, battery_readings.percentage);
 
         xQueueOverwrite(mq_batt, (void *)&battery_readings);
+        
+        // Save to database
+        battery_stats(battery_readings.adc_raw, battery_readings.voltage, battery_readings.voltage_m, battery_readings.percentage, battery_readings.max_masured_voltage, measure_freq, loop_count);
+
         xTaskDelayUntil(&last_wake_time, measure_freq);
     } // WHILE
 }
@@ -132,6 +136,7 @@ void create_mq_battery() {
 esp_err_t battery_one_shot_init(void) {
     battery_driver_info();  // Debug
     create_mq_battery(); // Queue always
+    battery_table_init();  // Check existence of stats table SQLite
     
     // Unit
     adc_oneshot_unit_handle_t adc1_handle;

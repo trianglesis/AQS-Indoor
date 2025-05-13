@@ -9,6 +9,8 @@
 #include "esp_flash.h"
 #include "esp_vfs_fat.h"
 
+#include "sqlite_driver.h"
+
 #define MAX_CHAR_SIZE    64
 
 

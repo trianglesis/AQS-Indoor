@@ -8,9 +8,19 @@
 #include "card_driver.h"
 
 
-#define DB_ROOT              SD_MOUNT_POINT
-extern MessageBufferHandle_t xMessageBufferQuery;
+#define DB_ROOT                     SD_MOUNT_POINT
 
-void sqllite_info(void);
-void setup_db(void);
-void check_or_create_tables(void);
+extern MessageBufferHandle_t        xMessageBufferQuery;
+
+
+esp_err_t setup_db(void);
+
+void battery_table_init(void);
+void battery_stats(
+    int adc_raw, 
+    int voltage, 
+    int voltage_m, 
+    int percentage, 
+    int max_masured_voltage, 
+    int measure_freq, 
+    int loop_count);
