@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "sqlite_driver.h"
 
-static const char *TAG = "MAIN";
+static const char *TAG = "sqlite";
 
 MessageBufferHandle_t xMessageBufferQuery;
 
@@ -143,7 +143,7 @@ void battery_table_check_or_create(void *pvParameters) {
 	if (db_open(db_name, &db)) vTaskDelete(NULL);
 
 	// Inquiry
-	int rc = db_query(xMessageBufferQuery, db, "SELECT count(*) FROM battery_stats;");
+	int rc = db_query(xMessageBufferQuery, db, "select count(*) from sqlite_master where name = 'battery_stats';");
 	if (rc != SQLITE_OK) vTaskDelete(NULL);
 	ESP_LOGI(TAG, "Select from battery_stats table!");
 
@@ -193,13 +193,14 @@ void battery_stats(
     int rc = db_query(xMessageBufferQuery, db, battery_table_insert_sql);
     if (rc != SQLITE_OK) {
 		ESP_LOGE(TAG, "Cannot insert");
+	} else {
+		ESP_LOGW(TAG, "Record inserted into battery_stats table");
 	}
-    ESP_LOGW(TAG, "Record inserted into battery_stats table");
 	sqlite3_close(db);
 }
 
 void battery_table_init(void) {
-	xTaskCreatePinnedToCore(check_or_create_tables, "sqlite", 4096, NULL, 4, NULL, tskNO_AFFINITY);
+	xTaskCreatePinnedToCore(battery_table_check_or_create, "sqlite", 4096, NULL, 4, NULL, tskNO_AFFINITY);
 }
 
 esp_err_t setup_db(void) {

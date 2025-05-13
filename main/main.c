@@ -78,7 +78,9 @@ void app_main(void) {
     ESP_ERROR_CHECK(scd40_sensor_init());       // With queue and task init.
     ESP_ERROR_CHECK(bme680_sensor_init());      // With queue and task init.
     ESP_ERROR_CHECK(battery_one_shot_init());   // With queue and task init.
-
+    
+    // Wifi, then Webserver and Captive Portal
+    ESP_ERROR_CHECK(wifi_setup());
 
     // TODO: Try to pass a struct with all vars related to data we want to display
     ESP_ERROR_CHECK(display_init());       // With LVGL and task init. i2c used too
