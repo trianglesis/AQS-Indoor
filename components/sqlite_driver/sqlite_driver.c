@@ -124,15 +124,13 @@ Battery
 #define SQL(...) #__VA_ARGS__
 const char *battery_table_create_sql = SQL(
     CREATE TABLE "battery_stats" (
-        "id"                    INTEGER,
         "adc_raw"               INTEGER,
         "voltage"               INTEGER,
         "voltage_m"             INTEGER,
         "percentage"            INTEGER,
         "max_masured_voltage"   INTEGER,
         "measure_freq"          INTEGER,
-        "measure_loop_count"    INTEGER,
-        PRIMARY KEY("id" AUTOINCREMENT)
+        "measure_loop_count"    INTEGER
     );
 );
 
@@ -268,7 +266,6 @@ esp_err_t setup_db(void) {
     ESP_LOGI(TAG, "Database setup finished!");
     
     // Create Message Buffer
-	// Create Message Buffer
 	xMessageBufferQuery = xMessageBufferCreate(4096);
 	configASSERT( xMessageBufferQuery );
     if( xMessageBufferQuery == NULL ) {
