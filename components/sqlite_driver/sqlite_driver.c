@@ -240,7 +240,7 @@ void co2_stats(void) {
     xQueuePeek(mq_co2, (void *)&scd4x_readings, xTicksToWait);
 
     char table_sql[256];
-    snprintf(table_sql, sizeof(table_sql), "INSERT INTO co2_stats VALUES (%f, %f, %, %d);", scd4x_readings.temperature, scd4x_readings.humidity, scd4x_readings.co2_ppm, scd4x_readings.measure_freq);
+    snprintf(table_sql, sizeof(table_sql), "INSERT INTO co2_stats VALUES (%f, %f, %d, %d);", scd4x_readings.temperature, scd4x_readings.humidity, scd4x_readings.co2_ppm, scd4x_readings.measure_freq);
 
     xTaskCreatePinnedToCore(insert_task, "insert-task", 1024*6, (void *)table_sql, 4, NULL, tskNO_AFFINITY);
 }
