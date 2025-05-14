@@ -189,6 +189,7 @@ void check_or_create_table(void *pvParameters) {
 
     sqlite3_close(db);
     ESP_LOGI(TAG, "SQL routine ended, DB is closed: %s", db_name);
+    vTaskDelay(pdMS_TO_TICKS(1000));
     vTaskDelete(NULL);
 }
 
@@ -217,6 +218,7 @@ void insert_task(void *pvParameters) {
     }
     sqlite3_close(db);
     ESP_LOGI(TAG, "SQL routine ended, DB is closed: %s", db_name);
+    vTaskDelay(pdMS_TO_TICKS(50));
     vTaskDelete(NULL);
 }
 
@@ -281,9 +283,9 @@ esp_err_t setup_db(void) {
     - Battery stats table
     */
     
-    xTaskCreatePinnedToCore(check_or_create_table, "table-create1", 1024*6, (void *)test_table, 4, NULL, tskNO_AFFINITY);
     xTaskCreatePinnedToCore(check_or_create_table, "table-create2", 1024*6, (void *)battery_table, 4, NULL, tskNO_AFFINITY);
-    xTaskCreatePinnedToCore(check_or_create_table, "table-create3", 1024*6, (void *)bme680_table, 4, NULL, tskNO_AFFINITY);
     xTaskCreatePinnedToCore(check_or_create_table, "table-create4", 1024*6, (void *)co2_table, 4, NULL, tskNO_AFFINITY);
+    xTaskCreatePinnedToCore(check_or_create_table, "table-create3", 1024*6, (void *)bme680_table, 4, NULL, tskNO_AFFINITY);
+    // xTaskCreatePinnedToCore(check_or_create_table, "table-create1", 1024*6, (void *)test_table, 4, NULL, tskNO_AFFINITY);
     return ESP_OK;
 }
