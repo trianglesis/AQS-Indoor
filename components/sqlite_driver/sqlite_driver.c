@@ -206,7 +206,6 @@ void check_or_create_table_battery(void *pvParameters) {
 
 void battery_stats_task(void *pvParameters) {
     char *battery_table_insert_sql = (char *)pvParameters;
-	ESP_LOGI(TAG, "SQL RAW=[%s]", battery_table_insert_sql);
     // Open database
     char db_name[32];
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", SD_MOUNT_POINT);
@@ -248,7 +247,6 @@ void battery_stats(void) {
     struct BattSensor battery_readings; // data type should be same as queue item type
     const TickType_t xTicksToWait = pdMS_TO_TICKS(50);
     xQueuePeek(mq_batt, (void *)&battery_readings, xTicksToWait);
-
 
     char battery_table_insert_sql[256];
     snprintf(battery_table_insert_sql, sizeof(battery_table_insert_sql), "INSERT INTO battery_stats VALUES (%d, %d, %d, %d, %d, %d, %d);", battery_readings.adc_raw, battery_readings.voltage, battery_readings.voltage_m, battery_readings.percentage, battery_readings.max_masured_voltage, battery_readings.measure_freq, battery_readings.loop_count);
