@@ -10,9 +10,6 @@
 
 #define DB_ROOT                     SD_MOUNT_POINT
 
-extern MessageBufferHandle_t        xMessageBufferQuery;
-
-
 esp_err_t setup_db(void);
 
 esp_err_t check_or_create_table_battery(void);

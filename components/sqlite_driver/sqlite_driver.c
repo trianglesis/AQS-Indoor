@@ -3,8 +3,8 @@
 
 static const char *TAG = "sqlite";
 
-MessageBufferHandle_t xMessageBufferQuery;
-
+MessageBufferHandle_t xMessageBuffer;
+const size_t xMessageBufferSizeBytes = 4096;
 
 void sqlite_info(void) {
     printf("\n\n- Init:\t\tSQLite Driver debug info!\n");
@@ -35,12 +35,12 @@ static int callback(void *data, int argc, char **argv, char **azColName) {
 }
 
 int db_query(MessageBufferHandle_t xMessageBuffer, sqlite3 *db, const char *sql) {
-    ESP_LOGD(__FUNCTION__, "xMessageBuffer=[%p]", xMessageBuffer);
+    ESP_LOGI(__FUNCTION__, "xMessageBuffer=[%p]", xMessageBuffer);
     char *zErrMsg = 0;
-    ESP_LOGI(TAG, "%s\n", sql);
+    ESP_LOGI(TAG, "QUERY: %s\n", sql);
     int rc = sqlite3_exec(db, sql, callback, xMessageBuffer, &zErrMsg);
     if (rc != SQLITE_OK) {
-        ESP_LOGI(TAG, "SQL error: %s\n", zErrMsg);
+        ESP_LOGE(TAG, "SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
     } else {
         ESP_LOGI(TAG, "Operation done successfully\n");
@@ -55,15 +55,16 @@ esp_err_t check_or_create_tables_test(void) {
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", SD_MOUNT_POINT);
     sqlite3 *db;
     sqlite3_initialize();
-    if (db_open(db_name, &db)) {
-        ESP_LOGI(TAG, "DB Opened: %s", db_name);
-    } else {
-        ESP_LOGE(TAG, "DB Cannot be opened: %s", db_name);
+    int rc = db_open(db_name, &db); // will print "Opened database successfully"
+    if (rc != SQLITE_OK) {
+        ESP_LOGE(TAG, "Cannot open database: %s, resp: %d", db_name, rc);
         return ESP_FAIL;
+    } else {
+        ESP_LOGI(TAG, "Opened database: %s, resp: %d", db_name, rc);
     }
 
     // Inquiry
-    int rc = db_query(xMessageBufferQuery, db, "select count(*) from sqlite_master where name = 'test';");
+    rc = db_query(xMessageBuffer, db, "select count(*) from sqlite_master where name = 'test';");
     if (rc != SQLITE_OK) {
         ESP_LOGW(TAG, "Select count from 'sqlite_master' cannot be executed. %s", db_name);
         return ESP_FAIL;
@@ -72,7 +73,7 @@ esp_err_t check_or_create_tables_test(void) {
     // Read reply
     char sqlmsg[256];
     size_t readBytes;
-    readBytes = xMessageBufferReceive(xMessageBufferQuery, sqlmsg, sizeof(sqlmsg), 100);
+    readBytes = xMessageBufferReceive(xMessageBuffer, sqlmsg, sizeof(sqlmsg), 100);
     ESP_LOGI(TAG, "readBytes=%d", readBytes);
     if (readBytes == 0) {
         ESP_LOGW(TAG, "Query response is empty. %s", db_name);
@@ -83,7 +84,7 @@ esp_err_t check_or_create_tables_test(void) {
 
     // Create table
     if (strcmp(sqlmsg, "count(*) = 0") == 0) {
-        int rc = db_query(xMessageBufferQuery, db, "CREATE TABLE test (id INTEGER, content);");
+        int rc = db_query(xMessageBuffer, db, "CREATE TABLE test (id INTEGER, content);");
         if (rc != SQLITE_OK) {
             ESP_LOGI(TAG, "Table 'test' cannot be created: %s", db_name);
             return ESP_FAIL;
@@ -95,14 +96,14 @@ esp_err_t check_or_create_tables_test(void) {
     }
 
     // Inquiry
-    rc = db_query(xMessageBufferQuery, db, "select count(*) from test;");
+    rc = db_query(xMessageBuffer, db, "select count(*) from test;");
     if (rc != SQLITE_OK) {
         ESP_LOGW(TAG, "Select count from test cannot be executed at: %s", db_name);
         return ESP_FAIL;
     }
 
     // Read reply
-    readBytes = xMessageBufferReceive(xMessageBufferQuery, sqlmsg, sizeof(sqlmsg), 100);
+    readBytes = xMessageBufferReceive(xMessageBuffer, sqlmsg, sizeof(sqlmsg), 100);
     ESP_LOGI(TAG, "readBytes=%d", readBytes);
     if (readBytes == 0) {
         ESP_LOGW(TAG, "Query response is empty at: %s", db_name);
@@ -113,7 +114,7 @@ esp_err_t check_or_create_tables_test(void) {
 
     // Insert record
     if (strcmp(sqlmsg, "count(*) = 0") == 0) {
-        rc = db_query(xMessageBufferQuery, db, "INSERT INTO test VALUES (1, 'Hello, World');");
+        rc = db_query(xMessageBuffer, db, "INSERT INTO test VALUES (1, 'Hello, World');");
         if (rc != SQLITE_OK) {
             ESP_LOGI(TAG, "Record inserted into: %s", db_name);
         }
@@ -121,13 +122,13 @@ esp_err_t check_or_create_tables_test(void) {
         ESP_LOGW(TAG, "Record already exists at: %s", db_name);
     }
 
-    rc = db_query(xMessageBufferQuery, db, "SELECT * FROM test");
+    rc = db_query(xMessageBuffer, db, "SELECT * FROM test");
     if (rc != SQLITE_OK) {
         ESP_LOGW(TAG, "Select * from test cannot be executed at: %s", db_name);
         return ESP_FAIL;
     }
     while (1) {
-        readBytes = xMessageBufferReceive(xMessageBufferQuery, sqlmsg, sizeof(sqlmsg), 100);
+        readBytes = xMessageBufferReceive(xMessageBuffer, sqlmsg, sizeof(sqlmsg), 100);
         ESP_LOGI(TAG, "readBytes=%d", readBytes);
         if (readBytes == 0) break;
         sqlmsg[readBytes] = 0;
@@ -165,15 +166,16 @@ esp_err_t check_or_create_table_battery(void) {
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", SD_MOUNT_POINT);
     sqlite3 *db;
     sqlite3_initialize();
-    if (db_open(db_name, &db)) {
-        ESP_LOGI(TAG, "DB Opened: %s", db_name);
-    } else {
-        ESP_LOGE(TAG, "DB Cannot be opened: %s", db_name);
+    int rc = db_open(db_name, &db); // will print "Opened database successfully"
+    if (rc != SQLITE_OK) {
+        ESP_LOGE(TAG, "Cannot open database: %s, resp: %d", db_name, rc);
         return ESP_FAIL;
+    } else {
+        ESP_LOGI(TAG, "Opened database: %s, resp: %d", db_name, rc);
     }
 
     // Inquiry
-    int rc = db_query(xMessageBufferQuery, db, "select count(*) from sqlite_master where name = 'battery_stats';");
+    rc = db_query(xMessageBuffer, db, "select count(*) from sqlite_master where name = 'battery_stats';");
     if (rc != SQLITE_OK) {
         ESP_LOGW(TAG, "Select count from 'sqlite_master' cannot be executed. %s", db_name);
         return ESP_FAIL;
@@ -182,7 +184,7 @@ esp_err_t check_or_create_table_battery(void) {
     // Read reply
     char sqlmsg[256];
     size_t readBytes;
-    readBytes = xMessageBufferReceive(xMessageBufferQuery, sqlmsg, sizeof(sqlmsg), 100);
+    readBytes = xMessageBufferReceive(xMessageBuffer, sqlmsg, sizeof(sqlmsg), 100);
     ESP_LOGI(TAG, "readBytes=%d", readBytes);
     if (readBytes == 0) {
         ESP_LOGW(TAG, "Query response is empty. %s", db_name);
@@ -193,7 +195,7 @@ esp_err_t check_or_create_table_battery(void) {
 
     // Create table
     if (strcmp(sqlmsg, "count(*) = 0") == 0) {
-        int rc = db_query(xMessageBufferQuery, db, battery_table_create_sql);
+        int rc = db_query(xMessageBuffer, db, battery_table_create_sql);
         if (rc != SQLITE_OK) {
             ESP_LOGI(TAG, "Table 'battery_stats' cannot be created: %s", db_name);
             return ESP_FAIL;
@@ -205,14 +207,14 @@ esp_err_t check_or_create_table_battery(void) {
     }
 
     // Inquiry
-    rc = db_query(xMessageBufferQuery, db, "select count(*) from battery_stats;");
+    rc = db_query(xMessageBuffer, db, "select count(*) from battery_stats;");
     if (rc != SQLITE_OK) {
         ESP_LOGW(TAG, "Select count from 'battery_stats' cannot be executed at: %s", db_name);
         return ESP_FAIL;
     }
 
     // Read reply
-    readBytes = xMessageBufferReceive(xMessageBufferQuery, sqlmsg, sizeof(sqlmsg), 100);
+    readBytes = xMessageBufferReceive(xMessageBuffer, sqlmsg, sizeof(sqlmsg), 100);
     ESP_LOGI(TAG, "readBytes=%d", readBytes);
     if (readBytes == 0) {
         ESP_LOGW(TAG, "Query response is empty at: %s", db_name);
@@ -241,18 +243,19 @@ esp_err_t battery_stats(
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", SD_MOUNT_POINT);
     sqlite3 *db;
     sqlite3_initialize();
-    if (db_open(db_name, &db)) {
-        ESP_LOGI(TAG, "DB Opened: %s", db_name);
-    } else {
-        ESP_LOGE(TAG, "DB Cannot be opened: %s", db_name);
+    int rc = db_open(db_name, &db); // will print "Opened database successfully"
+    if (rc != SQLITE_OK) {
+        ESP_LOGE(TAG, "Cannot open database: %s, resp: %d", db_name, rc);
         return ESP_FAIL;
+    } else {
+        ESP_LOGI(TAG, "Opened database: %s, resp: %d", db_name, rc);
     }
 
     char battery_table_insert_sql[256];
     snprintf(battery_table_insert_sql, sizeof(battery_table_insert_sql), "INSERT INTO battery_stats VALUES (%d, %d, %d, %d, %d, %d, %d);", adc_raw, voltage, voltage_m, percentage, max_masured_voltage, measure_freq, loop_count);
 
     // Insert record
-    int rc = db_query(xMessageBufferQuery, db, battery_table_insert_sql);
+    rc = db_query(xMessageBuffer, db, battery_table_insert_sql);
     if (rc != SQLITE_OK) {
         ESP_LOGE(TAG, "Cannot insert into 'battery_stats' table at %s", db_name);
         return ESP_FAIL;
@@ -272,9 +275,14 @@ esp_err_t setup_db(void) {
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", SD_MOUNT_POINT);
     sqlite3_initialize();
     ESP_LOGI(TAG, "Database setup finished!");
+    
     // Create Message Buffer
-    xMessageBufferQuery = xMessageBufferCreate(4096);
-    configASSERT(xMessageBufferQuery);
+    xMessageBuffer = xMessageBufferCreate( xMessageBufferSizeBytes );
+    if( xMessageBuffer == NULL ) {
+        ESP_LOGE(TAG, "Cannot create a message buffer for SQL operations!");
+    } else {
+        ESP_LOGI(TAG, "Created a message buffer for SQL operations ok.");
+    }
     // Create tables
     check_or_create_tables_test();
     return ESP_OK;
