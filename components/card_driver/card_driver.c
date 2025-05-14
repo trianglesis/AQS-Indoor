@@ -209,6 +209,9 @@ esp_err_t card_init(void) {
     sd_card_file_read_test();  // 2
     sd_card_file_sum_test();   // 3
 
+    ESP_ERROR_CHECK(setup_db());  // Init right after SD Card passes OK and before everything else
+
+
     return ESP_OK;
 }
 

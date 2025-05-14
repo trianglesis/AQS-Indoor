@@ -9,7 +9,6 @@ idf_component_register(
     REQUIRES 
                     card_driver
                     littlefs_driver
-                    sqlite_driver
                     battery_driver
                     captive_portal
                     display_driver

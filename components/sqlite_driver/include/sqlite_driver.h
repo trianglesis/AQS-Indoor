@@ -15,8 +15,8 @@ extern MessageBufferHandle_t        xMessageBufferQuery;
 
 esp_err_t setup_db(void);
 
-void battery_table_init(void);
-void battery_stats(
+esp_err_t check_or_create_table_battery(void);
+esp_err_t battery_stats(
     int adc_raw, 
     int voltage, 
     int voltage_m, 

@@ -23,8 +23,6 @@
 #include "webserver.h"
 #include "wifi.h" // Battery power via cheap bust converter won't work: brownout
 
-#include "sqlite_driver.h"
-
 // Empty files - placeholders
 #include "captive_portal.h"
 
@@ -72,7 +70,6 @@ void app_main(void) {
     ESP_ERROR_CHECK(card_init());
     ESP_ERROR_CHECK(fs_setup());
     // Adding SQLite
-    ESP_ERROR_CHECK(setup_db());  // Init right after SD Card passes OK and before everything else
 
     ESP_ERROR_CHECK(master_bus_init());         // Init I2C master bus
     ESP_ERROR_CHECK(scd40_sensor_init());       // With queue and task init.
