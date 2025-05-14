@@ -61,13 +61,12 @@ void battery_measure_task(void *pvParameters) {
         battery_readings.percentage = batteryLevel;
         ESP_LOGI(TAG, "RAW: %d; Cali: V:%d; Converted V %d; Battery percentage: %d", battery_readings.adc_raw, battery_readings.voltage_m, battery_readings.voltage_m, battery_readings.percentage);
 
-        xQueueOverwrite(mq_batt, (void *)&battery_readings);
-        
         // Save to database
         battery_readings.measure_freq = measure_freq;
         battery_readings.loop_count = loop_count;
-        battery_stats(battery_readings);
+        battery_stats();
 
+        xQueueOverwrite(mq_batt, (void *)&battery_readings);
         xTaskDelayUntil(&last_wake_time, measure_freq);
     } // WHILE
 }

@@ -7,7 +7,6 @@
 #include "sqllib.h"
 
 #include "card_driver.h"
-#include "battery_driver.h"
 
 
 #define DB_ROOT                     SD_MOUNT_POINT
@@ -25,4 +24,4 @@ int max_masured_voltage,
 int measure_freq, 
 int loop_count
 */
-void battery_stats(struct BattSensor battery_readings);
+void battery_stats(void);

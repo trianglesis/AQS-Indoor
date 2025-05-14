@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include "sqlite_driver.h"
 
+#include "battery_driver.h" // Only to get MQ
+
+
 static const char *TAG = "sqlite";
 
 MessageBufferHandle_t xMessageBufferQuery;
@@ -203,6 +206,35 @@ void check_or_create_table_battery(void *pvParameters) {
     vTaskDelete(NULL);
 }
 
+void battery_stats_task(void *pvParameters) {
+    char *battery_table_insert_sql = (char *)pvParameters;
+	ESP_LOGI(TAG, "SQL RAW=[%s]", battery_table_insert_sql);
+    // Open database
+    char db_name[32];
+    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", SD_MOUNT_POINT);
+    sqlite3 *db;
+    sqlite3_initialize();
+
+    int rc = db_open(db_name, &db); // will print "Opened database successfully"
+    if (rc != SQLITE_OK) {
+        ESP_LOGE(TAG, "Cannot open database: %s, resp: %d", db_name, rc);
+        vTaskDelete(NULL);
+    } else {
+        ESP_LOGI(TAG, "Opened database: %s, resp: %d", db_name, rc);
+    }
+    // Insert record
+    rc = db_query(xMessageBufferQuery, db, battery_table_insert_sql);
+    if (rc != SQLITE_OK) {
+        ESP_LOGE(TAG, "Cannot insert into 'battery_stats' table at %s", db_name);
+        vTaskDelete(NULL);
+    } else {
+        ESP_LOGI(TAG, "Record inserted into 'battery_stats' table at %s", db_name);
+    }
+    sqlite3_close(db);
+    ESP_LOGI(TAG, "SQL routine ended, DB is closed: %s", db_name);
+    vTaskDelete(NULL);
+}
+
 /*
     int adc_raw, 
     int voltage, 
@@ -212,36 +244,18 @@ void check_or_create_table_battery(void *pvParameters) {
     int measure_freq, 
     int loop_count
 */
-void battery_stats(struct BattSensor battery_readings) {
+void battery_stats(void) {
     ESP_LOGI(TAG, "Insert into 'battery_stats' table!");
+    
+    struct BattSensor battery_readings; // data type should be same as queue item type
+    const TickType_t xTicksToWait = pdMS_TO_TICKS(50);
+    xQueuePeek(mq_batt, (void *)&battery_readings, xTicksToWait);
 
-    // Open database
-    char db_name[32];
-    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", SD_MOUNT_POINT);
-    sqlite3 *db;
-    sqlite3_initialize();
-    int rc = db_open(db_name, &db); // will print "Opened database successfully"
-    if (rc != SQLITE_OK) {
-        ESP_LOGE(TAG, "Cannot open database: %s, resp: %d", db_name, rc);
-        // return ESP_FAIL;
-    } else {
-        ESP_LOGI(TAG, "Opened database: %s, resp: %d", db_name, rc);
-    }
 
     char battery_table_insert_sql[256];
     snprintf(battery_table_insert_sql, sizeof(battery_table_insert_sql), "INSERT INTO battery_stats VALUES (%d, %d, %d, %d, %d, %d, %d);", battery_readings.adc_raw, battery_readings.voltage, battery_readings.voltage_m, battery_readings.percentage, battery_readings.max_masured_voltage, battery_readings.measure_freq, battery_readings.loop_count);
 
-    // Insert record
-    rc = db_query(xMessageBufferQuery, db, battery_table_insert_sql);
-    if (rc != SQLITE_OK) {
-        ESP_LOGE(TAG, "Cannot insert into 'battery_stats' table at %s", db_name);
-        // return ESP_FAIL;
-    } else {
-        ESP_LOGI(TAG, "Record inserted into 'battery_stats' table at %s", db_name);
-    }
-    sqlite3_close(db);
-    ESP_LOGI(TAG, "SQL routine ended, DB is closed: %s", db_name);
-    // return ESP_OK;
+    xTaskCreatePinnedToCore(battery_stats_task, "battery-insert-stats", 1024*6, (void *)battery_table_insert_sql, 4, NULL, tskNO_AFFINITY);
 }
 
 
@@ -263,7 +277,6 @@ esp_err_t setup_db(void) {
         ESP_LOGI(TAG, "Created a message buffer for SQL operations ok.");
     }
     
-
     /*
     Check or create tables if absent:
     - Test table
