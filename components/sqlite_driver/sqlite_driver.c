@@ -21,10 +21,10 @@ static int callback(void *data, int argc, char **argv, char **azColName) {
         //printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
         int tx_length = sprintf(tx_buffer, "%s = %s", azColName[i], argv[i] ? argv[i] : "NULL");
         if (xMessageBuffer) {
-            size_t sended = xMessageBufferSendFromISR((MessageBufferHandle_t)xMessageBuffer, tx_buffer, tx_length, NULL);
+            size_t sended = xMessageBufferSend((MessageBufferHandle_t)xMessageBuffer, tx_buffer, tx_length, NULL);
             ESP_LOGD(__FUNCTION__, "sended=%d tx_length=%d", sended, tx_length);
             if (sended != tx_length) {
-                ESP_LOGE(TAG, "xMessageBufferSendFromISR fail tx_length=%d sended=%d", tx_length, sended);
+                ESP_LOGE(TAG, "xMessageBufferSend fail tx_length=%d sended=%d", tx_length, sended);
             }
         } else {
             ESP_LOGE(TAG, "xMessageBuffer is NULL");
@@ -48,8 +48,16 @@ int db_query(MessageBufferHandle_t xMessageBuffer, sqlite3 *db, const char *sql)
     return rc;
 }
 
+
 esp_err_t check_or_create_tables_test(void) {
     ESP_LOGI(TAG, "Check of create 'test' table!");
+    // Create Message Buffer
+    xMessageBuffer = xMessageBufferCreate( xMessageBufferSizeBytes );
+    if( xMessageBuffer == NULL ) {
+        ESP_LOGE(TAG, "Cannot create a message buffer for SQL operations!");
+    } else {
+        ESP_LOGI(TAG, "Created a message buffer for SQL operations ok.");
+    }
     // Open database
     char db_name[32];
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", SD_MOUNT_POINT);
@@ -161,6 +169,13 @@ const char *battery_table_create_sql = SQL(
 
 esp_err_t check_or_create_table_battery(void) {
     ESP_LOGI(TAG, "Check battery stats table!");
+    // Create Message Buffer
+    xMessageBuffer = xMessageBufferCreate( xMessageBufferSizeBytes );
+    if( xMessageBuffer == NULL ) {
+        ESP_LOGE(TAG, "Cannot create a message buffer for SQL operations!");
+    } else {
+        ESP_LOGI(TAG, "Created a message buffer for SQL operations ok.");
+    }
     // Open database
     char db_name[32];
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", SD_MOUNT_POINT);
@@ -237,7 +252,13 @@ esp_err_t battery_stats(
     int measure_freq, 
     int loop_count) {
     ESP_LOGI(TAG, "Insert into 'battery_stats' table!");
-
+    // Create Message Buffer
+    xMessageBuffer = xMessageBufferCreate( xMessageBufferSizeBytes );
+    if( xMessageBuffer == NULL ) {
+        ESP_LOGE(TAG, "Cannot create a message buffer for SQL operations!");
+    } else {
+        ESP_LOGI(TAG, "Created a message buffer for SQL operations ok.");
+    }
     // Open database
     char db_name[32];
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", SD_MOUNT_POINT);
@@ -275,14 +296,7 @@ esp_err_t setup_db(void) {
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", SD_MOUNT_POINT);
     sqlite3_initialize();
     ESP_LOGI(TAG, "Database setup finished!");
-    
-    // Create Message Buffer
-    xMessageBuffer = xMessageBufferCreate( xMessageBufferSizeBytes );
-    if( xMessageBuffer == NULL ) {
-        ESP_LOGE(TAG, "Cannot create a message buffer for SQL operations!");
-    } else {
-        ESP_LOGI(TAG, "Created a message buffer for SQL operations ok.");
-    }
+
     // Create tables
     check_or_create_tables_test();
     return ESP_OK;

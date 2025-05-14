@@ -1,6 +1,7 @@
 #pragma once
 #include <string.h>
 #include "esp_log.h"
+#include "esp_timer.h"
 
 #include "sqlite3.h"
 #include "sqllib.h"
