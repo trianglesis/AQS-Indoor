@@ -26,7 +26,6 @@ void battery_driver_info(void) {
 }
 
 void battery_measure_task(void *pvParameters) {
-    esp_err_t ret;
     adc_task_param_t param = pvParameters;
     int max_perc = 100;
     int min_perc = 1;
@@ -65,10 +64,9 @@ void battery_measure_task(void *pvParameters) {
         xQueueOverwrite(mq_batt, (void *)&battery_readings);
         
         // Save to database
-        ret = battery_stats(battery_readings.adc_raw, battery_readings.voltage, battery_readings.voltage_m, battery_readings.percentage, battery_readings.max_masured_voltage, measure_freq, loop_count);
-        if (ret != ESP_OK) {
-            ESP_LOGW(TAG, "Cannot save battery stats into DB!");
-        }
+        battery_readings.measure_freq = measure_freq;
+        battery_readings.loop_count = loop_count;
+        battery_stats(battery_readings);
 
         xTaskDelayUntil(&last_wake_time, measure_freq);
     } // WHILE
@@ -165,12 +163,6 @@ esp_err_t battery_one_shot_init(void) {
     handle->adc1_handle = adc1_handle;
     handle->do_calibration1_chan0 = do_calibration1_chan0;
     handle->adc1_cali_chan0_handle = adc1_cali_chan0_handle;
-
-    esp_err_t ret;
-    ret = check_or_create_table_battery();  // Check existence of stats table SQLite
-    if (ret != ESP_OK) {
-        ESP_LOGW(TAG, "Cannot check battery stats table or open the database!");
-    }
 
     xTaskCreatePinnedToCore(battery_measure_task, "adc-batt", 4096, handle, 4, NULL, tskNO_AFFINITY);
 

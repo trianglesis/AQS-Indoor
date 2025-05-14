@@ -33,6 +33,8 @@ struct BattSensor {
     int voltage_m;
     int percentage;
     int max_masured_voltage;
+    int measure_freq;
+    int loop_count;
 };
 
 
