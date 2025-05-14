@@ -5,7 +5,7 @@ idf_component_register(
                     "sensiniron/sensirion_i2c.c"
                     "sensiniron/scd4x_i2c.c"
     REQUIRES
-                    i2c_driver esp_timer led_driver
+                    i2c_driver esp_timer led_driver sqlite_driver
     INCLUDE_DIRS 
                     "include"
                     "./sensiniron/"

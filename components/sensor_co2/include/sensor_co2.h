@@ -17,6 +17,8 @@
 #include "sensirion_common.h"
 #include "sensirion_i2c.h"
 
+#include "sqlite_driver.h"
+
 #define I2C_SCD40_ADDRESS                  CONFIG_I2C_SCD40_ADDRESS
 #define SCD40_SDA_PIN                      CONFIG_COMMON_SDA_PIN
 #define SCD40_SCL_PIN                      CONFIG_COMMON_SCL_PIN
@@ -32,6 +34,7 @@ struct SCD4XSensor {
     float temperature;
     float humidity;
     uint16_t co2_ppm;
+    int measure_freq;
 };
 
 void sensor_co2(void);

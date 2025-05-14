@@ -55,8 +55,11 @@ void co2_scd4x_reading(void * pvParameters) {
             scd4x_readings.co2_ppm = co2Ppm;
             scd4x_readings.temperature = t_celsius;
             scd4x_readings.humidity = humid_percent;
+            scd4x_readings.measure_freq = CONFIG_CO2_MEASUREMENT_FREQ;
             xQueueOverwrite(mq_co2, (void *)&scd4x_readings);
 
+            // Save to database
+            co2_stats();
             // Actual sleep real time?
             xTaskDelayUntil(&last_wake_time, CONFIG_CO2_MEASUREMENT_FREQ);
         } // Data ready

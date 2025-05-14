@@ -16,6 +16,8 @@
 // External
 #include "bme680.h"
 
+#include "sqlite_driver.h"
+
 #define BME680_I2C_ADDR_0           CONFIG_BME680_I2C_ADDR_0
 #define BME680_I2C_ADDR_1           CONFIG_BME680_I2C_ADDR_1
 #define BME680_SDA_PIN              CONFIG_COMMON_SDA_PIN
@@ -31,6 +33,7 @@ struct BMESensor {
     float pressure;
     float resistance;
     uint16_t air_q_index;
+    int measure_freq;
 };
 
 

@@ -25,3 +25,5 @@ int measure_freq,
 int loop_count
 */
 void battery_stats(void);
+void co2_stats(void);
+void bme680_stats(void);

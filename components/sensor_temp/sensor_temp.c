@@ -74,8 +74,13 @@ void bme680_reading(void * pvParameters) {
             data.iaq_score, 
             bme680_air_quality_to_string(data.iaq_score)
         );
-
+        
+        bme680_readings.measure_freq = BME680_MEASUREMENT_FREQ;
         xQueueOverwrite(mq_bme680, (void *)&bme680_readings);
+
+        // Save to database
+        bme680_stats();
+
         // Actual sleep real time?
         xTaskDelayUntil(&last_wake_time, BME680_MEASUREMENT_FREQ);
     }
