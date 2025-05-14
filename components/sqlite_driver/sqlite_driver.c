@@ -165,7 +165,7 @@ void check_or_create_table(void *pvParameters) {
             ESP_LOGW(TAG, "Table created: %s.%s", db_name, table_name);
         }
     } else {
-        ESP_LOGI(TAG, "Table already exists at: %s.%s", db_name, table_name);
+        ESP_LOGI(TAG, "Table already exists at: %s %s", db_name, table_name);
     }
 
     // Inquiry
@@ -227,10 +227,9 @@ void battery_stats(void) {
     const TickType_t xTicksToWait = pdMS_TO_TICKS(50);
     xQueuePeek(mq_batt, (void *)&battery_readings, xTicksToWait);
 
-    char battery_table_insert_sql[256];
-    snprintf(battery_table_insert_sql, sizeof(battery_table_insert_sql), "INSERT INTO battery_stats VALUES (%d, %d, %d, %d, %d, %d, %d);", battery_readings.adc_raw, battery_readings.voltage, battery_readings.voltage_m, battery_readings.percentage, battery_readings.max_masured_voltage, battery_readings.measure_freq, battery_readings.loop_count);
-
-    xTaskCreatePinnedToCore(insert_task, "insert-task", 1024*6, (void *)battery_table_insert_sql, 4, NULL, tskNO_AFFINITY);
+    char table_sql[256];
+    snprintf(table_sql, sizeof(table_sql) + 1, "INSERT INTO battery_stats VALUES (%d, %d, %d, %d, %d, %d, %d);", battery_readings.adc_raw, battery_readings.voltage, battery_readings.voltage_m, battery_readings.percentage, battery_readings.max_masured_voltage, battery_readings.measure_freq, battery_readings.loop_count);
+    xTaskCreatePinnedToCore(insert_task, "insert-task", 1024*6, (void *)table_sql, 4, NULL, tskNO_AFFINITY);
 }
 
 void co2_stats(void) {
@@ -240,10 +239,10 @@ void co2_stats(void) {
     const TickType_t xTicksToWait = pdMS_TO_TICKS(50);
     xQueuePeek(mq_co2, (void *)&scd4x_readings, xTicksToWait);
 
-    char co2_stats_table_sql[256];
-    snprintf(co2_stats_table_sql, sizeof(co2_stats_table_sql), "INSERT INTO co2_stats VALUES (%d, %f, %f, %d);", scd4x_readings.co2_ppm, scd4x_readings.temperature, scd4x_readings.humidity, scd4x_readings.measure_freq);
+    char table_sql[256];
+    snprintf(table_sql, sizeof(table_sql), "INSERT INTO co2_stats VALUES (%f, %f, %, %d);", scd4x_readings.temperature, scd4x_readings.humidity, scd4x_readings.co2_ppm, scd4x_readings.measure_freq);
 
-    xTaskCreatePinnedToCore(insert_task, "insert-task", 1024*6, (void *)co2_stats_table_sql, 4, NULL, tskNO_AFFINITY);
+    xTaskCreatePinnedToCore(insert_task, "insert-task", 1024*6, (void *)table_sql, 4, NULL, tskNO_AFFINITY);
 }
 
 void bme680_stats(void) {
@@ -253,10 +252,10 @@ void bme680_stats(void) {
     const TickType_t xTicksToWait = pdMS_TO_TICKS(50);
     xQueuePeek(mq_bme680, (void *)&bme680_readings, xTicksToWait);
 
-    char air_temp_table_sql[256];
-    snprintf(air_temp_table_sql, sizeof(air_temp_table_sql), "INSERT INTO air_temp_stats VALUES (%f, %f, %f, %f, %d, %d);", bme680_readings.temperature, bme680_readings.humidity, bme680_readings.pressure, bme680_readings.resistance, bme680_readings.air_q_index, bme680_readings.measure_freq);
+    char table_sql[256];
+    snprintf(table_sql, sizeof(table_sql), "INSERT INTO air_temp_stats VALUES (%f, %f, %f, %f, %d, %d);", bme680_readings.temperature, bme680_readings.humidity, bme680_readings.pressure, bme680_readings.resistance, bme680_readings.air_q_index, bme680_readings.measure_freq);
 
-    xTaskCreatePinnedToCore(insert_task, "insert-task", 1024*6, (void *)air_temp_table_sql, 4, NULL, tskNO_AFFINITY);
+    xTaskCreatePinnedToCore(insert_task, "insert-task", 1024*6, (void *)table_sql, 4, NULL, tskNO_AFFINITY);
 }
 
 esp_err_t setup_db(void) {
