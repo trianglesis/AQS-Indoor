@@ -163,8 +163,10 @@ esp_err_t battery_one_shot_init(void) {
     handle->adc1_handle = adc1_handle;
     handle->do_calibration1_chan0 = do_calibration1_chan0;
     handle->adc1_cali_chan0_handle = adc1_cali_chan0_handle;
-
+    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     xTaskCreatePinnedToCore(battery_measure_task, "adc-batt", 1024*2, handle, 4, NULL, tskNO_AFFINITY);
-
+    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    ssize_t delta = free_after - free_before;
+    ESP_LOGI(TAG, "MEMORY for Battery TASKs\n\tBefore: %"PRIu32" bytes\n\tAfter: %"PRIu32" bytes\n\tDelta: %d\n\n", free_before, free_after, delta);
     return ESP_OK;
 }

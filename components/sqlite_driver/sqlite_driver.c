@@ -108,8 +108,6 @@ int db_query(MessageBufferHandle_t xMessageBuffer, sqlite3 *db, const char *sql)
 
 void check_or_create_table(void *pvParameters) {
     char *table_name = (char *)pvParameters;
-    ESP_LOGI(TAG, "Check table existence: %s", table_name);
-
     // Open database
     char db_name[32];
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", SD_MOUNT_POINT);
@@ -122,6 +120,8 @@ void check_or_create_table(void *pvParameters) {
     } else {
         ESP_LOGI(TAG, "Opened database: %s, resp: %d", db_name, rc);
     }
+    vTaskDelay(pdMS_TO_TICKS(250));
+    ESP_LOGI(TAG, "Check table existence: %s", table_name);
 
     // Inquiry
     char table_name_sql[96];
@@ -163,9 +163,11 @@ void check_or_create_table(void *pvParameters) {
             vTaskDelete(NULL);
         } else {
             ESP_LOGW(TAG, "Table created: %s.%s", db_name, table_name);
+            vTaskDelete(NULL);  // No need to do anything else!
         }
     } else {
         ESP_LOGI(TAG, "Table already exists at: %s %s", db_name, table_name);
+        vTaskDelete(NULL);  // No need to do anything else!
     }
 
     // Inquiry
@@ -188,8 +190,6 @@ void check_or_create_table(void *pvParameters) {
     ESP_LOGI(TAG, "sqlmsg=[%s]", sqlmsg);
 
     sqlite3_close(db);
-    ESP_LOGI(TAG, "SQL routine ended, DB is closed: %s", db_name);
-    vTaskDelay(pdMS_TO_TICKS(1000));
     vTaskDelete(NULL);
 }
 
@@ -200,64 +200,58 @@ void insert_task(void *pvParameters) {
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", SD_MOUNT_POINT);
     sqlite3 *db;
     sqlite3_initialize();
+    vTaskDelay(pdMS_TO_TICKS(250));
 
     int rc = db_open(db_name, &db); // will print "Opened database successfully"
     if (rc != SQLITE_OK) {
         ESP_LOGE(TAG, "Cannot open database: %s, resp: %d", db_name, rc);
         vTaskDelete(NULL);
-    } else {
-        ESP_LOGI(TAG, "Opened database: %s, resp: %d", db_name, rc);
     }
     // Insert record
     rc = db_query(xMessageBufferQuery, db, sql_query_formatted);
     if (rc != SQLITE_OK) {
         ESP_LOGE(TAG, "Cannot insert at %s", db_name);
         vTaskDelete(NULL);
-    } else {
-        ESP_LOGI(TAG, "Record inserted at %s", db_name);
     }
     sqlite3_close(db);
     ESP_LOGI(TAG, "SQL routine ended, DB is closed: %s", db_name);
-    vTaskDelay(pdMS_TO_TICKS(50));
     vTaskDelete(NULL);
 }
 
 void battery_stats(void) {
-    ESP_LOGI(TAG, "Insert into 'battery_stats' table!");
-    
-    struct BattSensor battery_readings; // data type should be same as queue item type
-    const TickType_t xTicksToWait = pdMS_TO_TICKS(50);
-    xQueuePeek(mq_batt, (void *)&battery_readings, xTicksToWait);
-
+    struct BattSensor batt_i; // data type should be same as queue item type
+    xQueuePeek(mq_batt, (void *)&batt_i, pdMS_TO_TICKS(50));
     char table_sql[256];
-    snprintf(table_sql, sizeof(table_sql) + 1, "INSERT INTO battery_stats VALUES (%d, %d, %d, %d, %d, %d, %d);", battery_readings.adc_raw, battery_readings.voltage, battery_readings.voltage_m, battery_readings.percentage, battery_readings.max_masured_voltage, battery_readings.measure_freq, battery_readings.loop_count);
-    xTaskCreate(insert_task, "insert-task-battery_stats", 1024*4, (void *)table_sql, 9, NULL);
+    snprintf(table_sql, sizeof(table_sql) + 1, "INSERT INTO battery_stats VALUES (%d, %d, %d, %d, %d, %d, %d);", batt_i.adc_raw, batt_i.voltage, batt_i.voltage_m, batt_i.percentage, batt_i.max_masured_voltage, batt_i.measure_freq, batt_i.loop_count);
+    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    xTaskCreate(insert_task, "insert-task-battery_stats", 1024*6, (void *)table_sql, 9, NULL);
+    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    ssize_t delta = free_after - free_before;
+    ESP_LOGI(TAG, "MEMORY for TASK\n\tBefore: %"PRIu32" bytes\n\tAfter: %"PRIu32" bytes\n\tDelta: %d\n\n", free_before, free_after, delta);
 }
 
 void co2_stats(void) {
-    ESP_LOGI(TAG, "Insert into 'co2_stats' table!");
-    
-    struct SCD4XSensor scd4x_readings; // data type should be same as queue item type
-    const TickType_t xTicksToWait = pdMS_TO_TICKS(50);
-    xQueuePeek(mq_co2, (void *)&scd4x_readings, xTicksToWait);
-
+    struct SCD4XSensor co2_i; // data type should be same as queue item type
+    xQueuePeek(mq_co2, (void *)&co2_i, pdMS_TO_TICKS(50));
     char table_sql[256];
-    snprintf(table_sql, sizeof(table_sql), "INSERT INTO co2_stats VALUES (%f, %f, %d, %d);", scd4x_readings.temperature, scd4x_readings.humidity, scd4x_readings.co2_ppm, scd4x_readings.measure_freq);
-
-    xTaskCreate(insert_task, "insert-task-co2_stats", 1024*4, (void *)table_sql, 9, NULL);
+    snprintf(table_sql, sizeof(table_sql), "INSERT INTO co2_stats VALUES (%f, %f, %d, %d);", co2_i.temperature, co2_i.humidity, co2_i.co2_ppm, co2_i.measure_freq);
+    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    xTaskCreate(insert_task, "insert-task-co2_stats", 1024*6, (void *)table_sql, 9, NULL);
+    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    ssize_t delta = free_after - free_before;
+    ESP_LOGI(TAG, "MEMORY for TASK\n\tBefore: %"PRIu32" bytes\n\tAfter: %"PRIu32" bytes\n\tDelta: %d\n\n", free_before, free_after, delta);
 }
 
 void bme680_stats(void) {
-    ESP_LOGI(TAG, "Insert into 'air_temp_stats' table!");
-    
-    struct BMESensor bme680_readings; // data type should be same as queue item type
-    const TickType_t xTicksToWait = pdMS_TO_TICKS(50);
-    xQueuePeek(mq_bme680, (void *)&bme680_readings, xTicksToWait);
-
+    struct BMESensor bme680_i; // data type should be same as queue item type
+    xQueuePeek(mq_bme680, (void *)&bme680_i, pdMS_TO_TICKS(50));
     char table_sql[256];
-    snprintf(table_sql, sizeof(table_sql), "INSERT INTO air_temp_stats VALUES (%f, %f, %f, %f, %d, %d);", bme680_readings.temperature, bme680_readings.humidity, bme680_readings.pressure, bme680_readings.resistance, bme680_readings.air_q_index, bme680_readings.measure_freq);
-
-    xTaskCreate(insert_task, "insert-task-bme680_stats", 1024*4, (void *)table_sql, 9, NULL);
+    snprintf(table_sql, sizeof(table_sql), "INSERT INTO air_temp_stats VALUES (%f, %f, %f, %f, %d, %d);", bme680_i.temperature, bme680_i.humidity, bme680_i.pressure, bme680_i.resistance, bme680_i.air_q_index, bme680_i.measure_freq);
+    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    xTaskCreate(insert_task, "insert-task-bme680_stats", 1024*6, (void *)table_sql, 9, NULL);
+    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    ssize_t delta = free_after - free_before;
+    ESP_LOGI(TAG, "MEMORY for TASK\n\tBefore: %"PRIu32" bytes\n\tAfter: %"PRIu32" bytes\n\tDelta: %d\n\n", free_before, free_after, delta);
 }
 
 esp_err_t setup_db(void) {
@@ -266,23 +260,14 @@ esp_err_t setup_db(void) {
     char db_name[32];
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", SD_MOUNT_POINT);
     sqlite3_initialize();
-    ESP_LOGI(TAG, "Database setup finished!");
-    
     // Create Message Buffer
 	xMessageBufferQuery = xMessageBufferCreate(4096);
 	configASSERT( xMessageBufferQuery );
     if( xMessageBufferQuery == NULL ) {
         ESP_LOGE(TAG, "Cannot create a message buffer for SQL operations!");
-    } else {
-        ESP_LOGI(TAG, "Created a message buffer for SQL operations ok.");
     }
     
-    /*
-    Check or create tables if absent:
-    - Test table
-    - Battery stats table
-    */
-    
+    /* Check or create tables if absent */
     xTaskCreate(check_or_create_table, "table-battery_table", 1024*6, (void *)battery_table, 5, NULL);
     xTaskCreate(check_or_create_table, "table-co2_table", 1024*6, (void *)co2_table, 5, NULL);
     xTaskCreate(check_or_create_table, "table-bme680_table", 1024*6, (void *)bme680_table, 5, NULL);

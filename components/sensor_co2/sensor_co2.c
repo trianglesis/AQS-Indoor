@@ -103,14 +103,18 @@ void create_mq_co2() {
 }
 
 void task_co2() {
+    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     // Task CO2 requires LED
     led_init();
     // Put measurements into the queue
     create_mq_co2();
     // Cycle getting measurements
-    xTaskCreatePinnedToCore(co2_scd4x_reading, "co2_scd4x_reading", 1024*4, NULL, 4, NULL, tskNO_AFFINITY);
+    xTaskCreatePinnedToCore(co2_scd4x_reading, "co2_scd4x_reading", 1024*3, NULL, 9, NULL, tskNO_AFFINITY);
     // Change LED color based on CO2 severity level
-    xTaskCreatePinnedToCore(led_co2, "led_co2", 1024*4, NULL, 8, NULL, tskNO_AFFINITY);
+    xTaskCreatePinnedToCore(led_co2, "led_co2", 1024*2, NULL, 8, NULL, tskNO_AFFINITY);
+    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    ssize_t delta = free_after - free_before;
+    ESP_LOGI(TAG, "MEMORY for CO2 TASKs\n\tBefore: %"PRIu32" bytes\n\tAfter: %"PRIu32" bytes\n\tDelta: %d\n\n", free_before, free_after, delta);
 }
 
 /*

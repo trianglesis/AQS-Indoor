@@ -5,7 +5,6 @@ static const char *TAG = "sensor-bme680";
 
 QueueHandle_t mq_bme680;
 
-i2c_master_dev_handle_t bme680_handle; // Update as soon as all other 
 bme680_handle_t dev_hdl;
 
 
@@ -129,7 +128,11 @@ void task_bme680() {
     // Put measurements into the queue
     create_mq_bme680();
     // Start task
-    xTaskCreatePinnedToCore(bme680_reading, "bme680_reading", 1024*4, NULL, 4, NULL, tskNO_AFFINITY);
+    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    xTaskCreatePinnedToCore(bme680_reading, "bme680_reading", 1024*3, NULL, 4, NULL, tskNO_AFFINITY);
+    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    ssize_t delta = free_after - free_before;
+    ESP_LOGI(TAG, "MEMORY for BME680 TASKs\n\tBefore: %"PRIu32" bytes\n\tAfter: %"PRIu32" bytes\n\tDelta: %d\n\n", free_before, free_after, delta);
 }
 
 /*

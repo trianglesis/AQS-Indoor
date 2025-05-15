@@ -46,6 +46,8 @@ void save_to_log(void) {
 
 void app_main(void) {
     //Allow other core to finish initialization
+    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+
     vTaskDelay(pdMS_TO_TICKS(10));
     ESP_LOGI(TAG, "Init...");
     
@@ -83,7 +85,9 @@ void app_main(void) {
     ESP_ERROR_CHECK(display_init());       // With LVGL and task init. i2c used too
     
     // TODO: Add file logs
-
+    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    ssize_t delta = free_after - free_before;
+    ESP_LOGI(TAG, "INIT MEMORY\n\t\tBefore: %"PRIu32" bytes\n\t\tAfter: %"PRIu32" bytes\n\t\tDelta: %d\n\n", free_before, free_after, delta);
     // End
 }
 // END

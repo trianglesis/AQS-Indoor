@@ -294,6 +294,156 @@ This converter is probably cheap and unstable, can only work with esp32 5V if no
 Temporary solution: add wifi Off option, and skip wifi AP\STA, Webserver and captive portal setup.
 The board is working fine now.
 
+# SQLite
+
+Having issues with SQLite and memory..
+
+```
+I (492) heap_init: Initializing. RAM available for dynamic allocation:
+I (498) heap_init: At 40841BF0 len 0003AA20 (234 KiB): RAM
+I (503) heap_init: At 4087C610 len 00002F54 (11 KiB): RAM
+I (508) heap_init: At 5000001C len 00003FCC (15 KiB): RTCRAM
+```
+
+```log
+I (8244) co2station: INIT MEMORY
+                Before: 249032 bytes
+                After: 53304 bytes
+                Delta: -195728
+
+
+I (8244) main_task: Returned from app_main()
+I (8434) adc-battery: Try: 5; measured voltage: 2749 mV; max measured during this cycle: 2766 mV
+I (8684) adc-battery: Try: 6; measured voltage: 2766 mV; max measured during this cycle: 2766 mV
+I (8934) adc-battery: Try: 7; measured voltage: 2749 mV; max measured during this cycle: 2766 mV
+I (9184) adc-battery: Try: 8; measured voltage: 2750 mV; max measured during this cycle: 2766 mV
+I (9434) adc-battery: Try: 9; measured voltage: 2766 mV; max measured during this cycle: 2766 mV
+I (9684) adc-battery: RAW: 2753; Cali: V:2766; Converted V 2766; Battery percentage: 135
+I (9684) sqlite: MEMORY for TASK
+        Before: 58204 bytes
+        After: 51716 bytes
+        Delta: -6488
+
+
+Opened database successfully
+INSERT INTO battery_stats VALUES (2753, 2, 2766, 135, 2766, 60000, 10);
+Operation done successfully
+I (9984) sqlite: SQL routine ended, DB is closed: /sdcard/stats.db
+W (11974) wifi:<ba-add>idx:1, ifx:0, tid:0, TAHI:0x100cc0c, TALO:0x42b84862, (ssn:0, win:64, cur_ssn:0), CONF:0xc0000005
+I (12954) sensor-co2: CO2:833ppm; Temperature:64.7; Humidity:92.4
+I (12954) sqlite: MEMORY for TASK
+        Before: 57900 bytes
+        After: 51412 bytes
+        Delta: -6488
+
+
+Opened database successfully
+INSERT INTO co2_stats VALUES (64.657997, 92.390999, 833, 5000);
+Operation done successfully
+I (13264) sqlite: SQL routine ended, DB is closed: /sdcard/stats.db
+I (13634) sensor-bme680: t:25.88C; Humidity:35.52%; Pressure:983.85hpa; Resistance:700.87; Stable:no: AQI:65 (Excellent)
+I (13634) sqlite: MEMORY for TASK
+        Before: 57684 bytes
+        After: 51196 bytes
+        Delta: -6488
+
+
+Opened database successfully
+INSERT INTO air_temp_stats VALUES (25.875751, 35.523434, 983.849060, 700.869812, 65, 5000);
+SQL error: out of memory
+E (13934) sqlite: Cannot insert at /sdcard/stats.db
+I (62954) sensor-co2: CO2:803ppm; Temperature:38.0; Humidity:19.2
+I (62954) sqlite: MEMORY for TASK
+        Before: 40044 bytes
+        After: 33556 bytes
+        Delta: -6488
+
+
+I (63134) wifi:removing station <10:5a:17:21:7a:6e> after unsuccessful auth/assoc, AID = 0
+W (63134) wifi:rm mis
+I (63134) wifi:new:<3,0>, old:<3,0>, ap:<3,1>, sta:<3,0>, prof:1, snd_ch_cfg:0x0
+Opened database successfully
+INSERT INTO co2_stats VALUES (37.992001, 19.174999, 803, 5000);
+E (63254) dma_utils: esp_dma_capable_malloc(181): Not enough heap memory
+E (63254) diskio_sdmmc: sdmmc_write_blocks failed (0x101)
+SQL error: disk I/O error
+E (63254) sqlite: Cannot insert at /sdcard/stats.db
+I (63674) sensor-bme680: t:26.60C; Humidity:35.55%; Pressure:983.86hpa; Resistance:39.43; Stable:yes: AQI:29 (Unhealthy)
+I (63674) sqlite: MEMORY for TASK
+        Before: 21328 bytes
+        After: 14840 bytes
+        Delta: -6488
+
+
+Opened database successfully
+INSERT INTO air_temp_stats VALUES (26.598278, 35.554367, 983.856689, 39.432659, 29, 5000);
+SQL error: out of memory
+E (63924) sqlite: Cannot insert at /sdcard/stats.db
+I (112954) sensor-co2: CO2:804ppm; Temperature:118.0; Humidity:85.3
+I (112954) sqlite: MEMORY for TASK
+        Before: 11984 bytes
+        After: 11984 bytes
+        Delta: 0
+
+
+I (113634) sensor-bme680: t:26.85C; Humidity:35.52%; Pressure:983.85hpa; Resistance:66.98; Stable:yes: AQI:37 (Unhealthy)
+I (113634) sqlite: MEMORY for TASK
+        Before: 11984 bytes
+        After: 11984 bytes
+        Delta: 0
+
+```
+
+Reset and anothe issue:
+
+```text
+I (9600) adc-battery: RAW: 2752; Cali: V:2765; Converted V 2765; Battery percentage: 135
+I (9600) sqlite: MEMORY for TASK
+        Before: 58068 bytes
+        After: 51580 bytes
+        Delta: -6488
+
+
+Opened database successfully
+INSERT INTO battery_stats VALUES (2752, 2, 2765, 135, 2765, 60000, 10);
+Operation done successfully
+I (9900) sqlite: SQL routine ended, DB is closed: /sdcard/stats.db
+I (10590) wifi:[ADDBA]TX addba request, tid:0, dialogtoken:5, bufsize:64, A-MSDU:0(not supported), policy:1(IMR), ssn:0(0x1f0)
+I (10610) wifi:[ADDBA]RX addba response, status:0, tid:0/tb:1(0xa1), bufsize:64, batimeout:0, txa_wnd:64
+I (12910) sensor-co2: CO2:858ppm; Temperature:-38.6; Humidity:53.1
+I (12910) sqlite: MEMORY for TASK
+        Before: 57872 bytes
+        After: 51384 bytes
+        Delta: -6488
+
+
+Opened database successfully
+INSERT INTO co2_stats VALUES (-38.562000, 53.144001, 858, 5000);
+E (13220) sdmmc_cmd: sdmmc_send_cmd_num_of_written_blocks: sdmmc_send_app_cmd returned 0x107, failed to get number of written write blocks
+E (13220) sdmmc_cmd: sdmmc_write_sectors_dma: sdmmc_send_cmd_num_of_written_blocks returned 0x108
+E (13230) sdmmc_cmd: sdmmc_write_sectors_dma: sdmmc_send_cmd returned 0x108, failed to get status (0x107)
+E (13230) diskio_sdmmc: sdmmc_write_blocks failed (0x108)
+SQL error: disk I/O error
+E (13240) sqlite: Cannot insert at /sdcard/stats.db
+I (13560) sensor-bme680: t:26.05C; Humidity:35.48%; Pressure:983.76hpa; Resistance:1896.67; Stable:no: AQI:63 (Excellent)
+I (13560) sqlite: MEMORY for TASK
+        Before: 37616 bytes
+        After: 31128 bytes
+        Delta: -6488
+
+
+E (13810) sdmmc_cmd: sdmmc_read_sectors_dma: sdmmc_send_cmd returned 0x107, failed to get status (0x107)
+E (13810) diskio_sdmmc: sdmmc_read_blocks failed (0x107)
+E (13810) sdmmc_cmd: sdmmc_read_sectors_dma: sdmmc_send_cmd returned 0x107, failed to get status (0x107)
+E (13820) diskio_sdmmc: sdmmc_read_blocks failed (0x107)
+Can't open database: unable to open database file
+E (13830) sqlite: Cannot open database: /sdcard/stats.db, resp: 14
+```
+
+![Stats](pics/sqlite/sqlite_stats.png)
+
+Reduced page size to 512
+
 # Debug and etc
 
 

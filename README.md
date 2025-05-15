@@ -37,6 +37,32 @@ The main functionality:
 
 Test: simple I2C display monochromatic.
 
+# SQLite
+
+Having issues with SQLite and memory..
+
+```log
+Opened database successfully
+I (263575) sqlite: Opened database: /sdcard/stats.db, resp: 0
+INSERT INTO air_temp_stats VALUES (26.844532, 35.619118, 983.710632, 124.074074, 46, 5000);
+SQL error: out of memory
+E (263645) sqlite: Cannot insert at /sdcard/stats.db
+I (312855) sensor-co2: CO2:810ppm; Temperature:120.0; Humidity:3.5
+Opened database successfully
+I (312855) sqlite: Opened database: /sdcard/stats.db, resp: 0
+INSERT INTO co2_stats VALUES (120.017998, 3.524000, 810, 5000);
+E (312895) dma_utils: esp_dma_capable_malloc(181): Not enough heap memory
+E (312895) diskio_sdmmc: sdmmc_write_blocks failed (0x101)
+SQL error: disk I/O error
+E (312905) sqlite: Cannot insert at /sdcard/stats.db
+I (313535) sensor-bme680: t:26.81C; Humidity:35.63%; Pressure:983.76hpa; Resistance:126.32; Stable:yes: AQI:46 (Moderate)
+Opened database successfully
+I (313535) sqlite: Opened database: /sdcard/stats.db, resp: 0
+INSERT INTO air_temp_stats VALUES (26.809620, 35.632950, 983.760254, 126.319756, 46, 5000);
+SQL error: out of memory
+E (313545) sqlite: Cannot insert at /sdcard/stats.db
+```
+
 # Etc
 
 Some other stuff for battery power and casing is needed.
