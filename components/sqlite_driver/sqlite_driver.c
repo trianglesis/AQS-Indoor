@@ -231,7 +231,7 @@ void battery_stats(void) {
 
     char table_sql[256];
     snprintf(table_sql, sizeof(table_sql) + 1, "INSERT INTO battery_stats VALUES (%d, %d, %d, %d, %d, %d, %d);", battery_readings.adc_raw, battery_readings.voltage, battery_readings.voltage_m, battery_readings.percentage, battery_readings.max_masured_voltage, battery_readings.measure_freq, battery_readings.loop_count);
-    xTaskCreatePinnedToCore(insert_task, "insert-task-battery_stats", 1024*4, (void *)table_sql, 4, NULL, tskNO_AFFINITY);
+    xTaskCreate(insert_task, "insert-task-battery_stats", 1024*4, (void *)table_sql, 9, NULL);
 }
 
 void co2_stats(void) {
@@ -244,7 +244,7 @@ void co2_stats(void) {
     char table_sql[256];
     snprintf(table_sql, sizeof(table_sql), "INSERT INTO co2_stats VALUES (%f, %f, %d, %d);", scd4x_readings.temperature, scd4x_readings.humidity, scd4x_readings.co2_ppm, scd4x_readings.measure_freq);
 
-    xTaskCreatePinnedToCore(insert_task, "insert-task-co2_stats", 1024*4, (void *)table_sql, 4, NULL, tskNO_AFFINITY);
+    xTaskCreate(insert_task, "insert-task-co2_stats", 1024*4, (void *)table_sql, 9, NULL);
 }
 
 void bme680_stats(void) {
@@ -257,7 +257,7 @@ void bme680_stats(void) {
     char table_sql[256];
     snprintf(table_sql, sizeof(table_sql), "INSERT INTO air_temp_stats VALUES (%f, %f, %f, %f, %d, %d);", bme680_readings.temperature, bme680_readings.humidity, bme680_readings.pressure, bme680_readings.resistance, bme680_readings.air_q_index, bme680_readings.measure_freq);
 
-    xTaskCreatePinnedToCore(insert_task, "insert-task-bme680_stats", 1024*4, (void *)table_sql, 4, NULL, tskNO_AFFINITY);
+    xTaskCreate(insert_task, "insert-task-bme680_stats", 1024*4, (void *)table_sql, 9, NULL);
 }
 
 esp_err_t setup_db(void) {
@@ -283,9 +283,9 @@ esp_err_t setup_db(void) {
     - Battery stats table
     */
     
-    xTaskCreatePinnedToCore(check_or_create_table, "table-create2", 1024*6, (void *)battery_table, 4, NULL, tskNO_AFFINITY);
-    xTaskCreatePinnedToCore(check_or_create_table, "table-create4", 1024*6, (void *)co2_table, 4, NULL, tskNO_AFFINITY);
-    xTaskCreatePinnedToCore(check_or_create_table, "table-create3", 1024*6, (void *)bme680_table, 4, NULL, tskNO_AFFINITY);
-    // xTaskCreatePinnedToCore(check_or_create_table, "table-create1", 1024*6, (void *)test_table, 4, NULL, tskNO_AFFINITY);
+    xTaskCreate(check_or_create_table, "table-battery_table", 1024*6, (void *)battery_table, 5, NULL);
+    xTaskCreate(check_or_create_table, "table-co2_table", 1024*6, (void *)co2_table, 5, NULL);
+    xTaskCreate(check_or_create_table, "table-bme680_table", 1024*6, (void *)bme680_table, 5, NULL);
+    // xTaskCreate(check_or_create_table, "table-create1", 1024*6, (void *)test_table, 5, NULL);
     return ESP_OK;
 }

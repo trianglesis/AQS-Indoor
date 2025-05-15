@@ -560,12 +560,12 @@ esp_err_t lvgl_init(void) {
     // Now create a task
     ESP_LOGI(TAG, "Create LVGL task");
     // TODO: Make task for SPI display
-    xTaskCreatePinnedToCore(lvgl_task_spi_sq_line, "spi display task", 8192, NULL, 9, NULL, tskNO_AFFINITY);
+    xTaskCreatePinnedToCore(lvgl_task_spi_sq_line, "spi display task", 1024*6, NULL, 9, NULL, tskNO_AFFINITY);
     #elif CONFIG_CONNECTION_I2C
     // Now create a task
     ESP_LOGI(TAG, "Create LVGL task");
-    // xTaskCreatePinnedToCore(lvgl_task_i2c, "i2c display task", 8192, NULL, 9, NULL, tskNO_AFFINITY);
-    xTaskCreatePinnedToCore(lvgl_task_i2c_sq_line, "i2c display task SqLine", 8192, NULL, 9, NULL, tskNO_AFFINITY);
+    // xTaskCreatePinnedToCore(lvgl_task_i2c, "i2c display task", 1024*6, NULL, 9, NULL, tskNO_AFFINITY);
+    xTaskCreatePinnedToCore(lvgl_task_i2c_sq_line, "i2c display task SqLine", 1024*6, NULL, 9, NULL, tskNO_AFFINITY);
     #endif
 
     return ESP_OK;

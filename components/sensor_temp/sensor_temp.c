@@ -129,7 +129,7 @@ void task_bme680() {
     // Put measurements into the queue
     create_mq_bme680();
     // Start task
-    xTaskCreatePinnedToCore(bme680_reading, "bme680_reading", 4096, NULL, 4, NULL, tskNO_AFFINITY);
+    xTaskCreatePinnedToCore(bme680_reading, "bme680_reading", 1024*4, NULL, 4, NULL, tskNO_AFFINITY);
 }
 
 /*

@@ -108,9 +108,9 @@ void task_co2() {
     // Put measurements into the queue
     create_mq_co2();
     // Cycle getting measurements
-    xTaskCreatePinnedToCore(co2_scd4x_reading, "co2_scd4x_reading", 4096, NULL, 4, NULL, tskNO_AFFINITY);
+    xTaskCreatePinnedToCore(co2_scd4x_reading, "co2_scd4x_reading", 1024*4, NULL, 4, NULL, tskNO_AFFINITY);
     // Change LED color based on CO2 severity level
-    xTaskCreatePinnedToCore(led_co2, "led_co2", 4096, NULL, 8, NULL, tskNO_AFFINITY);
+    xTaskCreatePinnedToCore(led_co2, "led_co2", 1024*4, NULL, 8, NULL, tskNO_AFFINITY);
 }
 
 /*

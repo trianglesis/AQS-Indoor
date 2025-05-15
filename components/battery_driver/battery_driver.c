@@ -164,7 +164,7 @@ esp_err_t battery_one_shot_init(void) {
     handle->do_calibration1_chan0 = do_calibration1_chan0;
     handle->adc1_cali_chan0_handle = adc1_cali_chan0_handle;
 
-    xTaskCreatePinnedToCore(battery_measure_task, "adc-batt", 4096, handle, 4, NULL, tskNO_AFFINITY);
+    xTaskCreatePinnedToCore(battery_measure_task, "adc-batt", 1024*2, handle, 4, NULL, tskNO_AFFINITY);
 
     return ESP_OK;
 }
