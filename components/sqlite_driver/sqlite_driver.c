@@ -227,7 +227,7 @@ void battery_stats(void) {
     xTaskCreate(insert_task, "insert-task-battery_stats", 1024*6, (void *)table_sql, 9, NULL);
     const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     ssize_t delta = free_after - free_before;
-    ESP_LOGI(TAG, "MEMORY for TASK\n\tBefore: %"PRIu32" bytes\n\tAfter: %"PRIu32" bytes\n\tDelta: %d\n\n", free_before, free_after, delta);
+    ESP_LOGI(TAG, "MEMORY for TASK battery_stats\tBefore: %"PRIu32" bytes\tAfter: %"PRIu32" bytes\n\tDelta: %d\n", free_before, free_after, delta);
 }
 
 void co2_stats(void) {
@@ -239,7 +239,7 @@ void co2_stats(void) {
     xTaskCreate(insert_task, "insert-task-co2_stats", 1024*6, (void *)table_sql, 9, NULL);
     const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     ssize_t delta = free_after - free_before;
-    ESP_LOGI(TAG, "MEMORY for TASK\n\tBefore: %"PRIu32" bytes\n\tAfter: %"PRIu32" bytes\n\tDelta: %d\n\n", free_before, free_after, delta);
+    ESP_LOGI(TAG, "MEMORY for TASK co2_stats\tBefore: %"PRIu32" bytes\tAfter: %"PRIu32" bytes\n\tDelta: %d\n", free_before, free_after, delta);
 }
 
 void bme680_stats(void) {
@@ -251,7 +251,7 @@ void bme680_stats(void) {
     xTaskCreate(insert_task, "insert-task-bme680_stats", 1024*6, (void *)table_sql, 9, NULL);
     const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     ssize_t delta = free_after - free_before;
-    ESP_LOGI(TAG, "MEMORY for TASK\n\tBefore: %"PRIu32" bytes\n\tAfter: %"PRIu32" bytes\n\tDelta: %d\n\n", free_before, free_after, delta);
+    ESP_LOGI(TAG, "MEMORY for TASK bme680_stats\tBefore: %"PRIu32" bytes\tAfter: %"PRIu32" bytes\n\tDelta: %d\n", free_before, free_after, delta);
 }
 
 esp_err_t setup_db(void) {
