@@ -5,6 +5,9 @@
 #include "sensor_co2.h" // Only to get MQ
 #include "sensor_temp.h" // Only to get MQ
 
+#include "esp_heap_trace.h"
+#define NUM_RECORDS 100
+static heap_trace_record_t trace_record[NUM_RECORDS]; // This buffer must be in internal RAM
 
 static const char *TAG = "sqlite";
 
@@ -224,10 +227,17 @@ void battery_stats(void) {
     char table_sql[256];
     snprintf(table_sql, sizeof(table_sql) + 1, "INSERT INTO battery_stats VALUES (%d, %d, %d, %d, %d, %d, %d);", batt_i.adc_raw, batt_i.voltage, batt_i.voltage_m, batt_i.percentage, batt_i.max_masured_voltage, batt_i.measure_freq, batt_i.loop_count);
     const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    
+    ESP_ERROR_CHECK( heap_trace_init_standalone(trace_record, NUM_RECORDS) );
+    ESP_ERROR_CHECK( heap_trace_start(HEAP_TRACE_LEAKS) );
+    
     xTaskCreate(insert_task, "insert-task-battery_stats", 1024*6, (void *)table_sql, 9, NULL);
     const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     ssize_t delta = free_after - free_before;
     ESP_LOGI(TAG, "MEMORY for TASK battery_stats\tBefore: %"PRIu32" bytes\tAfter: %"PRIu32" bytes\n\tDelta: %d\n", free_before, free_after, delta);
+
+    ESP_ERROR_CHECK( heap_trace_stop() );
+    heap_trace_dump();
 }
 
 void co2_stats(void) {
@@ -236,10 +246,17 @@ void co2_stats(void) {
     char table_sql[256];
     snprintf(table_sql, sizeof(table_sql), "INSERT INTO co2_stats VALUES (%f, %f, %d, %d);", co2_i.temperature, co2_i.humidity, co2_i.co2_ppm, co2_i.measure_freq);
     const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    
+    ESP_ERROR_CHECK( heap_trace_init_standalone(trace_record, NUM_RECORDS) );
+    ESP_ERROR_CHECK( heap_trace_start(HEAP_TRACE_LEAKS) );
+    
     xTaskCreate(insert_task, "insert-task-co2_stats", 1024*6, (void *)table_sql, 9, NULL);
     const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     ssize_t delta = free_after - free_before;
     ESP_LOGI(TAG, "MEMORY for TASK co2_stats\tBefore: %"PRIu32" bytes\tAfter: %"PRIu32" bytes\n\tDelta: %d\n", free_before, free_after, delta);
+
+    ESP_ERROR_CHECK( heap_trace_stop() );
+    heap_trace_dump();
 }
 
 void bme680_stats(void) {
@@ -248,10 +265,17 @@ void bme680_stats(void) {
     char table_sql[256];
     snprintf(table_sql, sizeof(table_sql), "INSERT INTO air_temp_stats VALUES (%f, %f, %f, %f, %d, %d);", bme680_i.temperature, bme680_i.humidity, bme680_i.pressure, bme680_i.resistance, bme680_i.air_q_index, bme680_i.measure_freq);
     const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    
+    ESP_ERROR_CHECK( heap_trace_init_standalone(trace_record, NUM_RECORDS) );
+    ESP_ERROR_CHECK( heap_trace_start(HEAP_TRACE_LEAKS) );
+    
     xTaskCreate(insert_task, "insert-task-bme680_stats", 1024*6, (void *)table_sql, 9, NULL);
     const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     ssize_t delta = free_after - free_before;
     ESP_LOGI(TAG, "MEMORY for TASK bme680_stats\tBefore: %"PRIu32" bytes\tAfter: %"PRIu32" bytes\n\tDelta: %d\n", free_before, free_after, delta);
+
+    ESP_ERROR_CHECK( heap_trace_stop() );
+    heap_trace_dump();
 }
 
 esp_err_t setup_db(void) {

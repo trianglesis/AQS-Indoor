@@ -394,55 +394,62 @@ I (113634) sqlite: MEMORY for TASK
 
 ```
 
-Reset and anothe issue:
-
-```text
-I (9600) adc-battery: RAW: 2752; Cali: V:2765; Converted V 2765; Battery percentage: 135
-I (9600) sqlite: MEMORY for TASK
-        Before: 58068 bytes
-        After: 51580 bytes
-        Delta: -6488
-
-
-Opened database successfully
-INSERT INTO battery_stats VALUES (2752, 2, 2765, 135, 2765, 60000, 10);
-Operation done successfully
-I (9900) sqlite: SQL routine ended, DB is closed: /sdcard/stats.db
-I (10590) wifi:[ADDBA]TX addba request, tid:0, dialogtoken:5, bufsize:64, A-MSDU:0(not supported), policy:1(IMR), ssn:0(0x1f0)
-I (10610) wifi:[ADDBA]RX addba response, status:0, tid:0/tb:1(0xa1), bufsize:64, batimeout:0, txa_wnd:64
-I (12910) sensor-co2: CO2:858ppm; Temperature:-38.6; Humidity:53.1
-I (12910) sqlite: MEMORY for TASK
-        Before: 57872 bytes
-        After: 51384 bytes
-        Delta: -6488
-
-
-Opened database successfully
-INSERT INTO co2_stats VALUES (-38.562000, 53.144001, 858, 5000);
-E (13220) sdmmc_cmd: sdmmc_send_cmd_num_of_written_blocks: sdmmc_send_app_cmd returned 0x107, failed to get number of written write blocks
-E (13220) sdmmc_cmd: sdmmc_write_sectors_dma: sdmmc_send_cmd_num_of_written_blocks returned 0x108
-E (13230) sdmmc_cmd: sdmmc_write_sectors_dma: sdmmc_send_cmd returned 0x108, failed to get status (0x107)
-E (13230) diskio_sdmmc: sdmmc_write_blocks failed (0x108)
-SQL error: disk I/O error
-E (13240) sqlite: Cannot insert at /sdcard/stats.db
-I (13560) sensor-bme680: t:26.05C; Humidity:35.48%; Pressure:983.76hpa; Resistance:1896.67; Stable:no: AQI:63 (Excellent)
-I (13560) sqlite: MEMORY for TASK
-        Before: 37616 bytes
-        After: 31128 bytes
-        Delta: -6488
-
-
-E (13810) sdmmc_cmd: sdmmc_read_sectors_dma: sdmmc_send_cmd returned 0x107, failed to get status (0x107)
-E (13810) diskio_sdmmc: sdmmc_read_blocks failed (0x107)
-E (13810) sdmmc_cmd: sdmmc_read_sectors_dma: sdmmc_send_cmd returned 0x107, failed to get status (0x107)
-E (13820) diskio_sdmmc: sdmmc_read_blocks failed (0x107)
-Can't open database: unable to open database file
-E (13830) sqlite: Cannot open database: /sdcard/stats.db, resp: 14
-```
-
 ![Stats](pics/sqlite/sqlite_stats.png)
 
 Reduced page size to 512
+
+Looks promising
+
+```log
+Opened database successfully
+INSERT INTO air_temp_stats VALUES (25.555319, 36.721657, 984.770874, 147.447189, 48, 5000);
+Operation done successfully
+I (8564035) sqlite: SQL routine ended, DB is closed: /sdcard/stats.db
+I (8612955) sensor-co2: CO2:577ppm; Temperature:12.7; Humidity:41.8
+I (8612955) sqlite: MEMORY for TASK
+        Before: 67208 bytes
+        After: 60720 bytes
+        Delta: -6488
+
+
+Opened database successfully
+INSERT INTO co2_stats VALUES (12.688000, 41.806000, 577, 5000);
+Operation done successfully
+I (8613255) sqlite: SQL routine ended, DB is closed: /sdcard/stats.db
+I (8613645) sensor-bme680: t:25.56C; Humidity:36.64%; Pressure:984.78hpa; Resistance:148.49; Stable:yes: AQI:48 (Moderate)
+I (8613645) sqlite: MEMORY for TASK
+        Before: 67208 bytes
+        After: 60720 bytes
+        Delta: -6488
+
+
+Opened database successfully
+INSERT INTO air_temp_stats VALUES (25.560307, 36.635235, 984.782410, 148.492905, 48, 5000);
+Operation done successfully
+I (8613995) sqlite: SQL routine ended, DB is closed: /sdcard/stats.db
+I (8662955) sensor-co2: CO2:702ppm; Temperature:124.8; Humidity:37.1
+I (8662955) sqlite: MEMORY for TASK
+        Before: 67236 bytes
+        After: 60748 bytes
+        Delta: -6488
+
+
+Opened database successfully
+INSERT INTO co2_stats VALUES (124.797997, 37.119999, 702, 5000);
+Operation done successfully
+I (8663285) sqlite: SQL routine ended, DB is closed: /sdcard/stats.db
+I (8663645) sensor-bme680: t:25.59C; Humidity:38.06%; Pressure:984.75hpa; Resistance:145.27; Stable:yes: AQI:48 (Moderate)
+I (8663645) sqlite: MEMORY for TASK
+        Before: 67244 bytes
+        After: 60756 bytes
+        Delta: -6488
+
+
+Opened database successfully
+INSERT INTO air_temp_stats VALUES (25.593348, 38.058575, 984.750854, 145.273209, 48, 5000);
+Operation done successfully
+I (8663945) sqlite: SQL routine ended, DB is closed: /sdcard/stats.db
+```
 
 # Debug and etc
 
