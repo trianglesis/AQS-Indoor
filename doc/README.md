@@ -451,6 +451,26 @@ Operation done successfully
 I (8663945) sqlite: SQL routine ended, DB is closed: /sdcard/stats.db
 ```
 
+Nope, refreshing WEB server upload page a few times:
+
+```log
+Opened database successfully
+INSERT INTO co2_stats VALUES (-17.389999, 44.016998, 633, 5000);
+Operation done successfully
+I (8913265) sqlite: SQL routine ended, DB is closed: /sdcard/stats.db
+I (8913645) sensor-bme680: t:25.64C; Humidity:37.98%; Pressure:984.71hpa; Resistance:143.16; Stable:yes: AQI:48 (Moderate)
+I (8913645) sqlite: MEMORY for TASK
+        Before: 46580 bytes
+        After: 40092 bytes
+        Delta: -6488
+
+
+Opened database successfully
+INSERT INTO air_temp_stats VALUES (25.639477, 37.975685, 984.709900, 143.162384, 48, 5000);
+SQL error: out of memory
+E (8914005) sqlite: Cannot insert at /sdcard/stats.db
+```
+
 # Debug and etc
 
 
