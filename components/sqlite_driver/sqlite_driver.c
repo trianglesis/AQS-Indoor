@@ -115,7 +115,6 @@ void check_or_create_table(void *pvParameters) {
     } else {
         ESP_LOGI(TAG, "Opened database: %s, resp: %d", db_name, rc);
     }
-    vTaskDelay(pdMS_TO_TICKS(250));
     ESP_LOGI(TAG, "Check table existence: %s", table_name);
 
     // Inquiry
@@ -204,14 +203,12 @@ void insert_task(void *pvParameters) {
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
     sqlite3 *db;
     sqlite3_initialize();
-
+    // vTaskDelay(pdMS_TO_TICKS(500));
     int rc = db_open(db_name, &db); // will print "Opened database successfully"
     if (rc != SQLITE_OK) {
         ESP_LOGE(TAG, "Cannot open database: %s, resp: %d", db_name, rc);
         vTaskDelete(NULL);
     }
-    vTaskDelay(pdMS_TO_TICKS(50));
-    
     // Insert record
     rc = db_query(xMessageBufferQuery, db, sql);
     if (rc != SQLITE_OK) {
@@ -224,8 +221,6 @@ void insert_task(void *pvParameters) {
 }
 
 void ins_task(void *pvParameters) {
-    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-
     char *sql = (char *)pvParameters;
     // Open database
     char db_name[32];
@@ -247,41 +242,7 @@ void ins_task(void *pvParameters) {
 
     sqlite3_close(db);
     ESP_LOGI(TAG, "DB INSERT, DB is closed");
-    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-    ssize_t delta = free_after - free_before;
-    ESP_LOGI(TAG, "task INS\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
 	vTaskDelete(NULL);
-}
-
-
-void battery_stats(char* table_sql) {
-    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-    
-    xTaskCreate(ins_task, "insert-task-battery_stats", 1024*6, (void *)table_sql, 9, NULL);
-    
-    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-    ssize_t delta = free_after - free_before;
-    ESP_LOGI(TAG, "battery_stats\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
-}
-
-void co2_stats(char* table_sql) {
-    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-
-    xTaskCreate(ins_task, "insert-task-co2_stats", 1024*6, (void *)table_sql, 9, NULL);
-
-    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-    ssize_t delta = free_after - free_before;
-    ESP_LOGI(TAG, "co2_stats\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
-}
-
-void bme680_stats(char* table_sql) {
-    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-
-    xTaskCreate(ins_task, "insert-task-bme680_stats", 1024*6, (void *)table_sql, 9, NULL);
-
-    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-    ssize_t delta = free_after - free_before;
-    ESP_LOGI(TAG, "bme680_stats\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
 }
 
 esp_err_t setup_db(void) {
@@ -289,6 +250,8 @@ esp_err_t setup_db(void) {
     // Compose DB name and pointer
     char db_name[32];
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
+    // DELETE previous table for now, at each startup.
+    unlink(db_name);
     sqlite3_initialize();
     // Create Message Buffer
 	xMessageBufferQuery = xMessageBufferCreate(4096);
@@ -299,8 +262,11 @@ esp_err_t setup_db(void) {
     
     /* Check or create tables if absent */
     xTaskCreate(check_or_create_table, "table-battery_table", 1024*6, (void *)battery_table, 5, NULL);
+    vTaskDelay(pdMS_TO_TICKS(250));
     xTaskCreate(check_or_create_table, "table-co2_table", 1024*6, (void *)co2_table, 5, NULL);
+    vTaskDelay(pdMS_TO_TICKS(250));
     xTaskCreate(check_or_create_table, "table-bme680_table", 1024*6, (void *)bme680_table, 5, NULL);
+    vTaskDelay(pdMS_TO_TICKS(250));
     // xTaskCreate(check_or_create_table, "table-create1", 1024*6, (void *)test_table, 5, NULL);
     return ESP_OK;
 }

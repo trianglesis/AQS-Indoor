@@ -26,17 +26,21 @@ void sensor_co2_info(void) {
 */
 void co2_scd4x_reading(void * pvParameters) {
     bool dataReady;
-    uint16_t co2Raw;         // ppm
-    int32_t t_mili_deg;  // millicelsius
-    int32_t humid_mili_percent;     // millipercent
     char table_sql[256];
+    TaskHandle_t SqlxHandle = NULL;
 
     // Wait 5 seconds before goint into the loop, sensor should warm up
     vTaskDelay(pdMS_TO_TICKS(5000));
     // Wait TS between cycles real time
     TickType_t last_wake_time  = xTaskGetTickCount();  
     while (1) {
+        uint16_t co2Raw;         // ppm
+        int32_t t_mili_deg;  // millicelsius
+        int32_t humid_mili_percent;     // millipercent
         struct SCD4XSensor co2_r = {};
+        if( SqlxHandle != NULL ) { 
+            vTaskDelete( SqlxHandle );
+        }
         // Check if measurements are ready, for 5 sec cycle
         dataReady = scd4x_get_data_ready_status(scd41_handle);
         if (!dataReady) {
@@ -59,37 +63,23 @@ void co2_scd4x_reading(void * pvParameters) {
             co2_r.measure_freq = CONFIG_CO2_MEASUREMENT_FREQ;
             xQueueOverwrite(mq_co2, (void *)&co2_r);
 
+            // Update LED
+            led_co2_severity(co2_r.co2_ppm);
+
             // Save to database
             snprintf(table_sql, sizeof(table_sql) + sizeof(co2_r) + 1, "INSERT INTO co2_stats VALUES (%f, %f, %d, %d);", co2_r.temperature, co2_r.humidity, co2_r.co2_ppm, co2_r.measure_freq);
 
-            co2_stats(&table_sql);
+            const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+
+            xTaskCreatePinnedToCore(insert_task, "insert-task-co2_stats", 1024*10, (void *)table_sql, 4, &SqlxHandle, tskNO_AFFINITY);
+
+            const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+            ssize_t delta = free_after - free_before;
+            ESP_LOGI(TAG, "CO2 INSERT TASK\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before,   free_after, delta);
+
             // Actual sleep real time?
             xTaskDelayUntil(&last_wake_time, CONFIG_CO2_MEASUREMENT_FREQ);
         } // Data ready
-    } // WHILE
-}
-
-
-/*
-Led HUE based on CO2 levels as task
-    xQueueReceive - destroy the message
-    xQueuePeek - read the message, not destroying
-*/
-void led_co2(void * pvParameters) {
-    // Read from the queue
-    struct SCD4XSensor co2_r; // data type should be same as queue item type
-    // Wait for queue
-    const TickType_t xTicksToWait = pdMS_TO_TICKS(10);
-    // Wait TS between cycles real time
-    TickType_t last_wake_time  = xTaskGetTickCount();
-    while (1) {
-        xQueuePeek(mq_co2, (void *)&co2_r, xTicksToWait);
-        // Update LED colour
-        led_co2_severity(co2_r.co2_ppm);
-        // Classical approach sleep in ticks
-        // vTaskDelay(pdMS_TO_TICKS(CONFIG_CO2_LED_UPDATE_FREQ));  // idle between cycles
-        // Actual sleep real time?
-        xTaskDelayUntil(&last_wake_time, CONFIG_CO2_LED_UPDATE_FREQ);
     } // WHILE
 }
 
@@ -106,18 +96,12 @@ void create_mq_co2() {
 }
 
 void task_co2() {
-    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     // Task CO2 requires LED
     led_init();
     // Put measurements into the queue
     create_mq_co2();
     // Cycle getting measurements
-    xTaskCreatePinnedToCore(co2_scd4x_reading, "co2_scd4x_reading", 1024*3, NULL, 9, NULL, tskNO_AFFINITY);
-    // Change LED color based on CO2 severity level
-    xTaskCreatePinnedToCore(led_co2, "led_co2", 1024*2, NULL, 8, NULL, tskNO_AFFINITY);
-    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-    ssize_t delta = free_after - free_before;
-    ESP_LOGI(TAG, "MEMORY for CO2 TASKs\n\tBefore: %"PRIu32" bytes\n\tAfter: %"PRIu32" bytes\n\tDelta: %d\n\n", free_before, free_after, delta);
+    xTaskCreatePinnedToCore(co2_scd4x_reading, "co2_scd4x_reading", 1024*3, NULL, 4, NULL, tskNO_AFFINITY);
 }
 
 /*

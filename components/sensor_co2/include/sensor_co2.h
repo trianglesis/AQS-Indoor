@@ -46,12 +46,6 @@ Adding to the queue
 void co2_scd4x_reading(void * pvParameters);
 
 /*
-Update LED colour depending on CO2 PPM level
-In place, reading from the queue/
-*/
-void led_co2(void * pvParameters);
-
-/*
 Create the queue for CO2 measurements.
 Queue len = 1, overwriting, consuming by peeking.
 */

@@ -25,9 +25,7 @@ void battery_driver_info(void) {
 void battery_measure_task(void *pvParameters) {
     adc_task_param_t param = pvParameters;
     char table_sql[256];
-
-    static int adc_raw[2][10];
-    static int voltage[2][10];
+    TaskHandle_t SqlxHandle = NULL;
 
     int max_perc = 100;
     int min_perc = 1;
@@ -39,7 +37,13 @@ void battery_measure_task(void *pvParameters) {
     vTaskDelay(pdMS_TO_TICKS(1000)); // Wait
     TickType_t last_wake_time  = xTaskGetTickCount();  
     while (1) {
+        static int adc_raw[2][10];
+        static int voltage[2][10];
         struct BattSensor btt_r = {};
+        if( SqlxHandle != NULL ) { 
+            vTaskDelete( SqlxHandle );
+        }
+        
         btt_r.max_masured_voltage = 0;
         // Loop for 3-5 measurements and choose one MAX
         for (int i = 0; i < loop_count; ++i) {
@@ -70,7 +74,15 @@ void battery_measure_task(void *pvParameters) {
         
         // Save to database
         snprintf(table_sql, sizeof(table_sql) + sizeof(btt_r) + 1, "INSERT INTO battery_stats VALUES (%d, %d, %d, %d, %d, %d, %d);", btt_r.adc_raw, btt_r.voltage, btt_r.voltage_m, btt_r.percentage, btt_r.max_masured_voltage, btt_r.measure_freq, btt_r.loop_count);
-        battery_stats(&table_sql);
+
+        // battery_stats(&table_sql);
+        const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+
+        xTaskCreatePinnedToCore(insert_task, "insert-task-battery_stats", 1024*10, (void *)table_sql, 4, &SqlxHandle, tskNO_AFFINITY);
+
+        const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+        ssize_t delta = free_after - free_before;
+        ESP_LOGI(TAG, "BATTERY INSERT TASK\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before,   free_after, delta);
         xTaskDelayUntil(&last_wake_time, measure_freq);
     } // WHILE
 }
@@ -166,10 +178,6 @@ esp_err_t battery_one_shot_init(void) {
     handle->adc1_handle = adc1_handle;
     handle->do_calibration1_chan0 = do_calibration1_chan0;
     handle->adc1_cali_chan0_handle = adc1_cali_chan0_handle;
-    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-    xTaskCreatePinnedToCore(battery_measure_task, "adc-batt", 1024*2, handle, 4, NULL, tskNO_AFFINITY);
-    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-    ssize_t delta = free_after - free_before;
-    ESP_LOGI(TAG, "MEMORY for Battery TASKs\n\tBefore: %"PRIu32" bytes\n\tAfter: %"PRIu32" bytes\n\tDelta: %d\n\n", free_before, free_after, delta);
+    xTaskCreatePinnedToCore(battery_measure_task, "adc-batt", 1024*3, handle, 4, NULL, tskNO_AFFINITY);
     return ESP_OK;
 }

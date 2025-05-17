@@ -5,6 +5,9 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+#include "esp_vfs.h"
+#include "esp_vfs_fat.h"
+
 #include "sqlite3.h"
 #include "sqllib.h"
 
@@ -12,15 +15,5 @@
 
 esp_err_t setup_db(void);
 
-/*
-int adc_raw, 
-int voltage, 
-int voltage_m, 
-int percentage, 
-int max_masured_voltage, 
-int measure_freq, 
-int loop_count
-*/
-void battery_stats();
-void co2_stats();
-void bme680_stats();
+void insert_task(void *pvParameters);
+void ins_task(void *pvParameters);

@@ -23,6 +23,8 @@ void sensor_temp(void) {
 
 void bme680_reading(void * pvParameters) {
     char table_sql[256];
+    TaskHandle_t SqlxHandle = NULL;
+
     // Wait 5 seconds before goint into the loop, sensor should warm up
     vTaskDelay(pdMS_TO_TICKS(5000));
     // Wait TS between cycles real time
@@ -31,7 +33,9 @@ void bme680_reading(void * pvParameters) {
         esp_err_t result;
         struct BMESensor bme680_r = {};
         bme680_data_t data;
-
+        if( SqlxHandle != NULL ) { 
+            vTaskDelete( SqlxHandle );
+        }
         // 9 profiles?
         for(uint8_t i = 0; i < dev_hdl->dev_config.heater_profile_size; i++) {
             result = bme680_get_data_by_heater_profile(dev_hdl, i, &data);
@@ -81,8 +85,13 @@ void bme680_reading(void * pvParameters) {
         // Save to database
         snprintf(table_sql, sizeof(table_sql) + sizeof(bme680_r) + 1, "INSERT INTO air_temp_stats VALUES (%f, %f, %f, %f, %d, %d);", bme680_r.temperature, bme680_r.humidity, bme680_r.pressure, bme680_r.resistance, bme680_r.air_q_index, bme680_r.measure_freq);
 
-        bme680_stats(&table_sql);
+        const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
 
+        xTaskCreatePinnedToCore(insert_task, "insert-task-bme680_stats", 1024*10, (void *)table_sql, 4, &SqlxHandle, tskNO_AFFINITY);
+
+        const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+        ssize_t delta = free_after - free_before;
+        ESP_LOGI(TAG, "BME680 INSERT TASK\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before,   free_after, delta);
         // Actual sleep real time?
         xTaskDelayUntil(&last_wake_time, BME680_MEASUREMENT_FREQ);
     }
@@ -131,11 +140,7 @@ void task_bme680() {
     // Put measurements into the queue
     create_mq_bme680();
     // Start task
-    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     xTaskCreatePinnedToCore(bme680_reading, "bme680_reading", 1024*3, NULL, 4, NULL, tskNO_AFFINITY);
-    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-    ssize_t delta = free_after - free_before;
-    ESP_LOGI(TAG, "MEMORY for BME680 TASKs\n\tBefore: %"PRIu32" bytes\n\tAfter: %"PRIu32" bytes\n\tDelta: %d\n\n", free_before, free_after, delta);
 }
 
 /*
