@@ -2,16 +2,13 @@
 #include <string.h>
 #include "esp_log.h"
 #include "esp_timer.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 #include "sqlite3.h"
 #include "sqllib.h"
 
-#include "card_driver.h"
-
-
-#define DB_ROOT                     SD_MOUNT_POINT
-extern MessageBufferHandle_t xMessageBufferQuery;
-
+#define DB_ROOT  CONFIG_SD_MOUNT_POINT
 
 esp_err_t setup_db(void);
 
@@ -24,6 +21,6 @@ int max_masured_voltage,
 int measure_freq, 
 int loop_count
 */
-void battery_stats(void);
-void co2_stats(void);
-void bme680_stats(void);
+void battery_stats();
+void co2_stats();
+void bme680_stats();

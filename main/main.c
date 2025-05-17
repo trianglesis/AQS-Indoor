@@ -87,7 +87,8 @@ void app_main(void) {
     // TODO: Add file logs
     const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     ssize_t delta = free_after - free_before;
-    ESP_LOGI(TAG, "INIT MEMORY\n\t\tBefore: %"PRIu32" bytes\n\t\tAfter: %"PRIu32" bytes\n\t\tDelta: %d\n\n", free_before, free_after, delta);
+    ESP_LOGI(TAG, "MAIN\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
+
     // End
 }
 // END

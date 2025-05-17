@@ -5,9 +5,6 @@ static const char *TAG = "adc-battery";
 
 QueueHandle_t mq_batt;
 
-static int adc_raw[2][10];
-static int voltage[2][10];
-
 typedef struct adc_task_parameters *adc_task_param_t;
 
 struct adc_task_parameters {
@@ -27,6 +24,11 @@ void battery_driver_info(void) {
 
 void battery_measure_task(void *pvParameters) {
     adc_task_param_t param = pvParameters;
+    char table_sql[256];
+
+    static int adc_raw[2][10];
+    static int voltage[2][10];
+
     int max_perc = 100;
     int min_perc = 1;
     int max_volt = BATTERY_CHARGED_VOLTAGE;  // Fully charged, under esp32 load
@@ -37,8 +39,8 @@ void battery_measure_task(void *pvParameters) {
     vTaskDelay(pdMS_TO_TICKS(1000)); // Wait
     TickType_t last_wake_time  = xTaskGetTickCount();  
     while (1) {
-        struct BattSensor battery_readings = {};
-        battery_readings.max_masured_voltage = 0;
+        struct BattSensor btt_r = {};
+        btt_r.max_masured_voltage = 0;
         // Loop for 3-5 measurements and choose one MAX
         for (int i = 0; i < loop_count; ++i) {
             ESP_ERROR_CHECK(adc_oneshot_read(param->adc1_handle, ADC1_CHAN0, &adc_raw[0][0]));
@@ -47,27 +49,28 @@ void battery_measure_task(void *pvParameters) {
                 ESP_ERROR_CHECK(adc_cali_raw_to_voltage(param->adc1_cali_chan0_handle, adc_raw[0][0], &voltage[0][0]));
                 // ESP_LOGI(TAG, "Measure: %d -- ADC%d Channel[%d] Cali Voltage: %d mV", i, ADC_UNIT_1 + 1, ADC1_CHAN0, voltage[0][0]);
             }
-            if (battery_readings.max_masured_voltage < voltage[0][0]) {
-                battery_readings.max_masured_voltage = voltage[0][0];
-                battery_readings.adc_raw = adc_raw[0][0];
-                battery_readings.voltage = battery_readings.max_masured_voltage / 1000;
-                battery_readings.voltage_m = battery_readings.max_masured_voltage;
+            if (btt_r.max_masured_voltage < voltage[0][0]) {
+                btt_r.max_masured_voltage = voltage[0][0];
+                btt_r.adc_raw = adc_raw[0][0];
+                btt_r.voltage = btt_r.max_masured_voltage / 1000;
+                btt_r.voltage_m = btt_r.max_masured_voltage;
             }
-            ESP_LOGI(TAG, "Try: %d; measured voltage: %d mV; max measured during this cycle: %d mV", i, voltage[0][0], battery_readings.max_masured_voltage);
+            ESP_LOGI(TAG, "Try: %d; measured voltage: %d mV; max measured during this cycle: %d mV", i, voltage[0][0], btt_r.max_masured_voltage);
             vTaskDelay(pdMS_TO_TICKS(250));
         }
         // Linear interpolation
-        float batteryLevel = max_perc + (((battery_readings.voltage_m - max_volt) * (min_perc -  max_perc)) / (min_volt - max_volt));
-        battery_readings.percentage = batteryLevel;
-        ESP_LOGI(TAG, "RAW: %d; Cali: V:%d; Converted V %d; Battery percentage: %d", battery_readings.adc_raw, battery_readings.voltage_m, battery_readings.voltage_m, battery_readings.percentage);
+        float batteryLevel = max_perc + (((btt_r.voltage_m - max_volt) * (min_perc -  max_perc)) / (min_volt - max_volt));
+        btt_r.percentage = batteryLevel;
+        ESP_LOGI(TAG, "RAW: %d; Cali: V:%d; Converted V %d; Battery percentage: %d", btt_r.adc_raw, btt_r.voltage_m, btt_r.voltage_m, btt_r.percentage);
 
         // Two more values for database only.
-        battery_readings.measure_freq = measure_freq;
-        battery_readings.loop_count = loop_count;
-        xQueueOverwrite(mq_batt, (void *)&battery_readings);
+        btt_r.measure_freq = measure_freq;
+        btt_r.loop_count = loop_count;
+        xQueueOverwrite(mq_batt, (void *)&btt_r);
         
         // Save to database
-        battery_stats();
+        snprintf(table_sql, sizeof(table_sql) + sizeof(btt_r) + 1, "INSERT INTO battery_stats VALUES (%d, %d, %d, %d, %d, %d, %d);", btt_r.adc_raw, btt_r.voltage, btt_r.voltage_m, btt_r.percentage, btt_r.max_masured_voltage, btt_r.measure_freq, btt_r.loop_count);
+        battery_stats(&table_sql);
         xTaskDelayUntil(&last_wake_time, measure_freq);
     } // WHILE
 }

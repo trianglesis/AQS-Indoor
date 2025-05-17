@@ -22,13 +22,14 @@ void sensor_temp(void) {
 }
 
 void bme680_reading(void * pvParameters) {
+    char table_sql[256];
     // Wait 5 seconds before goint into the loop, sensor should warm up
     vTaskDelay(pdMS_TO_TICKS(5000));
     // Wait TS between cycles real time
     TickType_t last_wake_time = xTaskGetTickCount();  
     while (1) {
         esp_err_t result;
-        struct BMESensor bme680_readings = {};
+        struct BMESensor bme680_r = {};
         bme680_data_t data;
 
         // 9 profiles?
@@ -59,11 +60,11 @@ void bme680_reading(void * pvParameters) {
         //     ESP_LOGE(TAG, "bme680 device read failed (%s)", esp_err_to_name(result));
         // }
         // Once per measure
-        bme680_readings.temperature = data.air_temperature;
-        bme680_readings.humidity = data.relative_humidity;
-        bme680_readings.pressure = data.barometric_pressure/100;
-        bme680_readings.resistance = data.gas_resistance/1000;
-        bme680_readings.air_q_index = data.iaq_score;
+        bme680_r.temperature = data.air_temperature;
+        bme680_r.humidity = data.relative_humidity;
+        bme680_r.pressure = data.barometric_pressure/100;
+        bme680_r.resistance = data.gas_resistance/1000;
+        bme680_r.air_q_index = data.iaq_score;
         ESP_LOGI(TAG, "t:%.2fC; Humidity:%.2f%%; Pressure:%.2fhpa; Resistance:%.2f; Stable:%s: AQI:%d (%s)",
             data.air_temperature,
             data.relative_humidity,
@@ -74,11 +75,13 @@ void bme680_reading(void * pvParameters) {
             bme680_air_quality_to_string(data.iaq_score)
         );
         
-        bme680_readings.measure_freq = BME680_MEASUREMENT_FREQ;
-        xQueueOverwrite(mq_bme680, (void *)&bme680_readings);
+        bme680_r.measure_freq = BME680_MEASUREMENT_FREQ;
+        xQueueOverwrite(mq_bme680, (void *)&bme680_r);
 
         // Save to database
-        bme680_stats();
+        snprintf(table_sql, sizeof(table_sql) + sizeof(bme680_r) + 1, "INSERT INTO air_temp_stats VALUES (%f, %f, %f, %f, %d, %d);", bme680_r.temperature, bme680_r.humidity, bme680_r.pressure, bme680_r.resistance, bme680_r.air_q_index, bme680_r.measure_freq);
+
+        bme680_stats(&table_sql);
 
         // Actual sleep real time?
         xTaskDelayUntil(&last_wake_time, BME680_MEASUREMENT_FREQ);

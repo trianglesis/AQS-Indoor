@@ -29,13 +29,14 @@ void co2_scd4x_reading(void * pvParameters) {
     uint16_t co2Raw;         // ppm
     int32_t t_mili_deg;  // millicelsius
     int32_t humid_mili_percent;     // millipercent
+    char table_sql[256];
 
     // Wait 5 seconds before goint into the loop, sensor should warm up
     vTaskDelay(pdMS_TO_TICKS(5000));
     // Wait TS between cycles real time
     TickType_t last_wake_time  = xTaskGetTickCount();  
     while (1) {
-        struct SCD4XSensor scd4x_readings = {};
+        struct SCD4XSensor co2_r = {};
         // Check if measurements are ready, for 5 sec cycle
         dataReady = scd4x_get_data_ready_status(scd41_handle);
         if (!dataReady) {
@@ -52,14 +53,16 @@ void co2_scd4x_reading(void * pvParameters) {
             const float humid_percent = humid_mili_percent / 1000.0f;
             ESP_LOGI(TAG, "CO2:%dppm; Temperature:%.1f; Humidity:%.1f", co2Ppm, t_celsius, humid_percent);
             // Add to queue
-            scd4x_readings.co2_ppm = co2Ppm;
-            scd4x_readings.temperature = t_celsius;
-            scd4x_readings.humidity = humid_percent;
-            scd4x_readings.measure_freq = CONFIG_CO2_MEASUREMENT_FREQ;
-            xQueueOverwrite(mq_co2, (void *)&scd4x_readings);
+            co2_r.co2_ppm = co2Ppm;
+            co2_r.temperature = t_celsius;
+            co2_r.humidity = humid_percent;
+            co2_r.measure_freq = CONFIG_CO2_MEASUREMENT_FREQ;
+            xQueueOverwrite(mq_co2, (void *)&co2_r);
 
             // Save to database
-            co2_stats();
+            snprintf(table_sql, sizeof(table_sql) + sizeof(co2_r) + 1, "INSERT INTO co2_stats VALUES (%f, %f, %d, %d);", co2_r.temperature, co2_r.humidity, co2_r.co2_ppm, co2_r.measure_freq);
+
+            co2_stats(&table_sql);
             // Actual sleep real time?
             xTaskDelayUntil(&last_wake_time, CONFIG_CO2_MEASUREMENT_FREQ);
         } // Data ready
@@ -74,15 +77,15 @@ Led HUE based on CO2 levels as task
 */
 void led_co2(void * pvParameters) {
     // Read from the queue
-    struct SCD4XSensor scd4x_readings; // data type should be same as queue item type
+    struct SCD4XSensor co2_r; // data type should be same as queue item type
     // Wait for queue
     const TickType_t xTicksToWait = pdMS_TO_TICKS(10);
     // Wait TS between cycles real time
     TickType_t last_wake_time  = xTaskGetTickCount();
     while (1) {
-        xQueuePeek(mq_co2, (void *)&scd4x_readings, xTicksToWait);
+        xQueuePeek(mq_co2, (void *)&co2_r, xTicksToWait);
         // Update LED colour
-        led_co2_severity(scd4x_readings.co2_ppm);
+        led_co2_severity(co2_r.co2_ppm);
         // Classical approach sleep in ticks
         // vTaskDelay(pdMS_TO_TICKS(CONFIG_CO2_LED_UPDATE_FREQ));  // idle between cycles
         // Actual sleep real time?

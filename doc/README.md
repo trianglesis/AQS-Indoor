@@ -133,6 +133,8 @@ Check float enabled, or UI will not show you float numbers.
   - Show Sensors statistics for last 5,30,60 minutes and longer
   - Graphs and JS
 
+NOTE: About memory usage: `TCP connections retain some memory even after they are closed due to the TIME_WAIT state. Once the TIME_WAIT period is completed, this memory will be freed.`
+
 # File server
 
 CURL example:

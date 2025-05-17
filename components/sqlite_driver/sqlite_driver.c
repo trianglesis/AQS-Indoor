@@ -1,14 +1,6 @@
 #include <stdio.h>
 #include "sqlite_driver.h"
 
-#include "battery_driver.h" // Only to get MQ
-#include "sensor_co2.h" // Only to get MQ
-#include "sensor_temp.h" // Only to get MQ
-
-#include "esp_heap_trace.h"
-#define NUM_RECORDS 100
-static heap_trace_record_t trace_record[NUM_RECORDS]; // This buffer must be in internal RAM
-
 static const char *TAG = "sqlite";
 
 MessageBufferHandle_t xMessageBufferQuery;
@@ -113,7 +105,7 @@ void check_or_create_table(void *pvParameters) {
     char *table_name = (char *)pvParameters;
     // Open database
     char db_name[32];
-    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", SD_MOUNT_POINT);
+    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
     sqlite3 *db;
     sqlite3_initialize();
     int rc = db_open(db_name, &db); // will print "Opened database successfully"
@@ -196,93 +188,107 @@ void check_or_create_table(void *pvParameters) {
     vTaskDelete(NULL);
 }
 
+/*
+PRAGMA schema.page_size; 
+PRAGMA schema.page_size = bytes;
+*/
+void database_setting(void) {
+    sqlite3_mprintf("PRAGMA page_size;");
+    sqlite3_mprintf("PRAGMA page_size = 512;");
+}
+
 void insert_task(void *pvParameters) {
-    char *sql_query_formatted = (char *)pvParameters;
+    char *sql = (char *)pvParameters;
     // Open database
     char db_name[32];
-    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", SD_MOUNT_POINT);
+    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
     sqlite3 *db;
     sqlite3_initialize();
-    vTaskDelay(pdMS_TO_TICKS(250));
 
     int rc = db_open(db_name, &db); // will print "Opened database successfully"
     if (rc != SQLITE_OK) {
         ESP_LOGE(TAG, "Cannot open database: %s, resp: %d", db_name, rc);
         vTaskDelete(NULL);
     }
+    vTaskDelay(pdMS_TO_TICKS(50));
+    
     // Insert record
-    rc = db_query(xMessageBufferQuery, db, sql_query_formatted);
+    rc = db_query(xMessageBufferQuery, db, sql);
     if (rc != SQLITE_OK) {
-        ESP_LOGE(TAG, "Cannot insert at %s", db_name);
+        ESP_LOGE(TAG, "Cannot insert at %s\n%s\n", db_name, sql);
         vTaskDelete(NULL);
     }
-    sqlite3_close(db);
     ESP_LOGI(TAG, "SQL routine ended, DB is closed: %s", db_name);
+    sqlite3_close(db);
     vTaskDelete(NULL);
 }
 
-void battery_stats(void) {
-    struct BattSensor batt_i; // data type should be same as queue item type
-    xQueuePeek(mq_batt, (void *)&batt_i, pdMS_TO_TICKS(50));
-    char table_sql[256];
-    snprintf(table_sql, sizeof(table_sql) + 1, "INSERT INTO battery_stats VALUES (%d, %d, %d, %d, %d, %d, %d);", batt_i.adc_raw, batt_i.voltage, batt_i.voltage_m, batt_i.percentage, batt_i.max_masured_voltage, batt_i.measure_freq, batt_i.loop_count);
+void ins_task(void *pvParameters) {
     const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+
+    char *sql = (char *)pvParameters;
+    // Open database
+    char db_name[32];
+    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
+    sqlite3 *db;
+    sqlite3_initialize();
+
+    int rc = db_open(db_name, &db); // will print "Opened database successfully"
+    if (rc != SQLITE_OK) {
+        ESP_LOGE(TAG, "DB INSERT Cannot open database");
+        vTaskDelete(NULL);
+    }
     
-    ESP_ERROR_CHECK( heap_trace_init_standalone(trace_record, NUM_RECORDS) );
-    ESP_ERROR_CHECK( heap_trace_start(HEAP_TRACE_LEAKS) );
-    
-    xTaskCreate(insert_task, "insert-task-battery_stats", 1024*6, (void *)table_sql, 9, NULL);
+	rc = db_exec(db, sql);
+	if (rc != SQLITE_OK) {
+        ESP_LOGE(TAG, "DB INSERT, cannot insert: \n%s\n", sql);
+		vTaskDelete(NULL);
+	}
+
+    sqlite3_close(db);
+    ESP_LOGI(TAG, "DB INSERT, DB is closed");
     const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     ssize_t delta = free_after - free_before;
-    ESP_LOGI(TAG, "MEMORY for TASK battery_stats\tBefore: %"PRIu32" bytes\tAfter: %"PRIu32" bytes\n\tDelta: %d\n", free_before, free_after, delta);
-
-    ESP_ERROR_CHECK( heap_trace_stop() );
-    heap_trace_dump();
+    ESP_LOGI(TAG, "task INS\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
+	vTaskDelete(NULL);
 }
 
-void co2_stats(void) {
-    struct SCD4XSensor co2_i; // data type should be same as queue item type
-    xQueuePeek(mq_co2, (void *)&co2_i, pdMS_TO_TICKS(50));
-    char table_sql[256];
-    snprintf(table_sql, sizeof(table_sql), "INSERT INTO co2_stats VALUES (%f, %f, %d, %d);", co2_i.temperature, co2_i.humidity, co2_i.co2_ppm, co2_i.measure_freq);
+
+void battery_stats(char* table_sql) {
     const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     
-    ESP_ERROR_CHECK( heap_trace_init_standalone(trace_record, NUM_RECORDS) );
-    ESP_ERROR_CHECK( heap_trace_start(HEAP_TRACE_LEAKS) );
+    xTaskCreate(ins_task, "insert-task-battery_stats", 1024*6, (void *)table_sql, 9, NULL);
     
-    xTaskCreate(insert_task, "insert-task-co2_stats", 1024*6, (void *)table_sql, 9, NULL);
     const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     ssize_t delta = free_after - free_before;
-    ESP_LOGI(TAG, "MEMORY for TASK co2_stats\tBefore: %"PRIu32" bytes\tAfter: %"PRIu32" bytes\n\tDelta: %d\n", free_before, free_after, delta);
-
-    ESP_ERROR_CHECK( heap_trace_stop() );
-    heap_trace_dump();
+    ESP_LOGI(TAG, "battery_stats\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
 }
 
-void bme680_stats(void) {
-    struct BMESensor bme680_i; // data type should be same as queue item type
-    xQueuePeek(mq_bme680, (void *)&bme680_i, pdMS_TO_TICKS(50));
-    char table_sql[256];
-    snprintf(table_sql, sizeof(table_sql), "INSERT INTO air_temp_stats VALUES (%f, %f, %f, %f, %d, %d);", bme680_i.temperature, bme680_i.humidity, bme680_i.pressure, bme680_i.resistance, bme680_i.air_q_index, bme680_i.measure_freq);
+void co2_stats(char* table_sql) {
     const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-    
-    ESP_ERROR_CHECK( heap_trace_init_standalone(trace_record, NUM_RECORDS) );
-    ESP_ERROR_CHECK( heap_trace_start(HEAP_TRACE_LEAKS) );
-    
-    xTaskCreate(insert_task, "insert-task-bme680_stats", 1024*6, (void *)table_sql, 9, NULL);
+
+    xTaskCreate(ins_task, "insert-task-co2_stats", 1024*6, (void *)table_sql, 9, NULL);
+
     const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     ssize_t delta = free_after - free_before;
-    ESP_LOGI(TAG, "MEMORY for TASK bme680_stats\tBefore: %"PRIu32" bytes\tAfter: %"PRIu32" bytes\n\tDelta: %d\n", free_before, free_after, delta);
+    ESP_LOGI(TAG, "co2_stats\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
+}
 
-    ESP_ERROR_CHECK( heap_trace_stop() );
-    heap_trace_dump();
+void bme680_stats(char* table_sql) {
+    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+
+    xTaskCreate(ins_task, "insert-task-bme680_stats", 1024*6, (void *)table_sql, 9, NULL);
+
+    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    ssize_t delta = free_after - free_before;
+    ESP_LOGI(TAG, "bme680_stats\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
 }
 
 esp_err_t setup_db(void) {
     sqlite_info();
     // Compose DB name and pointer
     char db_name[32];
-    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", SD_MOUNT_POINT);
+    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
     sqlite3_initialize();
     // Create Message Buffer
 	xMessageBufferQuery = xMessageBufferCreate(4096);

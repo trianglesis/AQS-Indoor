@@ -9,7 +9,6 @@ const char *index_html_path = NULL;
 static const char *TAG = "webserver";
 static const char *TAG_FS = "fileserver";
 
-
 void webserver_info(void) {
     printf("\n\n- Init:\t\tWebServer debug info!\n");
     ESP_LOGI(TAG, "USERNAME: %s", USERNAME);
@@ -71,7 +70,7 @@ char* load_html_file(const char *filepath) {
     FILE *file = NULL;
     char *content = NULL;
     size_t read_chars = 0;
-    
+    // Add heap trace here
     struct stat info;
     ESP_LOGI(TAG, "Load HTML index...");
     // Test the file existence and get its size in bytes
@@ -91,6 +90,7 @@ char* load_html_file(const char *filepath) {
     content = (char*)malloc((size_t)info.st_size + sizeof(""));
     if (content == NULL) {
         ESP_LOGE(TAG, "Failed to allocate memory");
+        fclose(file);
     }
     // Read the file
     read_chars = fread(content, sizeof(char), (size_t)info.st_size, file);
@@ -115,9 +115,18 @@ esp_err_t root_get_handler(httpd_req_t *req) {
     // Check again, if the is already present html file at SD card.
     check_indexes_locations();
     // Load html page from validated path
+    // Add heap trace here
+    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+
     char *content = load_html_file(index_html_path);
+
     httpd_resp_set_type(req, "text/html");
     httpd_resp_send(req, content, HTTPD_RESP_USE_STRLEN);
+    free(content);
+
+    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    ssize_t delta = free_after - free_before;
+    ESP_LOGI(TAG, "INIT MEMORY\n\t\tBefore: %"PRIu32" bytes\n\t\tAfter: %"PRIu32" bytes\n\t\tDelta: %d\n\n", free_before, free_after, delta);
     return ESP_OK;
 }
 
@@ -218,6 +227,7 @@ struct file_server_data {
     httpd_resp_sendstr_chunk(req, "<!DOCTYPE html><html><body>");
 
     // Load html file
+    // Add heap trace here
     char *content = load_html_file(UPLOAD_HTML_PATH);
 
     /* Add file upload form and script which on execution sends a POST request to /upload */
@@ -273,6 +283,7 @@ struct file_server_data {
 
     /* Send empty chunk to signal HTTP response completion */
     httpd_resp_sendstr_chunk(req, NULL);
+    free(content);
     return ESP_OK;
  }
 
