@@ -17,7 +17,12 @@
 #include "sensirion_common.h"
 #include "sensirion_i2c.h"
 
+#include "sqlite3.h"
+#include "sqllib.h"
 #include "sqlite_driver.h"
+
+#define DB_ROOT  CONFIG_SD_MOUNT_POINT
+
 
 #define I2C_SCD40_ADDRESS                  CONFIG_I2C_SCD40_ADDRESS
 #define SCD40_SDA_PIN                      CONFIG_COMMON_SDA_PIN

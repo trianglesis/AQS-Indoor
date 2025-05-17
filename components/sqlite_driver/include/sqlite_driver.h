@@ -15,5 +15,6 @@
 
 esp_err_t setup_db(void);
 
+void check_or_create_table(void *pvParameters);
 void insert_task(void *pvParameters);
 void ins_task(void *pvParameters);

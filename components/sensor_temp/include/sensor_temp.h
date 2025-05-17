@@ -16,7 +16,12 @@
 // External
 #include "bme680.h"
 
+#include "sqlite3.h"
+#include "sqllib.h"
 #include "sqlite_driver.h"
+
+#define DB_ROOT  CONFIG_SD_MOUNT_POINT
+
 
 #define BME680_I2C_ADDR_0           CONFIG_BME680_I2C_ADDR_0
 #define BME680_I2C_ADDR_1           CONFIG_BME680_I2C_ADDR_1

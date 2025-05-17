@@ -21,13 +21,31 @@ void sensor_co2_info(void) {
 
 }
 
+static void save_to_db(struct SCD4XSensor* co2_r) {
+    char db_name[32];
+    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
+    sqlite3 *db;
+    sqlite3_initialize();
+    int rc = db_open(db_name, &db); // will print "Opened database successfully"
+    if (rc != SQLITE_OK) {
+        ESP_LOGE(TAG, "DB INSERT Cannot open database");
+    }
+    // Save to database
+    char table_sql[256];
+    snprintf(table_sql, sizeof(table_sql) + sizeof(co2_r) + 1, "INSERT INTO co2_stats VALUES (%f, %f, %d, %d);", co2_r->temperature, co2_r->humidity, co2_r->co2_ppm, co2_r->measure_freq);
+
+    rc = db_exec(db, table_sql);
+    if (rc != SQLITE_OK) {
+        ESP_LOGE(TAG, "DB INSERT, cannot insert: \n%s\n", table_sql);
+    }
+    sqlite3_close(db);
+}
+
 /*
  Check 
 */
 void co2_scd4x_reading(void * pvParameters) {
     bool dataReady;
-    char table_sql[256];
-    TaskHandle_t SqlxHandle = NULL;
 
     // Wait 5 seconds before goint into the loop, sensor should warm up
     vTaskDelay(pdMS_TO_TICKS(5000));
@@ -38,9 +56,7 @@ void co2_scd4x_reading(void * pvParameters) {
         int32_t t_mili_deg;  // millicelsius
         int32_t humid_mili_percent;     // millipercent
         struct SCD4XSensor co2_r = {};
-        if( SqlxHandle != NULL ) { 
-            vTaskDelete( SqlxHandle );
-        }
+
         // Check if measurements are ready, for 5 sec cycle
         dataReady = scd4x_get_data_ready_status(scd41_handle);
         if (!dataReady) {
@@ -67,17 +83,7 @@ void co2_scd4x_reading(void * pvParameters) {
             led_co2_severity(co2_r.co2_ppm);
 
             // Save to database
-            snprintf(table_sql, sizeof(table_sql) + sizeof(co2_r) + 1, "INSERT INTO co2_stats VALUES (%f, %f, %d, %d);", co2_r.temperature, co2_r.humidity, co2_r.co2_ppm, co2_r.measure_freq);
-
-            const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-
-            xTaskCreatePinnedToCore(insert_task, "insert-task-co2_stats", 1024*10, (void *)table_sql, 4, &SqlxHandle, tskNO_AFFINITY);
-
-            const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-            ssize_t delta = free_after - free_before;
-            ESP_LOGI(TAG, "CO2 INSERT TASK\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before,   free_after, delta);
-
-            // Actual sleep real time?
+            save_to_db(&co2_r);
             xTaskDelayUntil(&last_wake_time, CONFIG_CO2_MEASUREMENT_FREQ);
         } // Data ready
     } // WHILE
@@ -100,8 +106,11 @@ void task_co2() {
     led_init();
     // Put measurements into the queue
     create_mq_co2();
+
+    xTaskCreate(check_or_create_table, "table-co2_table", 1024*6, (void *)"co2_stats", 5, NULL);
+
     // Cycle getting measurements
-    xTaskCreatePinnedToCore(co2_scd4x_reading, "co2_scd4x_reading", 1024*3, NULL, 4, NULL, tskNO_AFFINITY);
+    xTaskCreatePinnedToCore(co2_scd4x_reading, "co2_scd4x_reading", 1024*6, NULL, 4, NULL, tskNO_AFFINITY);
 }
 
 /*

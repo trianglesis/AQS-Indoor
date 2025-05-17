@@ -5,11 +5,6 @@ static const char *TAG = "sqlite";
 
 MessageBufferHandle_t xMessageBufferQuery;
 
-char *test_table = "test-table";
-char *battery_table = "battery_stats";
-char *bme680_table = "air_temp_stats";
-char *co2_table = "co2_stats";
-
 /*
 Battery
 */
@@ -103,6 +98,10 @@ int db_query(MessageBufferHandle_t xMessageBuffer, sqlite3 *db, const char *sql)
 
 void check_or_create_table(void *pvParameters) {
     char *table_name = (char *)pvParameters;
+    char *battery_table = "battery_stats";
+    char *bme680_table = "air_temp_stats";
+    char *co2_table = "co2_stats";
+
     // Open database
     char db_name[32];
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
@@ -260,13 +259,6 @@ esp_err_t setup_db(void) {
         ESP_LOGE(TAG, "Cannot create a message buffer for SQL operations!");
     }
     
-    /* Check or create tables if absent */
-    xTaskCreate(check_or_create_table, "table-battery_table", 1024*6, (void *)battery_table, 5, NULL);
-    vTaskDelay(pdMS_TO_TICKS(250));
-    xTaskCreate(check_or_create_table, "table-co2_table", 1024*6, (void *)co2_table, 5, NULL);
-    vTaskDelay(pdMS_TO_TICKS(250));
-    xTaskCreate(check_or_create_table, "table-bme680_table", 1024*6, (void *)bme680_table, 5, NULL);
-    vTaskDelay(pdMS_TO_TICKS(250));
     // xTaskCreate(check_or_create_table, "table-create1", 1024*6, (void *)test_table, 5, NULL);
     return ESP_OK;
 }
