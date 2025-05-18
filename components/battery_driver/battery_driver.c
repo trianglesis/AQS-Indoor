@@ -194,7 +194,6 @@ void battery_measure_task(void *pvParameters) {
 esp_err_t battery_one_shot_init(void) {
     battery_driver_info();  // Debug
     create_mq_battery(); // Queue always
-    xTaskCreate(check_or_create_table, "table-battery_table", 1024*6, (void *)"battery_stats", 5, NULL);
     
     // Init and start task
     // adc_task_param_t handle = battery_adc_init();

@@ -107,7 +107,6 @@ void task_co2() {
     // Put measurements into the queue
     create_mq_co2();
 
-    xTaskCreate(check_or_create_table, "table-co2_table", 1024*6, (void *)"co2_stats", 5, NULL);
 
     // Cycle getting measurements
     xTaskCreatePinnedToCore(co2_scd4x_reading, "co2_scd4x_reading", 1024*6, NULL, 4, NULL, tskNO_AFFINITY);

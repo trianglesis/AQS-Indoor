@@ -144,7 +144,6 @@ void create_mq_bme680() {
 void task_bme680() {
     // Put measurements into the queue
     create_mq_bme680();
-    xTaskCreate(check_or_create_table, "table-bme680_table", 1024*6, (void *)"air_temp_stats", 5, NULL);
 
     // Start task
     xTaskCreatePinnedToCore(bme680_reading, "bme680_reading", 1024*6, NULL, 4, NULL, tskNO_AFFINITY);

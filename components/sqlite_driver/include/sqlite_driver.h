@@ -11,10 +11,10 @@
 #include "sqlite3.h"
 #include "sqllib.h"
 
-#define DB_ROOT  CONFIG_SD_MOUNT_POINT
+#define DB_ROOT                     CONFIG_SD_MOUNT_POINT
+#define SQLITE_DEFAULT_PAGE_SIZE    512
 
 esp_err_t setup_db(void);
 
-void check_or_create_table(void *pvParameters);
 void insert_task(void *pvParameters);
 void ins_task(void *pvParameters);

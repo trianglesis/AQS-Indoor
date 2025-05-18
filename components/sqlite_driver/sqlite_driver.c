@@ -4,12 +4,13 @@
 static const char *TAG = "sqlite";
 
 MessageBufferHandle_t xMessageBufferQuery;
+static SemaphoreHandle_t sql_done;
 
 /*
 Battery
 */
 #define SQL(...) #__VA_ARGS__
-const char *battery_table_create_sql = SQL(
+const char *battery_table_create = SQL(
     CREATE TABLE "battery_stats" (
         "adc_raw"               INTEGER,
         "voltage"               INTEGER,
@@ -25,7 +26,7 @@ const char *battery_table_create_sql = SQL(
 CO2 Sensor
 */
 #define SQL(...) #__VA_ARGS__
-const char *co2_table_create_sql = SQL(
+const char *co2_table_create = SQL(
     CREATE TABLE "co2_stats" (
         "temperature"    INTEGER,
         "humidity"       INTEGER,
@@ -44,7 +45,7 @@ BME680 Sensor
     int measure_freq;
 */
 #define SQL(...) #__VA_ARGS__
-const char *bme680_table_create_sql = SQL(
+const char *bme680_table_create = SQL(
     CREATE TABLE "air_temp_stats" (
         "temperature"    INTEGER,
         "humidity"       INTEGER,
@@ -96,103 +97,131 @@ int db_query(MessageBufferHandle_t xMessageBuffer, sqlite3 *db, const char *sql)
 	return rc;
 }
 
-void check_or_create_table(void *pvParameters) {
-    char *table_name = (char *)pvParameters;
-    char *battery_table = "battery_stats";
-    char *bme680_table = "air_temp_stats";
-    char *co2_table = "co2_stats";
-
-    // Open database
-    char db_name[32];
-    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
-    sqlite3 *db;
-    sqlite3_initialize();
-    int rc = db_open(db_name, &db); // will print "Opened database successfully"
-    if (rc != SQLITE_OK) {
-        ESP_LOGE(TAG, "Cannot open database: %s, resp: %d", db_name, rc);
-        vTaskDelete(NULL);
-    } else {
-        ESP_LOGI(TAG, "Opened database: %s, resp: %d", db_name, rc);
-    }
-    ESP_LOGI(TAG, "Check table existence: %s", table_name);
-
-    // Inquiry
-    char table_name_sql[96];
-    snprintf(table_name_sql, sizeof(table_name_sql)-1, "select count(*) from sqlite_master where name = '%s';", table_name);
-    rc = db_query(xMessageBufferQuery, db, table_name_sql);
-    if (rc != SQLITE_OK) {
-        ESP_LOGW(TAG, "Select count from 'sqlite_master' cannot be executed. %s.%s", db_name, table_name);
-        vTaskDelete(NULL);
-    }
-
-    // Read reply
-    char sqlmsg[256];
-    size_t readBytes;
-    readBytes = xMessageBufferReceive(xMessageBufferQuery, sqlmsg, sizeof(sqlmsg), 100);
-    ESP_LOGI(TAG, "readBytes=%d", readBytes);
-    if (readBytes == 0) {
-        ESP_LOGW(TAG, "Query response is empty. %s.%s", db_name, table_name);
-        vTaskDelete(NULL);
-    }
-    sqlmsg[readBytes] = 0;
-    ESP_LOGI(TAG, "sqlmsg=[%s]", sqlmsg);
-
-    char create_table_sql[512];
-    if (table_name == battery_table) {
-        snprintf(create_table_sql, sizeof(create_table_sql)-1, "%s", battery_table_create_sql);
-    } else if (table_name == bme680_table) {
-        snprintf(create_table_sql, sizeof(create_table_sql)-1, "%s", bme680_table_create_sql);
-    } else if (table_name == co2_table) {
-        snprintf(create_table_sql, sizeof(create_table_sql)-1, "%s", co2_table_create_sql);
-    } else {
-        snprintf(create_table_sql, sizeof(create_table_sql)-1, "%s", "CREATE TABLE test (id INTEGER, content);");
-    }
-
-    // Create table
-    if (strcmp(sqlmsg, "count(*) = 0") == 0) {
-        int rc = db_query(xMessageBufferQuery, db, create_table_sql);
-        if (rc != SQLITE_OK) {
-            ESP_LOGI(TAG, "Table cannot be created: %s.%s", db_name, table_name);
-            vTaskDelete(NULL);
-        } else {
-            ESP_LOGW(TAG, "Table created: %s.%s", db_name, table_name);
-            vTaskDelete(NULL);  // No need to do anything else!
-        }
-    } else {
-        ESP_LOGI(TAG, "Table already exists at: %s %s", db_name, table_name);
-        vTaskDelete(NULL);  // No need to do anything else!
-    }
-
-    // Inquiry
-    char select_count_sql[96];
-    snprintf(select_count_sql, sizeof(select_count_sql)-1, "select count(*) from %s;", table_name);
-    rc = db_query(xMessageBufferQuery, db, select_count_sql);
-    if (rc != SQLITE_OK) {
-        ESP_LOGW(TAG, "Select count from %s.%s cannot be executed!", db_name, table_name);
-        vTaskDelete(NULL);
-    }
-
-    // Read reply
-    readBytes = xMessageBufferReceive(xMessageBufferQuery, sqlmsg, sizeof(sqlmsg), 100);
-    ESP_LOGI(TAG, "readBytes=%d", readBytes);
-    if (readBytes == 0) {
-        ESP_LOGW(TAG, "Query response is empty at: %s.%s", db_name, table_name);
-        vTaskDelete(NULL);
-    }
-    sqlmsg[readBytes] = 0;
-    ESP_LOGI(TAG, "sqlmsg=[%s]", sqlmsg);
-
-    sqlite3_close(db);
-    vTaskDelete(NULL);
-}
 
 /*
-PRAGMA schema.page_size; 
-PRAGMA schema.page_size = bytes;
+Create multiple tabled in one go.
+Already initialized.
+Open - create tables - close
+Iterate over array of tables: 0 is always the test table.
+
+Optimizations and lower footprint hints:
+- https://www.sqlite.org/withoutrowid.html
+- https://www.sqlite.org/pragma.html#pragma_page_size
+
 */
-void database_setting(void) {
-    sqlite3_mprintf("PRAGMA page_size;");
-    sqlite3_mprintf("PRAGMA page_size = 512;");
+void table_check_tsk(void *arg) {
+    // Tables to create
+    char tables[][16] = { 
+        "test_table", 
+        "battery_stats", 
+        "air_temp_stats",
+        "co2_stats"
+    };
+    
+    char db_name[32];
+    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
+    // Open database
+    sqlite3 *db;
+    int rc = db_open(db_name, &db); // will print "Opened database successfully"
+    if (rc != SQLITE_OK) {
+        ESP_LOGE(TAG, "Cannot open database: %s resp: %d", db_name, rc);
+        vTaskDelete(NULL);
+    } else {
+        ESP_LOGI(TAG, "Opened database: %s resp: %d", db_name, rc);
+    }
+
+    for (size_t i = 0; i < sizeof(tables) / sizeof(tables[0]); i++) {
+        ESP_LOGI(TAG, "%d Check table existence:\n\tDB\t%s\n\tTable\t%s", i, db_name, tables[i]);
+
+        char create_table_sql[256];
+        if (i == 0) {
+            snprintf(create_table_sql, sizeof(create_table_sql)-1, "%s", "CREATE TABLE test (id INTEGER, content);");
+        } else if (i == 1) {
+            snprintf(create_table_sql, sizeof(create_table_sql)-1, "%s", battery_table_create);
+        } else if (i == 2) {
+            snprintf(create_table_sql, sizeof(create_table_sql)-1, "%s", bme680_table_create);
+        } else if (i == 3) {
+            snprintf(create_table_sql, sizeof(create_table_sql)-1, "%s", co2_table_create);
+        } else {
+            ESP_LOGW(TAG, "No such table to create: %s", tables[i]);
+        }
+
+        // Inquiry
+        char table_name_sql[96];
+        snprintf(table_name_sql, sizeof(table_name_sql)-1, "select count(*) from sqlite_master where name = '%s';", tables[i]);
+        rc = db_query(xMessageBufferQuery, db, table_name_sql);
+        if (rc != SQLITE_OK) {
+            ESP_LOGE(TAG, "SELECT count from 'sqlite_master' FAILED!\n\tTable\t%s", tables[i]);
+            continue;
+        }
+
+        // Read reply
+        char sqlmsg[256];
+        size_t readBytes;
+        readBytes = xMessageBufferReceive(xMessageBufferQuery, sqlmsg, sizeof(sqlmsg), 100);
+        ESP_LOGI(TAG, "%d readBytes=%d", i, readBytes);
+        if (readBytes == 0) {
+            ESP_LOGE(TAG, "SELECT query is EMPTY!\n\tTable\t%s", tables[i]);
+            continue;
+        }
+        sqlmsg[readBytes] = 0;
+        ESP_LOGI(TAG, "%d sqlmsg=[%s]", i, sqlmsg);
+
+        // Create table
+        if (strcmp(sqlmsg, "count(*) = 0") == 0) {
+            int rc = db_query(xMessageBufferQuery, db, create_table_sql);
+            if (rc != SQLITE_OK) {
+                ESP_LOGE(TAG, "%d Table cannot be created: FAIL!\n\tTable\t%s", i, tables[i]);
+                continue;
+            } else {
+                ESP_LOGI(TAG, "%d Table created: OK!\n\tTable\t%s", i, tables[i]);
+            }
+        } else {
+            ESP_LOGI(TAG, "%d Table already exists, OK!\n\tTable\t%s", i, tables[i]);
+        }
+
+        // Inquiry
+        char select_count_sql[96];
+        snprintf(select_count_sql, sizeof(select_count_sql)-1, "select count(*) from %s;", tables[i]);
+        rc = db_query(xMessageBufferQuery, db, select_count_sql);
+        if (rc != SQLITE_OK) {
+            ESP_LOGE(TAG, "%d Select from the table FAILED!\n\tTable\t%s", i, tables[i]);
+            continue;
+        }
+
+        // Read reply
+        readBytes = xMessageBufferReceive(xMessageBufferQuery, sqlmsg, sizeof(sqlmsg), 100);
+        ESP_LOGI(TAG, "%d readBytes=%d", i, readBytes);
+        if (readBytes == 0) {
+            ESP_LOGE(TAG, "%d Select from the table EMPTY response: FAILED!\n\tTable\t%s", i, tables[i]);
+            vTaskDelete(NULL);
+        }
+        sqlmsg[readBytes] = 0;
+        ESP_LOGI(TAG, "%d sqlmsg=[%s]", i, sqlmsg);
+
+        int record_count = 0;
+        if (strncmp(sqlmsg, "count(*) =", 10) == 0) {
+            record_count = atoi(&sqlmsg[10]);
+            ESP_LOGI(TAG, "%d record_count=%d\n\tTable\t%s", i, record_count, tables[i]);
+        } else {
+            ESP_LOGE(TAG, "%d illegal reply\n\tTable\t%s", i, tables[i]);
+        }
+        
+        // Add routine to delete older records after a few thousands collected
+
+    } // FOR
+
+    // Set page size, read page size: "PRAGMA page_size;"
+    // Inquiry
+    rc = db_query(xMessageBufferQuery, db, "PRAGMA page_size = 512;");
+    if (rc != SQLITE_OK) {
+        ESP_LOGE(TAG, "Set PRAGMA page_size FAILED!");
+    }
+    
+    // Close and clean
+    sqlite3_close(db);
+    xSemaphoreGive( sql_done );  // Release in task after finishing the job
+    vTaskDelete(NULL);
 }
 
 void insert_task(void *pvParameters) {
@@ -249,16 +278,27 @@ esp_err_t setup_db(void) {
     // Compose DB name and pointer
     char db_name[32];
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
+    
     // DELETE previous table for now, at each startup.
     unlink(db_name);
-    sqlite3_initialize();
+    sqlite3_initialize();  // Do not init again in task!
+    
     // Create Message Buffer
 	xMessageBufferQuery = xMessageBufferCreate(4096);
 	configASSERT( xMessageBufferQuery );
     if( xMessageBufferQuery == NULL ) {
         ESP_LOGE(TAG, "Cannot create a message buffer for SQL operations!");
     }
-    
-    // xTaskCreate(check_or_create_table, "table-create1", 1024*6, (void *)test_table, 5, NULL);
+
+    sql_done = xSemaphoreCreateBinary();
+    TaskHandle_t xHandle;
+    xTaskCreatePinnedToCore(table_check_tsk, "check-tables", 1024*6, NULL, 5, &xHandle, tskNO_AFFINITY);
+
+    //Wait for completion in task
+    xSemaphoreTake(sql_done, portMAX_DELAY);
+    // Cleanup
+    sqlite3_shutdown();  // close
+    vSemaphoreDelete(sql_done);
+
     return ESP_OK;
 }
