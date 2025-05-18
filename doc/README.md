@@ -563,6 +563,9 @@ Some leasked: `84100`
 After 30+ minutes: `83648`
 
 Need to check vars.
+Added new approach of setting ADC handle with parameters in sctruct, based on example code from IDF button: [button_dev_t* btn = (button_dev_t*) btn_handle;](https://github.com/espressif/esp-idf/blob/4c2820d377d1375e787bcef612f0c32c1427d183/examples/bluetooth/esp_ble_mesh/common_components/button/button.c)
+
+Not tested yet, let the old code memory leak show the results after a few hours\days.
 
 # Debug and etc
 
