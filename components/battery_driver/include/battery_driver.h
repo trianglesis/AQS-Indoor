@@ -30,6 +30,8 @@
 
 
 extern QueueHandle_t mq_batt;
+typedef void* adc_handle_t;
+
 
 struct BattSensor {
     int adc_raw;

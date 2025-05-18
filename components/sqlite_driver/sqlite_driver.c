@@ -98,6 +98,7 @@ int db_query(MessageBufferHandle_t xMessageBuffer, sqlite3 *db, const char *sql)
 }
 
 
+
 /*
 Create multiple tabled in one go.
 Already initialized.

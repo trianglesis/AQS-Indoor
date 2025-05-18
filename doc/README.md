@@ -473,6 +473,97 @@ SQL error: out of memory
 E (8914005) sqlite: Cannot insert at /sdcard/stats.db
 ```
 
+After latest changes and optimizations:
+
+```log
+# INITIAL
+I (8595) main_task: Returned from app_main()
+I (8845) adc-battery: RAW: 2736; Cali: V:2749; Converted V 2749; Battery percentage: 132
+Opened database successfully
+INSERT INTO battery_stats VALUES (2736, 2, 2749, 132, 2749, 60000, 5);
+Operation done successfully
+Time taken: 42287
+I (8885) adc-battery: Battery Save DB
+        Before: 84628 b
+        After:  84628 b
+        Delta:  0
+
+# AFTER SOME TIME
+
+I (1764025) sensor-bme680: t:26.24C; Humidity:38.76%; Pressure:987.09hpa; Resistance:119.90; Stable:yes: AQI:46 (Moderate)
+Opened database successfully
+INSERT INTO air_temp_stats VALUES (26.242001, 38.759651, 987.093262, 119.899788, 46, 5000);
+Operation done successfully
+Time taken: 42917
+I (1764075) sensor-bme680: BME680 Save DB
+        Before: 84100 b
+        After:  84100 b
+        Delta:  0
+
+I (1807545) gpio: GPIO[0]| InputEn: 0| OutputEn: 0| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0
+I (1807545) adc-battery: calibration scheme version is Curve Fitting
+I (1807545) adc-battery: Calibration Success
+I (1807545) adc-battery: Try: 0; measured voltage: 2734 mV; max measured during this cycle: 2734 mV
+I (1807805) adc-battery: Try: 1; measured voltage: 2749 mV; max measured during this cycle: 2749 mV
+I (1808055) adc-battery: Try: 2; measured voltage: 2750 mV; max measured during this cycle: 2750 mV
+I (1808305) adc-battery: Try: 3; measured voltage: 2750 mV; max measured during this cycle: 2750 mV
+I (1808555) adc-battery: Try: 4; measured voltage: 2750 mV; max measured during this cycle: 2750 mV
+I (1808805) adc-battery: RAW: 2737; Cali: V:2750; Converted V 2750; Battery percentage: 132
+Opened database successfully
+INSERT INTO battery_stats VALUES (2737, 2, 2750, 132, 2750, 60000, 5);
+Operation done successfully
+Time taken: 41927
+I (1808845) adc-battery: Battery Save DB
+        Before: 83916 b
+        After:  83916 b
+        Delta:  0
+
+I (1808845) adc-battery: deregister Curve Fitting calibration scheme
+I (1813345) sensor-co2: CO2:750ppm; Temperature:46.9; Humidity:13.9
+Opened database successfully
+INSERT INTO co2_stats VALUES (46.870998, 13.851000, 750, 5000);
+Operation done successfully
+Time taken: 46300
+I (1813395) sensor-co2: CO2 Save DB
+        Before: 84064 b
+        After:  84064 b
+        Delta:  0
+
+# AFTER SOME TIME MORE
+
+I (5364085) sensor-bme680: BME680 Save DB
+        Before: 83828 b
+        After:  83828 b
+        Delta:  0
+
+I (5407545) gpio: GPIO[0]| InputEn: 0| OutputEn: 0| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0
+I (5407545) adc-battery: calibration scheme version is Curve Fitting
+I (5407545) adc-battery: Calibration Success
+I (5407545) adc-battery: Try: 0; measured voltage: 2749 mV; max measured during this cycle: 2749 mV
+I (5407805) adc-battery: Try: 1; measured voltage: 2749 mV; max measured during this cycle: 2749 mV
+I (5408055) adc-battery: Try: 2; measured voltage: 2765 mV; max measured during this cycle: 2765 mV
+I (5408305) adc-battery: Try: 3; measured voltage: 2734 mV; max measured during this cycle: 2765 mV
+I (5408555) adc-battery: Try: 4; measured voltage: 2734 mV; max measured during this cycle: 2765 mV
+I (5408805) adc-battery: RAW: 2752; Cali: V:2765; Converted V 2765; Battery percentage: 135
+Opened database successfully
+INSERT INTO battery_stats VALUES (2752, 2, 2765, 135, 2765, 60000, 5);
+Operation done successfully
+Time taken: 41947
+I (5408845) adc-battery: Battery Save DB
+        Before: 83648 b
+        After:  83648 b
+        Delta:  0
+
+```
+
+A few bytes are leaking during ADC init\deinit. 
+
+Initial value: `84628`
+Some leasked: `84100`
+After 30+ minutes: `83648`
+
+Need to check vars.
+
 # Debug and etc
 
 
