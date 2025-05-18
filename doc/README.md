@@ -570,7 +570,8 @@ Not tested yet, let the old code memory leak show the results after a few hours\
 Testing:
 
 ```log
-# Start and a few measurements after
+
+## Start and a few measurements after
 
 - Init:         UI SquareLine Studio debug info!
 I (8465) ui-exported: Put exported UI files in the dir /ui/sq_line_SSD1306/
@@ -631,6 +632,41 @@ I (64015) sensor-bme680: BME680 Save DB
         Before: 84268 b
         After:  84268 b
         Delta:  0
+
+## FEW Hours later
+
+Opened database successfully
+INSERT INTO air_temp_stats VALUES (26.468302, 38.971916, 987.839294, 145.273209, 46, 5000);
+Operation done successfully
+Time taken: 53216
+I (7363965) sensor-bme680: BME680 Save DB
+        Before: 84216 b
+        After:  84216 b
+        Delta:  0
+
+## Something leaked
+
+I (8063905) sensor-bme680: t:26.37C; Humidity:39.38%; Pressure:987.99hpa; Resistance:145.27; Stable:yes: AQI:46 (Moderate)
+Opened database successfully
+INSERT INTO air_temp_stats VALUES (26.370737, 39.380024, 987.992188, 145.273209, 46, 5000);
+Operation done successfully
+Time taken: 53580
+I (8063965) sensor-bme680: BME680 Save DB
+        Before: 84216 b
+        After:  84144 b
+        Delta:  -72
+
+# few hrs later
+I (18413945) sensor-bme680: t:25.29C; Humidity:40.46%; Pressure:988.88hpa; Resistance:164.86; Stable:yes: AQI:48 (Moderate)
+Opened database successfully
+INSERT INTO air_temp_stats VALUES (25.289125, 40.464260, 988.876953, 164.862198, 48, 5000);
+Operation done successfully
+Time taken: 53261
+I (18414005) sensor-bme680: BME680 Save DB
+        Before: 84144 b
+        After:  84144 b
+        Delta:  0
+
 
 ```
 
