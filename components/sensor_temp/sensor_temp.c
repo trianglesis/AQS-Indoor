@@ -39,6 +39,8 @@ static void save_to_db(struct BMESensor* bme680_r) {
         ESP_LOGE(TAG, "DB INSERT, cannot insert: \n%s\n", table_sql);
     }
     sqlite3_close(db);
+    // Cleanup
+    sqlite3_shutdown();  // close
 }
 
 void bme680_reading(void * pvParameters) {
@@ -96,8 +98,13 @@ void bme680_reading(void * pvParameters) {
         bme680_r.measure_freq = BME680_MEASUREMENT_FREQ;
         xQueueOverwrite(mq_bme680, (void *)&bme680_r);
 
+        const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
         // Save to database
         save_to_db(&bme680_r);
+        const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+        ssize_t delta = free_after - free_before;
+        ESP_LOGI(TAG, "BME680 Save DB\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
+
         xTaskDelayUntil(&last_wake_time, BME680_MEASUREMENT_FREQ);
     }
 }
@@ -144,7 +151,6 @@ void create_mq_bme680() {
 void task_bme680() {
     // Put measurements into the queue
     create_mq_bme680();
-
     // Start task
     xTaskCreatePinnedToCore(bme680_reading, "bme680_reading", 1024*6, NULL, 4, NULL, tskNO_AFFINITY);
 }

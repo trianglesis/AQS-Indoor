@@ -127,6 +127,8 @@ static void save_to_db(struct BattSensor* btt_r) {
         ESP_LOGE(TAG, "DB INSERT, cannot insert: \n%s\n", table_sql);
     }
     sqlite3_close(db);
+    // Cleanup
+    sqlite3_shutdown();  // close
 }
 
 void battery_measure_task(void *pvParameters) {
@@ -136,7 +138,7 @@ void battery_measure_task(void *pvParameters) {
     int min_perc = 1;
     int max_volt = BATTERY_CHARGED_VOLTAGE;  // Fully charged, under esp32 load
     int min_volt = BATTERY_DISCHARGED_VOLTAGE;  // Fully discharged
-    uint64_t measure_freq = (uint64_t)ADC_MEASUREMENT_FREQ_MINUTES * 60 * 1000;
+    uint64_t measure_freq = (uint64_t)ADC_MEASUREMENT_FREQ_MINUTES;
     int loop_count = ADC_MEASUREMENT_LOOP_COUNT;
 
     vTaskDelay(pdMS_TO_TICKS(1000)); // Wait
@@ -178,7 +180,11 @@ void battery_measure_task(void *pvParameters) {
         xQueueOverwrite(mq_batt, (void *)&btt_r);
         
         // Save to database
+        const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
         save_to_db(&btt_r);
+        const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+        ssize_t delta = free_after - free_before;
+        ESP_LOGI(TAG, "Battery Save DB\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
 
         // Deinit to save resources between measurements
         tear_down(handle_param->do_calibration1_chan0, handle_param->adc1_handle, handle_param->adc1_cali_chan0_handle);
@@ -194,11 +200,6 @@ void battery_measure_task(void *pvParameters) {
 esp_err_t battery_one_shot_init(void) {
     battery_driver_info();  // Debug
     create_mq_battery(); // Queue always
-    
-    // Init and start task
-    // adc_task_param_t handle = battery_adc_init();
-    // xTaskCreatePinnedToCore(battery_measure_task, "adc-batt", 1024*6, handle, 4, NULL, tskNO_AFFINITY);
-
     // Start task with init\deinit
     xTaskCreatePinnedToCore(battery_measure_task, "adc-batt", 1024*6, NULL, 4, NULL, tskNO_AFFINITY);
     return ESP_OK;

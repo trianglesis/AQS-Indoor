@@ -37,13 +37,13 @@ dependencies:
       type: service
     version: 9.2.2
   nopnop2002/sqlite3:
-    component_hash: 3deae8ed52e238e19eb13d2a347f1b2a9efe1d7e04007be6df7b04555a5543f7
+    component_hash: 8c93abc82de5735b9031fe532bf157906508c8e10ce1c5004709ad512cda3782
     dependencies: []
     source:
       git: https://github.com/nopnop2002/esp32-idf-sqlite3.git
       path: components/esp32-idf-sqlite3/
       type: git
-    version: 8c38efacd2d9225295e2abcc85f565c9b65bb1e0
+    version: a27228d70b9bcf92149a28e7ea490661f9a9ca4d
 direct_dependencies:
 - espressif/led_strip
 - idf
@@ -51,6 +51,6 @@ direct_dependencies:
 - k0i05/esp_type_utils
 - lvgl/lvgl
 - nopnop2002/sqlite3
-manifest_hash: 94c7869182b70cb7966a33fa90c080fb708257ce82a6115a17ff4969f31c2ba4
+manifest_hash: 49c8e662c9ee6d752be92b2e7c6b80bee7f2d15592db2a92a375ffc2938cf9d8
 target: esp32c6
 version: 2.0.0

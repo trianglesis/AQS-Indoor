@@ -22,8 +22,8 @@
 #define ADC_PIN                             CONFIG_ADC_PIN
 #define ADC1_CHAN0                          ADC_CHANNEL_0
 #define ADC_ATTEN                           ADC_ATTEN_DB_12
-// Change to minutes:                       1 minute X 60 seconds X 1000 miliseconds
-#define ADC_MEASUREMENT_FREQ_MINUTES        CONFIG_ADC_MEASUREMENT_FREQ_MINUTES
+// Change to minutes:                       N X 1000ms X 60 seconds = 1 minute
+#define ADC_MEASUREMENT_FREQ_MINUTES        (CONFIG_ADC_MEASUREMENT_FREQ_MINUTES * 1000 * 60)
 #define ADC_MEASUREMENT_LOOP_COUNT          CONFIG_ADC_MEASUREMENT_LOOP_COUNT
 #define BATTERY_CHARGED_VOLTAGE             CONFIG_BATTERY_CHARGED_VOLTAGE
 #define BATTERY_DISCHARGED_VOLTAGE          CONFIG_BATTERY_DISCHARGED_VOLTAGE

@@ -130,6 +130,13 @@ void table_check_tsk(void *arg) {
         ESP_LOGI(TAG, "Opened database: %s resp: %d", db_name, rc);
     }
 
+    // Set page size, read page size: "PRAGMA page_size;"
+    // Inquiry
+    rc = db_query(xMessageBufferQuery, db, "PRAGMA page_size=512; VACUUM;");
+    if (rc != SQLITE_OK) {
+        ESP_LOGE(TAG, "Set PRAGMA page_size FAILED!");
+    }
+
     for (size_t i = 0; i < sizeof(tables) / sizeof(tables[0]); i++) {
         ESP_LOGI(TAG, "%d Check table existence:\n\tDB\t%s\n\tTable\t%s", i, db_name, tables[i]);
 
@@ -202,21 +209,20 @@ void table_check_tsk(void *arg) {
         int record_count = 0;
         if (strncmp(sqlmsg, "count(*) =", 10) == 0) {
             record_count = atoi(&sqlmsg[10]);
-            ESP_LOGI(TAG, "%d record_count=%d\n\tTable\t%s", i, record_count, tables[i]);
         } else {
             ESP_LOGE(TAG, "%d illegal reply\n\tTable\t%s", i, tables[i]);
         }
-        
-        // Add routine to delete older records after a few thousands collected
+
+        if (record_count == 0) {
+            ESP_LOGI(TAG, "%d Table is empty record_count=%d\n\tTable\t%s", i, record_count, tables[i]);
+        } else if (record_count >= 3000) {
+            // Add routine to delete older records after a few thousands collected
+            ESP_LOGW(TAG, "%d Table is HEAVY, clean old recods! record_count=%d\n\tTable\t%s", i, record_count, tables[i]);
+        } else {
+            ESP_LOGI(TAG, "%d Table is not empty but ok record_count=%d\n\tTable\t%s", i, record_count, tables[i]);
+        }
 
     } // FOR
-
-    // Set page size, read page size: "PRAGMA page_size;"
-    // Inquiry
-    rc = db_query(xMessageBufferQuery, db, "PRAGMA page_size = 512;");
-    if (rc != SQLITE_OK) {
-        ESP_LOGE(TAG, "Set PRAGMA page_size FAILED!");
-    }
     
     // Close and clean
     sqlite3_close(db);
@@ -280,7 +286,7 @@ esp_err_t setup_db(void) {
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
     
     // DELETE previous table for now, at each startup.
-    unlink(db_name);
+    // unlink(db_name);
     sqlite3_initialize();  // Do not init again in task!
     
     // Create Message Buffer

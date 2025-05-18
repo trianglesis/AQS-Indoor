@@ -39,6 +39,8 @@ static void save_to_db(struct SCD4XSensor* co2_r) {
         ESP_LOGE(TAG, "DB INSERT, cannot insert: \n%s\n", table_sql);
     }
     sqlite3_close(db);
+    // Cleanup
+    sqlite3_shutdown();  // close
 }
 
 /*
@@ -76,15 +78,20 @@ void co2_scd4x_reading(void * pvParameters) {
             co2_r.co2_ppm = co2Ppm;
             co2_r.temperature = t_celsius;
             co2_r.humidity = humid_percent;
-            co2_r.measure_freq = CONFIG_CO2_MEASUREMENT_FREQ;
+            co2_r.measure_freq = CO2_MEASUREMENT_FREQ;
             xQueueOverwrite(mq_co2, (void *)&co2_r);
 
             // Update LED
             led_co2_severity(co2_r.co2_ppm);
 
+            const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
             // Save to database
             save_to_db(&co2_r);
-            xTaskDelayUntil(&last_wake_time, CONFIG_CO2_MEASUREMENT_FREQ);
+            const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+            ssize_t delta = free_after - free_before;
+            ESP_LOGI(TAG, "CO2 Save DB\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
+
+            xTaskDelayUntil(&last_wake_time, CO2_MEASUREMENT_FREQ);
         } // Data ready
     } // WHILE
 }
@@ -106,8 +113,6 @@ void task_co2() {
     led_init();
     // Put measurements into the queue
     create_mq_co2();
-
-
     // Cycle getting measurements
     xTaskCreatePinnedToCore(co2_scd4x_reading, "co2_scd4x_reading", 1024*6, NULL, 4, NULL, tskNO_AFFINITY);
 }

@@ -27,8 +27,16 @@
 #define BME680_I2C_ADDR_1           CONFIG_BME680_I2C_ADDR_1
 #define BME680_SDA_PIN              CONFIG_COMMON_SDA_PIN
 #define BME680_SCL_PIN              CONFIG_COMMON_SCL_PIN
-// TODO: Change to minutes: 1 minute X 60 seconds X 1000 miliseconds
-#define BME680_MEASUREMENT_FREQ     CONFIG_BME680_MEASUREMENT_FREQ  // Sensor can only provide it once for 5 sec!
+
+// Not less that once in 5 seconds!
+#define BME680_MEASURE_MIN 5
+#if BME680_MEASUREMENT_FREQ_SECONDS < BME680_MEASURE_MIN
+// Change to seconds:                       N X 1000ms = 1 second
+#define BME680_MEASUREMENT_FREQ             (5 * 1000)
+#else
+// Change to seconds:                       N X 1000ms = 1 second
+#define BME680_MEASUREMENT_FREQ             (BME680_MEASUREMENT_FREQ_SECONDS * 1000)
+#endif
 
 extern QueueHandle_t mq_bme680;
 

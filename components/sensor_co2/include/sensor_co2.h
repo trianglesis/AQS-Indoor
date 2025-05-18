@@ -21,16 +21,24 @@
 #include "sqllib.h"
 #include "sqlite_driver.h"
 
-#define DB_ROOT  CONFIG_SD_MOUNT_POINT
-
+// Use to save data in DB
+#define DB_ROOT                            CONFIG_SD_MOUNT_POINT
 
 #define I2C_SCD40_ADDRESS                  CONFIG_I2C_SCD40_ADDRESS
 #define SCD40_SDA_PIN                      CONFIG_COMMON_SDA_PIN
 #define SCD40_SCL_PIN                      CONFIG_COMMON_SCL_PIN
-// TODO: Change to minutes: 1 minute X 60 seconds X 1000 miliseconds
-// Sensor can only provide it once for 5 sec!
-#define CO2_MEASUREMENT_FREQ                CONFIG_CO2_MEASUREMENT_FREQ  
-#define CO2_LED_UPDATE_FREQ                 CONFIG_CO2_LED_UPDATE_FREQ
+
+// Not less that once in 5 seconds!
+#define CO2_MEASURE_MIN 5
+#if CO2_MEASUREMENT_FREQ_SECONDS < CO2_MEASURE_MIN
+// Change to seconds:                       N X 1000ms = 1 second
+#define CO2_MEASUREMENT_FREQ                (5 * 1000)
+#else
+// Change to seconds:                       N X 1000ms = 1 second
+#define CO2_MEASUREMENT_FREQ                (CO2_MEASUREMENT_FREQ_SECONDS * 1000)
+#endif
+
+#define CO2_LED_UPDATE_FREQ                 (CO2_LED_UPDATE_FREQ_SECONDS * 1000)
 
 extern QueueHandle_t mq_co2;
 extern i2c_master_dev_handle_t scd41_handle;
