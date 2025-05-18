@@ -567,6 +567,73 @@ Added new approach of setting ADC handle with parameters in sctruct, based on ex
 
 Not tested yet, let the old code memory leak show the results after a few hours\days.
 
+Testing:
+
+```log
+# Start and a few measurements after
+
+- Init:         UI SquareLine Studio debug info!
+I (8465) ui-exported: Put exported UI files in the dir /ui/sq_line_SSD1306/
+I (8485) co2station: MAIN
+        Before: 247816 b
+        After:  79676 b
+        Delta:  -168140
+
+I (8485) main_task: Returned from app_main()
+I (8695) adc-battery: RAW: 2737; Cali: V:2750; Converted V 2750; Battery percentage: 132
+Opened database successfully
+INSERT INTO battery_stats VALUES (2737, 2, 2750, 132, 2750, 60000, 5);
+Operation done successfully
+Time taken: 42323
+I (8735) adc-battery: deregister Curve Fitting calibration scheme
+I (8745) adc-battery: Battery Save DB and DEINIT
+        Before: 84636 b
+        After:  84636 b
+        Delta:  0
+
+W (12325) wifi:<ba-add>idx:1, ifx:0, tid:0, TAHI:0x100cc0c, TALO:0x42b84862, (ssn:0, win:64, cur_ssn:0), CONF:0xc0000005
+I (13225) sensor-co2: CO2:739ppm; Temperature:93.4; Humidity:51.7
+Opened database successfully
+INSERT INTO co2_stats VALUES (93.371002, 51.733002, 739, 5000);
+Operation done successfully
+Time taken: 71631
+I (13295) sensor-co2: CO2 Save DB
+        Before: 84492 b
+        After:  84492 b
+        Delta:  0
+
+I (13905) sensor-bme680: t:26.04C; Humidity:37.96%; Pressure:987.03hpa; Resistance:2191.33; Stable:no: AQI:63 (Excellent)
+Opened database successfully
+INSERT INTO air_temp_stats VALUES (26.035343, 37.964149, 987.029541, 2191.332764, 63, 5000);
+Operation done successfully
+Time taken: 53562
+I (13965) sensor-bme680: BME680 Save DB
+        Before: 84260 b
+        After:  84260 b
+        Delta:  0
+
+I (63225) sensor-co2: CO2:720ppm; Temperature:18.2; Humidity:57.6
+Opened database successfully
+INSERT INTO co2_stats VALUES (18.167999, 57.630001, 720, 5000);
+Operation done successfully
+Time taken: 53266
+I (63275) sensor-co2: CO2 Save DB
+        Before: 84268 b
+        After:  84268 b
+        Delta:  0
+
+I (63945) sensor-bme680: t:26.76C; Humidity:38.12%; Pressure:987.11hpa; Resistance:76.60; Stable:yes: AQI:37 (Unhealthy)
+Opened database successfully
+INSERT INTO air_temp_stats VALUES (26.759745, 38.121689, 987.105774, 76.604347, 37, 5000);
+Operation done successfully
+Time taken: 60310
+I (64015) sensor-bme680: BME680 Save DB
+        Before: 84268 b
+        After:  84268 b
+        Delta:  0
+
+```
+
 # NTP Time Sync
 
 TODO: Add NTP, as this is the best alternative to lower SQL memory footprint by reducing load with tables without the ROW ID, by using Date Time timestamp as ID for each new row.
