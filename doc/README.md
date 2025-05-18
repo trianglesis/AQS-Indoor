@@ -567,6 +567,10 @@ Added new approach of setting ADC handle with parameters in sctruct, based on ex
 
 Not tested yet, let the old code memory leak show the results after a few hours\days.
 
+# NTP Time Sync
+
+TODO: Add NTP, as this is the best alternative to lower SQL memory footprint by reducing load with tables without the ROW ID, by using Date Time timestamp as ID for each new row.
+
 # Debug and etc
 
 
