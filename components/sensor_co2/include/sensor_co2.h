@@ -30,15 +30,15 @@
 
 // Not less that once in 5 seconds!
 #define CO2_MEASURE_MIN 5
-#if CO2_MEASUREMENT_FREQ_SECONDS < CO2_MEASURE_MIN
+#if CONFIG_CO2_MEASUREMENT_FREQ_SECONDS < CO2_MEASURE_MIN
 // Change to seconds:                       N X 1000ms = 1 second
 #define CO2_MEASUREMENT_FREQ                (5 * 1000)
 #else
 // Change to seconds:                       N X 1000ms = 1 second
-#define CO2_MEASUREMENT_FREQ                (CO2_MEASUREMENT_FREQ_SECONDS * 1000)
+#define CO2_MEASUREMENT_FREQ                (CONFIG_CO2_MEASUREMENT_FREQ_SECONDS * 1000)
 #endif
 
-#define CO2_LED_UPDATE_FREQ                 (CO2_LED_UPDATE_FREQ_SECONDS * 1000)
+#define CO2_LED_UPDATE_FREQ                 (CONFIG_CO2_LED_UPDATE_FREQ_SECONDS * 1000)
 
 extern QueueHandle_t mq_co2;
 extern i2c_master_dev_handle_t scd41_handle;

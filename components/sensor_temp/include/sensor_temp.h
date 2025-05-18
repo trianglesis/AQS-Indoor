@@ -30,12 +30,12 @@
 
 // Not less that once in 5 seconds!
 #define BME680_MEASURE_MIN 5
-#if BME680_MEASUREMENT_FREQ_SECONDS < BME680_MEASURE_MIN
+#if CONFIG_BME680_MEASUREMENT_FREQ_SECONDS < BME680_MEASURE_MIN
 // Change to seconds:                       N X 1000ms = 1 second
 #define BME680_MEASUREMENT_FREQ             (5 * 1000)
 #else
 // Change to seconds:                       N X 1000ms = 1 second
-#define BME680_MEASUREMENT_FREQ             (BME680_MEASUREMENT_FREQ_SECONDS * 1000)
+#define BME680_MEASUREMENT_FREQ             (CONFIG_BME680_MEASUREMENT_FREQ_SECONDS * 1000)
 #endif
 
 extern QueueHandle_t mq_bme680;
