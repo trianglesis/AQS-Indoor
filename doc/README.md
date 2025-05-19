@@ -667,6 +667,18 @@ I (18414005) sensor-bme680: BME680 Save DB
         After:  84144 b
         Delta:  0
 
+## Looks fine
+
+I (1364309) sensor-bme680: t:23.33C; Humidity:43.07%; Pressure:988.43hpa; Resistance:198.09; Stable:yes: AQI:48 (Moderate)
+Opened database successfully
+INSERT INTO air_temp_stats VALUES (23.333220, 43.065857, 988.433655, 198.090088, 48, 5000);
+Operation done successfully
+Time taken: 56126
+I (1364369) sensor-bme680: BME680 Save DB
+        Before: 84360 b
+        After:  84360 b
+        Delta:  0
+
 
 ```
 
