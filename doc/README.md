@@ -298,6 +298,13 @@ The board is working fine now.
 
 # SQLite
 
+
+## SELECT and return as JSON from webserver API
+
+
+
+## And memory leaking
+
 Having issues with SQLite and memory..
 
 ```

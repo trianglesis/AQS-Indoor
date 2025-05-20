@@ -97,7 +97,25 @@ int db_query(MessageBufferHandle_t xMessageBuffer, sqlite3 *db, const char *sql)
 	return rc;
 }
 
+void select_co2_stats(int limit, int offset) {
+    char db_name[32];
+    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
+    sqlite3 *db;
+    sqlite3_initialize();
+    int rc = db_open(db_name, &db); // will print "Opened database successfully"
+    if (rc != SQLITE_OK) {
+        ESP_LOGE(TAG, "DB SELECT Cannot open database");
+    }
+    char table_sql[128];
+    snprintf(table_sql, sizeof(table_sql) + 1, "SELECT * FROM co2_stats ORDER BY rowid DESC LIMIT %d OFFSET %d;", limit, offset);
+    rc = db_exec(db, table_sql);
+    if (rc != SQLITE_OK) {
+        ESP_LOGE(TAG, "DB SELECT, failed: \n%s\n", table_sql);
+    }
 
+    // Convert results into JSON, return by Webserver API?
+
+}
 
 /*
 Create multiple tabled in one go.
@@ -306,6 +324,11 @@ esp_err_t setup_db(void) {
     // Cleanup
     sqlite3_shutdown();  // close
     vSemaphoreDelete(sql_done);
+
+    // DEBUG and TEST:
+    // Select CO2 values once
+    select_co2_stats(10, 1);
+
 
     return ESP_OK;
 }
