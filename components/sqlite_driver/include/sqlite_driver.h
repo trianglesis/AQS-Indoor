@@ -10,11 +10,20 @@
 
 #include "sqlite3.h"
 #include "sqllib.h"
+#include "cJSON.h"
+
 
 #define DB_ROOT                     CONFIG_SD_MOUNT_POINT
 #define SQLITE_DEFAULT_PAGE_SIZE    512
+
+typedef struct SQLArgs {
+    int limit;
+    int offset;
+} sql_args_t;
 
 esp_err_t setup_db(void);
 
 void insert_task(void *pvParameters);
 void ins_task(void *pvParameters);
+
+void select_co2_stats(void *args);

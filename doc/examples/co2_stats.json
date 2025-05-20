@@ -1,0 +1,367 @@
+[
+    {
+        "rowid": "3620",
+        "co2_ppm": "857",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3619",
+        "co2_ppm": "860",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3618",
+        "co2_ppm": "852",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3617",
+        "co2_ppm": "846",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3616",
+        "co2_ppm": "845",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3615",
+        "co2_ppm": "866",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3614",
+        "co2_ppm": "840",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3613",
+        "co2_ppm": "830",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3612",
+        "co2_ppm": "870",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3611",
+        "co2_ppm": "851",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3610",
+        "co2_ppm": "829",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3609",
+        "co2_ppm": "830",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3608",
+        "co2_ppm": "832",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3607",
+        "co2_ppm": "835",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3606",
+        "co2_ppm": "836",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3605",
+        "co2_ppm": "833",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3604",
+        "co2_ppm": "833",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3603",
+        "co2_ppm": "835",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3602",
+        "co2_ppm": "839",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3601",
+        "co2_ppm": "842",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3600",
+        "co2_ppm": "847",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3599",
+        "co2_ppm": "852",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3598",
+        "co2_ppm": "839",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3597",
+        "co2_ppm": "833",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3596",
+        "co2_ppm": "872",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3595",
+        "co2_ppm": "833",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3594",
+        "co2_ppm": "810",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3593",
+        "co2_ppm": "828",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3592",
+        "co2_ppm": "806",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3591",
+        "co2_ppm": "806",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3590",
+        "co2_ppm": "805",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3589",
+        "co2_ppm": "804",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3588",
+        "co2_ppm": "805",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3587",
+        "co2_ppm": "804",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3586",
+        "co2_ppm": "809",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3585",
+        "co2_ppm": "807",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3584",
+        "co2_ppm": "807",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3583",
+        "co2_ppm": "806",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3582",
+        "co2_ppm": "813",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3581",
+        "co2_ppm": "816",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3580",
+        "co2_ppm": "811",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3579",
+        "co2_ppm": "837",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3578",
+        "co2_ppm": "811",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3577",
+        "co2_ppm": "786",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3576",
+        "co2_ppm": "824",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3575",
+        "co2_ppm": "802",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3574",
+        "co2_ppm": "808",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3573",
+        "co2_ppm": "809",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3572",
+        "co2_ppm": "809",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3571",
+        "co2_ppm": "809",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3570",
+        "co2_ppm": "805",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3569",
+        "co2_ppm": "798",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3568",
+        "co2_ppm": "785",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3567",
+        "co2_ppm": "775",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3566",
+        "co2_ppm": "773",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3565",
+        "co2_ppm": "773",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3564",
+        "co2_ppm": "770",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3563",
+        "co2_ppm": "772",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3562",
+        "co2_ppm": "777",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3561",
+        "co2_ppm": "756",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3560",
+        "co2_ppm": "805",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3559",
+        "co2_ppm": "756",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3558",
+        "co2_ppm": "744",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3557",
+        "co2_ppm": "741",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3556",
+        "co2_ppm": "710",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3555",
+        "co2_ppm": "688",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3554",
+        "co2_ppm": "674",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3553",
+        "co2_ppm": "663",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3552",
+        "co2_ppm": "658",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3551",
+        "co2_ppm": "656",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3550",
+        "co2_ppm": "666",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3549",
+        "co2_ppm": "672",
+        "measure_freq": "5000"
+    },
+    {
+        "rowid": "3548",
+        "co2_ppm": "675",
+        "measure_freq": "5000"
+    }
+]

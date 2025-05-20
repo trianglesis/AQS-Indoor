@@ -97,7 +97,115 @@ int db_query(MessageBufferHandle_t xMessageBuffer, sqlite3 *db, const char *sql)
 	return rc;
 }
 
-void select_co2_stats(int limit, int offset) {
+/*
+Use int cols - to indicate an actual amount of table columns (COL) selected.
+    Other counters should increment or reset at each COL and ROW
+
+Each ROW have N COLs in it. 
+After iterating N cols:
+     - update ROW counter by 1
+     - reset COLs counter to 0
+*/
+void parse_sql_response_to_json(int cols, bool save_file) {
+    // Create JSON
+    cJSON *root = NULL;
+    cJSON *object[128];
+    int colIndex = 0;  // Increment for each new column value
+    int rowIndex = 0;  // Increment for each new row. After N of cols
+    char itemName[128];
+	char itemValue[128];
+
+	uint32_t startHeap = 0;
+	uint32_t endHeap = 0;
+    startHeap = esp_get_free_heap_size();
+
+    // Init JSON structure
+    root = cJSON_CreateArray();
+    rowIndex = 0;  // Set the first ROW
+
+    char sqlmsg[256];
+    size_t readBytes;
+    int count = 0;  // Simple counter, for each col:value pairs
+    // Read selected
+    while (1) {
+        readBytes = xMessageBufferReceive(xMessageBufferQuery, sqlmsg, sizeof(sqlmsg), 100);
+        if (readBytes == 0) break;  // Exit when EOF
+        sqlmsg[readBytes] = 0;
+        count++;  // Natural order 1=1, 3=3
+
+        // Each line parse as key:value pairs
+        char *pos = strstr(sqlmsg, " = ");
+        if (pos == NULL) continue;
+        ESP_LOGD(TAG, "%d pos=[%p] sqlmsg=[%p] length=[%d] pos+3=[%s]", count, pos, sqlmsg, pos - sqlmsg, pos+3);
+        memset(itemName, 0, sizeof(itemName));
+        strncpy(itemName, sqlmsg, (int)(pos - sqlmsg));
+        memset(itemValue, 0, sizeof(itemValue));
+        strcpy(itemValue, pos+3);
+
+        /*
+            If current element index is not divisable by number or columns selected
+             - assume this is just a single ROW from database
+            When element index IS divisible by NUMBER of columns selected 
+            - assume this is the END of a single ROW from database
+            - increment ROW Index by 1
+        */
+
+        ESP_LOGD(TAG, "%d ROW: %d, COL: %d\n", count, rowIndex, colIndex);
+        // When this is the first COL in current ROW: create an object
+        if (colIndex == 0) {
+            object[rowIndex] = cJSON_CreateObject();  // New row for each 0 COL
+        }
+
+        // Add each key:value pair into the object
+        ESP_LOGD(TAG, "%d \tROW: %d values: %s:%s\n", count, rowIndex, itemName, itemValue);
+        cJSON_AddStringToObject(object[rowIndex], itemName, itemValue); // New k:v pair into the row
+        colIndex++; // Increment when single COL parsed
+
+        // When overall count is divisible by cols selected - this is one ROW's end
+        if (count % cols == 0) {
+            // Add one object into the common root
+            cJSON_AddItemToArray(root, object[rowIndex]);
+            // One row = one JSON object
+            ESP_LOGD(TAG, "%d \t\tEnd of ROW: %d\n", count, rowIndex);
+            rowIndex++;  // Increment ROW when finished with current one
+            colIndex = 0; // Reset column index to start parsing new set of COLs
+        }
+    } // WHILE
+
+    // Now JSON and FILE
+    char *json_str = cJSON_PrintUnformatted(root);
+    printf("JSON\n%s\n", json_str);
+
+    if (save_file) {
+        FILE* f = NULL;
+        char JSONFile[64];
+        sprintf(JSONFile, "%s/local.json", DB_ROOT);
+        f = fopen(JSONFile, "w");
+        if (f == NULL) {
+            ESP_LOGE(TAG, "Failed to open local file");
+        }
+        fprintf(f, "%s", json_str);
+        if (f != NULL) fclose(f);
+    }
+
+    cJSON_free(json_str);
+    cJSON_Delete(root);
+    root = NULL;
+
+    endHeap = esp_get_free_heap_size();
+    ESP_LOGI(TAG, "startHeap=%"PRIi32" endHeap=%"PRIi32, startHeap, endHeap);
+}
+
+/*
+Select limited amout of records from the table.
+Use SQLArgs to set LIMIT and OFFSET for SQL Query
+
+*/
+void select_co2_stats(void *args) {
+    sql_args_t sql_args = *(sql_args_t *) args;
+    int cols = 3;
+    ESP_LOGI(TAG, "SQL SELECT: Columns: %d Limit %d Offset %d", cols, sql_args.limit, sql_args.offset);
+
     char db_name[32];
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
     sqlite3 *db;
@@ -106,14 +214,19 @@ void select_co2_stats(int limit, int offset) {
     if (rc != SQLITE_OK) {
         ESP_LOGE(TAG, "DB SELECT Cannot open database");
     }
+
+    // SELECT
     char table_sql[128];
-    snprintf(table_sql, sizeof(table_sql) + 1, "SELECT * FROM co2_stats ORDER BY rowid DESC LIMIT %d OFFSET %d;", limit, offset);
-    rc = db_exec(db, table_sql);
+    snprintf(table_sql, sizeof(table_sql) + 1, "SELECT ROWID, co2_ppm, measure_freq FROM co2_stats ORDER BY rowid DESC LIMIT %d;", sql_args.limit);
+    rc = db_query(xMessageBufferQuery, db, table_sql);
     if (rc != SQLITE_OK) {
         ESP_LOGE(TAG, "DB SELECT, failed: \n%s\n", table_sql);
     }
 
-    // Convert results into JSON, return by Webserver API?
+    // Create JSON
+    parse_sql_response_to_json(3, false);
+    sqlite3_close(db);
+    vTaskDelete(NULL);
 
 }
 
@@ -327,8 +440,11 @@ esp_err_t setup_db(void) {
 
     // DEBUG and TEST:
     // Select CO2 values once
-    select_co2_stats(10, 1);
-
+    // Select CO2 values once
+    sql_args_t sql_args;
+    sql_args.limit = 100;
+    sql_args.offset = 1;
+    xTaskCreatePinnedToCore(select_co2_stats, "SQL-Select", 1024*6, &sql_args, 5, &xHandle, tskNO_AFFINITY);
 
     return ESP_OK;
 }
