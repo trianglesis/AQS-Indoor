@@ -209,25 +209,21 @@ Select limited amout of records from the table.
 Use SQLArgs to set LIMIT and OFFSET for SQL Query
 
 */
-void select_co2_stats(void *sql_args_handle) {
+void select_stats(void *sql_args_handle) {
     sql_args_t* sql_args = (sql_args_t*) sql_args_handle;
     ESP_LOGI(TAG, "SQL SELECT: Columns: %d Limit %d Offset %d", sql_args->cols, sql_args->limit, sql_args->offset);
     
-    char db_name[32];
-    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
     sqlite3 *db;
     sqlite3_initialize();
-    int rc = db_open(db_name, &db); // will print "Opened database successfully"
+    int rc = db_open(sql_args->db_name, &db); // will print "Opened database successfully"
     if (rc != SQLITE_OK) {
         ESP_LOGE(TAG, "DB SELECT Cannot open database");
     }
 
     // SELECT
-    char table_sql[128];
-    snprintf(table_sql, sizeof(table_sql) + 1, "SELECT ROWID, co2_ppm, measure_freq FROM co2_stats ORDER BY rowid DESC LIMIT %d OFFSET %d;", sql_args->limit, sql_args->offset);
-    rc = db_query(xMessageBufferQuery, db, table_sql);
+    rc = db_query(xMessageBufferQuery, db, sql_args->table_sql);
     if (rc != SQLITE_OK) {
-        ESP_LOGE(TAG, "DB SELECT, failed: \n%s\n", table_sql);
+        ESP_LOGE(TAG, "DB SELECT, failed: \n%s\n", sql_args->table_sql);
     }
 
     // Create JSON
