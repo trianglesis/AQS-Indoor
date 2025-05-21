@@ -145,13 +145,32 @@ esp_err_t co2_stats_get_handler(httpd_req_t *req) {
     const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     ESP_LOGI(TAG, "Load CO2 Stats JSON!");
 
+    int limit = 10;
+    char *buf_q = NULL;
+    size_t buf_len;
+    buf_len = httpd_req_get_url_query_len(req) + 1;
+    if (buf_len > 1) {
+        buf_q = malloc(buf_len);
+        ESP_RETURN_ON_FALSE(buf_q, ESP_ERR_NO_MEM, TAG, "buffer alloc failed");
+        if (httpd_req_get_url_query_str(req, buf_q, buf_len) == ESP_OK) {
+            ESP_LOGI(TAG, "Found URL query => %s", buf_q);
+            char param[QUERY_KEY_MAX_LEN] = {0};
+            /* Get value of expected key from query string */
+            if (httpd_query_key_value(buf_q, "limit", param, sizeof(param)) == ESP_OK) {
+                ESP_LOGI(TAG, "Found URL query parameter => replace=%s", param);
+                limit = atoi(param);
+            }
+        }
+        free(buf_q);
+    }
+
     sql_done = xSemaphoreCreateBinary();
     sql_args_t* sql_args = (sql_args_t*) calloc(1, sizeof(sql_args_t));
     sql_args->sql_done = sql_done;
     sql_args->save_file = true;  // Save to local FS, SD Card is best
     sql_args->json_file = "co2_stats";  // Save to local FS, SD Card is best
     sql_args->cols = 1;  // Amount of selected COLs, see query
-    sql_args->limit = 25;  // MAX items to select
+    sql_args->limit = limit;  // MAX items to select
     sql_args->offset = 0;  // Paging if needed
 
     char db_name[32];
@@ -190,6 +209,25 @@ httpd_uri_t co2_data_get_uri = {
 esp_err_t battery_stats_get_handler(httpd_req_t *req) {
     const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
 
+    int limit = 10;
+    char *buf_q = NULL;
+    size_t buf_len;
+    buf_len = httpd_req_get_url_query_len(req) + 1;
+    if (buf_len > 1) {
+        buf_q = malloc(buf_len);
+        ESP_RETURN_ON_FALSE(buf_q, ESP_ERR_NO_MEM, TAG, "buffer alloc failed");
+        if (httpd_req_get_url_query_str(req, buf_q, buf_len) == ESP_OK) {
+            ESP_LOGI(TAG, "Found URL query => %s", buf_q);
+            char param[QUERY_KEY_MAX_LEN] = {0};
+            /* Get value of expected key from query string */
+            if (httpd_query_key_value(buf_q, "limit", param, sizeof(param)) == ESP_OK) {
+                ESP_LOGI(TAG, "Found URL query parameter => replace=%s", param);
+                limit = atoi(param);
+            }
+        }
+        free(buf_q);
+    }
+
     sql_done = xSemaphoreCreateBinary();
     sql_args_t* sql_args = (sql_args_t*) calloc(1, sizeof(sql_args_t));
     
@@ -200,7 +238,7 @@ esp_err_t battery_stats_get_handler(httpd_req_t *req) {
     sql_args->save_file = true;  // Save to local FS, SD Card is best
     sql_args->json_file = "battery_stats";  // Save to local FS, SD Card is best
     sql_args->cols = 2;  // Amount of selected COLs, see query
-    sql_args->limit = 10;  // MAX items to select
+    sql_args->limit = limit;  // MAX items to select
     sql_args->offset = 0;  // Paging if needed
     
     char table_sql[128];
@@ -235,6 +273,25 @@ httpd_uri_t battery_data_get_uri = {
 esp_err_t air_stats_get_handler(httpd_req_t *req) {
     const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
 
+    int limit = 10;
+    char *buf_q = NULL;
+    size_t buf_len;
+    buf_len = httpd_req_get_url_query_len(req) + 1;
+    if (buf_len > 1) {
+        buf_q = malloc(buf_len);
+        ESP_RETURN_ON_FALSE(buf_q, ESP_ERR_NO_MEM, TAG, "buffer alloc failed");
+        if (httpd_req_get_url_query_str(req, buf_q, buf_len) == ESP_OK) {
+            ESP_LOGI(TAG, "Found URL query => %s", buf_q);
+            char param[QUERY_KEY_MAX_LEN] = {0};
+            /* Get value of expected key from query string */
+            if (httpd_query_key_value(buf_q, "limit", param, sizeof(param)) == ESP_OK) {
+                ESP_LOGI(TAG, "Found URL query parameter => replace=%s", param);
+                limit = atoi(param);
+            }
+        }
+        free(buf_q);
+    }
+
     sql_done = xSemaphoreCreateBinary();
     sql_args_t* sql_args = (sql_args_t*) calloc(1, sizeof(sql_args_t));
     
@@ -245,7 +302,7 @@ esp_err_t air_stats_get_handler(httpd_req_t *req) {
     sql_args->save_file = true;  // Save to local FS, SD Card is best
     sql_args->json_file = "air_stats";  // Save to local FS, SD Card is best
     sql_args->cols = 4;  // Amount of selected COLs, see query
-    sql_args->limit = 10;  // MAX items to select
+    sql_args->limit = limit;  // MAX items to select
     sql_args->offset = 0;  // Paging if needed
     
     char table_sql[128];
