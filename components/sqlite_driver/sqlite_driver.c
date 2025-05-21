@@ -97,6 +97,7 @@ int db_query(MessageBufferHandle_t xMessageBuffer, sqlite3 *db, const char *sql)
 	return rc;
 }
 
+
 /*
 Use int cols - to indicate an actual amount of table columns (COL) selected.
     Other counters should increment or reset at each COL and ROW
@@ -106,7 +107,9 @@ After iterating N cols:
      - update ROW counter by 1
      - reset COLs counter to 0
 */
-void parse_sql_response_to_json(int cols, bool save_file) {
+void parse_sql_response_to_json(void *sql_args_handle) {
+    sql_args_t* sql_args = (sql_args_t*) sql_args_handle;
+    
     // Create JSON
     cJSON *root = NULL;
     cJSON *object[128];
@@ -114,17 +117,16 @@ void parse_sql_response_to_json(int cols, bool save_file) {
     int rowIndex = 0;  // Increment for each new row. After N of cols
     char itemName[128];
 	char itemValue[128];
-
+    
 	uint32_t startHeap = 0;
 	uint32_t endHeap = 0;
     startHeap = esp_get_free_heap_size();
-
+    
+    char sqlmsg[256];
+    size_t readBytes;
     // Init JSON structure
     root = cJSON_CreateArray();
     rowIndex = 0;  // Set the first ROW
-
-    char sqlmsg[256];
-    size_t readBytes;
     int count = 0;  // Simple counter, for each col:value pairs
     // Read selected
     while (1) {
@@ -162,7 +164,7 @@ void parse_sql_response_to_json(int cols, bool save_file) {
         colIndex++; // Increment when single COL parsed
 
         // When overall count is divisible by cols selected - this is one ROW's end
-        if (count % cols == 0) {
+        if (count % sql_args->cols == 0) {
             // Add one object into the common root
             cJSON_AddItemToArray(root, object[rowIndex]);
             // One row = one JSON object
@@ -173,27 +175,33 @@ void parse_sql_response_to_json(int cols, bool save_file) {
     } // WHILE
 
     // Now JSON and FILE
-    char *json_str = cJSON_PrintUnformatted(root);
-    printf("JSON\n%s\n", json_str);
-
-    if (save_file) {
+    sql_args->json_str = cJSON_PrintUnformatted(root);
+    /*
+    * Save to SD Card, later we can save resources 
+    * accessing already saved files IF request made 
+    * * less than 1 minuted after a previous one! Or else.
+    */
+    if (sql_args->save_file) {
         FILE* f = NULL;
         char JSONFile[64];
-        sprintf(JSONFile, "%s/local.json", DB_ROOT);
+        sprintf(JSONFile, "%s/co2_stats.json", DB_ROOT);
         f = fopen(JSONFile, "w");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open local file");
         }
-        fprintf(f, "%s", json_str);
+        fprintf(f, "%s", sql_args->json_str);
         if (f != NULL) fclose(f);
     }
 
-    cJSON_free(json_str);
-    cJSON_Delete(root);
+    // Free this as soon as we send it
+    // printf("1 JSON\n%s\n", sql_args->json_str);
+    // cJSON_free(json_str);  // Should probably be freed by free(sql_args)
+    cJSON_Delete(root);  // Delete JSON objects
     root = NULL;
 
     endHeap = esp_get_free_heap_size();
     ESP_LOGI(TAG, "startHeap=%"PRIi32" endHeap=%"PRIi32, startHeap, endHeap);
+    xSemaphoreGive( sql_args->sql_done );  // Release in task after finishing the job
 }
 
 /*
@@ -201,11 +209,10 @@ Select limited amout of records from the table.
 Use SQLArgs to set LIMIT and OFFSET for SQL Query
 
 */
-void select_co2_stats(void *args) {
-    sql_args_t sql_args = *(sql_args_t *) args;
-    int cols = 3;
-    ESP_LOGI(TAG, "SQL SELECT: Columns: %d Limit %d Offset %d", cols, sql_args.limit, sql_args.offset);
-
+void select_co2_stats(void *sql_args_handle) {
+    sql_args_t* sql_args = (sql_args_t*) sql_args_handle;
+    ESP_LOGI(TAG, "SQL SELECT: Columns: %d Limit %d Offset %d", sql_args->cols, sql_args->limit, sql_args->offset);
+    
     char db_name[32];
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
     sqlite3 *db;
@@ -217,17 +224,16 @@ void select_co2_stats(void *args) {
 
     // SELECT
     char table_sql[128];
-    snprintf(table_sql, sizeof(table_sql) + 1, "SELECT ROWID, co2_ppm, measure_freq FROM co2_stats ORDER BY rowid DESC LIMIT %d;", sql_args.limit);
+    snprintf(table_sql, sizeof(table_sql) + 1, "SELECT ROWID, co2_ppm, measure_freq FROM co2_stats ORDER BY rowid DESC LIMIT %d OFFSET %d;", sql_args->limit, sql_args->offset);
     rc = db_query(xMessageBufferQuery, db, table_sql);
     if (rc != SQLITE_OK) {
         ESP_LOGE(TAG, "DB SELECT, failed: \n%s\n", table_sql);
     }
 
     // Create JSON
-    parse_sql_response_to_json(3, false);
+    parse_sql_response_to_json(sql_args);
     sqlite3_close(db);
     vTaskDelete(NULL);
-
 }
 
 /*
@@ -431,20 +437,9 @@ esp_err_t setup_db(void) {
     sql_done = xSemaphoreCreateBinary();
     TaskHandle_t xHandle;
     xTaskCreatePinnedToCore(table_check_tsk, "check-tables", 1024*6, NULL, 5, &xHandle, tskNO_AFFINITY);
-
-    //Wait for completion in task
-    xSemaphoreTake(sql_done, portMAX_DELAY);
     // Cleanup
     sqlite3_shutdown();  // close
     vSemaphoreDelete(sql_done);
-
-    // DEBUG and TEST:
-    // Select CO2 values once
-    // Select CO2 values once
-    sql_args_t sql_args;
-    sql_args.limit = 100;
-    sql_args.offset = 1;
-    xTaskCreatePinnedToCore(select_co2_stats, "SQL-Select", 1024*6, &sql_args, 5, &xHandle, tskNO_AFFINITY);
 
     return ESP_OK;
 }

@@ -8,14 +8,18 @@
 #include "esp_tls.h"
 #include "esp_check.h"
 
+// Rest
+#include "esp_vfs.h"
+
+
 // My
 #include "wifi.h"
 #include "card_driver.h"
 #include "littlefs_driver.h"
 
-#define USERNAME CONFIG_USERNAME
-#define PASSWORD CONFIG_PASSWORD
-#define BASIC_AUTH CONFIG_BASIC_AUTH
+#define USERNAME                CONFIG_USERNAME
+#define PASSWORD                CONFIG_PASSWORD
+#define BASIC_AUTH              CONFIG_BASIC_AUTH
 
 
 // Init root - SPI flash, upload new index.html at SD root dir to change it

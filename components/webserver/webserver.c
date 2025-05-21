@@ -9,6 +9,9 @@ const char *index_html_path = NULL;
 static const char *TAG = "webserver";
 static const char *TAG_FS = "fileserver";
 
+static SemaphoreHandle_t sql_done;
+
+
 void webserver_info(void) {
     printf("\n\n- Init:\t\tWebServer debug info!\n");
     ESP_LOGI(TAG, "USERNAME: %s", USERNAME);
@@ -135,6 +138,41 @@ const httpd_uri_t root = {
     .uri = "/",
     .method = HTTP_GET,
     .handler = root_get_handler
+};
+
+// REST
+esp_err_t co2_stats_get_handler(httpd_req_t *req) {
+    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+
+    ESP_LOGI(TAG, "Load CO2 Stats JSON!");
+    sql_args_t* sql_args = (sql_args_t*) calloc(1, sizeof(sql_args_t));
+    sql_done = xSemaphoreCreateBinary();
+
+    sql_args->limit = 50;
+    sql_args->offset = 0;
+    sql_args->cols = 3;
+    sql_args->save_file = true;  // Save to SD Card, later check file age, and skip SQL query if needed
+    sql_args->sql_done = sql_done;
+    xTaskCreate(select_co2_stats, "SQL-Select", 1024*6, sql_args, 5, NULL);
+    xSemaphoreTake(sql_args->sql_done, portMAX_DELAY); //Wait for completion in task
+
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_sendstr(req, sql_args->json_str);
+
+    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    ssize_t delta = free_after - free_before;
+    ESP_LOGI(TAG, "MAIN\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
+    
+    return ESP_OK;
+}
+
+
+/* URI handler for light brightness control */
+httpd_uri_t co2_data_get_uri = {
+    .uri = "/api/v1/co2",
+    .method = HTTP_GET,
+    .handler = co2_stats_get_handler,
+    .user_ctx = "Co2 Stats"
 };
 
 // HTTP Error (404) Handler - Redirects all requests to the root page
@@ -715,6 +753,7 @@ esp_err_t start_webserver(void) {
     // Main page and 404
     // Maing page is served from SPI if no same-named index.html was found at SD card!
     httpd_register_uri_handler(server, &root);
+    httpd_register_uri_handler(server, &co2_data_get_uri);
     httpd_register_err_handler(server, HTTPD_404_NOT_FOUND, http_404_error_handler);
 
     /*

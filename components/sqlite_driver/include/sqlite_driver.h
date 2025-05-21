@@ -19,6 +19,10 @@
 typedef struct SQLArgs {
     int limit;
     int offset;
+    int cols;
+    char *json_str;
+    bool save_file;
+    SemaphoreHandle_t sql_done;
 } sql_args_t;
 
 esp_err_t setup_db(void);

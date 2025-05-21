@@ -301,6 +301,7 @@ The board is working fine now.
 
 ## SELECT and return as JSON from webserver API
 
+Testing code for SQL and JSON conversion [here](https://github.com/trianglesis/test-wsl/blob/8d009573ba6cac2eff20d686c16ab2729d58ec4f/README.md) in a separeate repo, set up at WSL with QEMU
 
 
 ## And memory leaking
