@@ -184,7 +184,7 @@ void parse_sql_response_to_json(void *sql_args_handle) {
     if (sql_args->save_file) {
         FILE* f = NULL;
         char JSONFile[64];
-        sprintf(JSONFile, "%s/co2_stats.json", DB_ROOT);
+        sprintf(JSONFile, "%s/%s.json", DB_ROOT, sql_args->json_file);
         f = fopen(JSONFile, "w");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open local file");
@@ -211,7 +211,7 @@ Use SQLArgs to set LIMIT and OFFSET for SQL Query
 */
 void select_stats(void *sql_args_handle) {
     sql_args_t* sql_args = (sql_args_t*) sql_args_handle;
-    ESP_LOGI(TAG, "SQL SELECT: Columns: %d Limit %d Offset %d", sql_args->cols, sql_args->limit, sql_args->offset);
+    ESP_LOGI(TAG, "SQL SELECT: Columns: %d Limit %d Offset %d\nQUERY:\n%s", sql_args->cols, sql_args->limit, sql_args->offset, sql_args->table_sql);
     
     sqlite3 *db;
     sqlite3_initialize();
