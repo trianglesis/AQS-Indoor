@@ -197,7 +197,7 @@ esp_err_t battery_stats_get_handler(httpd_req_t *req) {
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
     sql_args->db_name = db_name;
     sql_args->sql_done = sql_done;
-    sql_args->save_file = false;  // Save to local FS, SD Card is best
+    sql_args->save_file = true;  // Save to local FS, SD Card is best
     sql_args->json_file = "battery_stats";  // Save to local FS, SD Card is best
     sql_args->cols = 2;  // Amount of selected COLs, see query
     sql_args->limit = 10;  // MAX items to select
@@ -224,13 +224,56 @@ esp_err_t battery_stats_get_handler(httpd_req_t *req) {
     return ESP_OK;
 }
 
-
-/* URI handler for light brightness control */
 httpd_uri_t battery_data_get_uri = {
     .uri = "/api/v1/battery",
     .method = HTTP_GET,
     .handler = battery_stats_get_handler,
     .user_ctx = "Battery Stats"
+};
+
+// REST Air stats
+esp_err_t air_stats_get_handler(httpd_req_t *req) {
+    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+
+    sql_done = xSemaphoreCreateBinary();
+    sql_args_t* sql_args = (sql_args_t*) calloc(1, sizeof(sql_args_t));
+    
+    char db_name[32];
+    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
+    sql_args->db_name = db_name;
+    sql_args->sql_done = sql_done;
+    sql_args->save_file = true;  // Save to local FS, SD Card is best
+    sql_args->json_file = "air_stats";  // Save to local FS, SD Card is best
+    sql_args->cols = 4;  // Amount of selected COLs, see query
+    sql_args->limit = 10;  // MAX items to select
+    sql_args->offset = 0;  // Paging if needed
+    
+    char table_sql[128];
+    snprintf(table_sql, sizeof(table_sql) + 1, "SELECT temperature, humidity, pressure, air_q_index FROM air_temp_stats ORDER BY rowid DESC LIMIT %d OFFSET %d;", sql_args->limit, sql_args->offset);
+    sql_args->table_sql = table_sql;
+
+    xTaskCreate(select_stats, "SQL-Select", 1024*6, sql_args, 5, NULL);
+    xSemaphoreTake(sql_args->sql_done, portMAX_DELAY); //Wait for completion in task
+
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_sendstr(req, sql_args->json_str);
+
+    // This should also free all memory related to JSON strings too
+    free(sql_args);
+    vSemaphoreDelete(sql_done);
+
+    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    ssize_t delta = free_after - free_before;
+    ESP_LOGI(TAG, "REST AIR\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
+
+    return ESP_OK;
+}
+
+httpd_uri_t air_data_get_uri = {
+    .uri = "/api/v1/air",
+    .method = HTTP_GET,
+    .handler = air_stats_get_handler,
+    .user_ctx = "Air Stats"
 };
 
 // HTTP Error (404) Handler - Redirects all requests to the root page
@@ -812,6 +855,7 @@ esp_err_t start_webserver(void) {
     // Maing page is served from SPI if no same-named index.html was found at SD card!
     httpd_register_uri_handler(server, &root);
     httpd_register_uri_handler(server, &co2_data_get_uri);
+    httpd_register_uri_handler(server, &air_data_get_uri);
     httpd_register_uri_handler(server, &battery_data_get_uri);
     httpd_register_err_handler(server, HTTPD_404_NOT_FOUND, http_404_error_handler);
 
