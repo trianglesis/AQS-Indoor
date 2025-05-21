@@ -12,13 +12,8 @@ Battery
 #define SQL(...) #__VA_ARGS__
 const char *battery_table_create = SQL(
     CREATE TABLE "battery_stats" (
-        "adc_raw"               INTEGER,
-        "voltage"               INTEGER,
         "voltage_m"             INTEGER,
-        "percentage"            INTEGER,
-        "max_masured_voltage"   INTEGER,
-        "measure_freq"          INTEGER,
-        "measure_loop_count"    INTEGER
+        "percentage"            INTEGER
     );
 );
 
@@ -30,8 +25,7 @@ const char *co2_table_create = SQL(
     CREATE TABLE "co2_stats" (
         "temperature"    INTEGER,
         "humidity"       INTEGER,
-        "co2_ppm"        INTEGER,
-        "measure_freq"   INTEGER
+        "co2_ppm"        INTEGER
     );
 );
 
@@ -51,8 +45,7 @@ const char *bme680_table_create = SQL(
         "humidity"       INTEGER,
         "pressure"       INTEGER,
         "resistance"     INTEGER,
-        "air_q_index"    INTEGER,
-        "measure_freq"   INTEGER
+        "air_q_index"    INTEGER
     );
 );
 
@@ -252,7 +245,7 @@ void table_check_tsk(void *arg) {
         "air_temp_stats",
         "co2_stats"
     };
-    
+
     char db_name[32];
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
     // Open database
@@ -277,7 +270,7 @@ void table_check_tsk(void *arg) {
 
         char create_table_sql[256];
         if (i == 0) {
-            snprintf(create_table_sql, sizeof(create_table_sql)-1, "%s", "CREATE TABLE test (id INTEGER, content);");
+            snprintf(create_table_sql, sizeof(create_table_sql)-1, "CREATE TABLE %s (id INTEGER, content);", tables[i]);
         } else if (i == 1) {
             snprintf(create_table_sql, sizeof(create_table_sql)-1, "%s", battery_table_create);
         } else if (i == 2) {
@@ -350,13 +343,20 @@ void table_check_tsk(void *arg) {
 
         if (record_count == 0) {
             ESP_LOGI(TAG, "%d Table is empty record_count=%d\n\tTable\t%s", i, record_count, tables[i]);
-        } else if (record_count >= 3000) {
-            // Add routine to delete older records after a few thousands collected
+        } else if (record_count > 1000) {
             ESP_LOGW(TAG, "%d Table is HEAVY, clean old recods! record_count=%d\n\tTable\t%s", i, record_count, tables[i]);
+            // Delete all, but 1000 last records
+            char clean_table_sql[256];
+            snprintf(clean_table_sql, sizeof(clean_table_sql)-1, "DELETE FROM %s WHERE ROWID IN (SELECT ROWID FROM %s ORDER BY ROWID DESC LIMIT -1 OFFSET 1000)", tables[i], tables[i]);
+            // Add routine to delete older records after a few thousands collected
+            rc = db_query(xMessageBufferQuery, db, table_name_sql);
+            if (rc != SQLITE_OK) {
+                ESP_LOGE(TAG, "DELETE old records FAILED!\n\tTable\t%s\nQuery:\n%s", tables[i], clean_table_sql);
+                continue;
+            }
         } else {
             ESP_LOGI(TAG, "%d Table is not empty but ok record_count=%d\n\tTable\t%s", i, record_count, tables[i]);
         }
-
     } // FOR
     
     // Close and clean
@@ -421,7 +421,7 @@ esp_err_t setup_db(void) {
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
     
     // DELETE previous table for now, at each startup.
-    unlink(db_name);
+    // unlink(db_name);
     sqlite3_initialize();  // Do not init again in task!
     
     // Create Message Buffer

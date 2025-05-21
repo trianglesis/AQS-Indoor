@@ -32,7 +32,7 @@ static void save_to_db(struct BMESensor* bme680_r) {
     }
     // Save to database
     char table_sql[256];
-    snprintf(table_sql, sizeof(table_sql) + sizeof(bme680_r) + 1, "INSERT INTO air_temp_stats VALUES (%f, %f, %f, %f, %d, %d);", bme680_r->temperature, bme680_r->humidity, bme680_r->pressure, bme680_r->resistance, bme680_r->air_q_index, bme680_r->measure_freq);
+    snprintf(table_sql, sizeof(table_sql) + sizeof(bme680_r) + 1, "INSERT INTO air_temp_stats VALUES (%0.f, %0.f, %0.f, %0.f, %d);", bme680_r->temperature, bme680_r->humidity, bme680_r->pressure, bme680_r->resistance, bme680_r->air_q_index);
 
     rc = db_exec(db, table_sql);
     if (rc != SQLITE_OK) {

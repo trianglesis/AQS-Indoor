@@ -32,7 +32,7 @@ static void save_to_db(struct SCD4XSensor* co2_r) {
     }
     // Save to database
     char table_sql[256];
-    snprintf(table_sql, sizeof(table_sql) + sizeof(co2_r) + 1, "INSERT INTO co2_stats VALUES (%f, %f, %d, %d);", co2_r->temperature, co2_r->humidity, co2_r->co2_ppm, co2_r->measure_freq);
+    snprintf(table_sql, sizeof(table_sql) + sizeof(co2_r) + 1, "INSERT INTO co2_stats VALUES (%0.f, %0.f, %d);", co2_r->temperature, co2_r->humidity, co2_r->co2_ppm);
 
     rc = db_exec(db, table_sql);
     if (rc != SQLITE_OK) {

@@ -131,7 +131,7 @@ static void save_to_db(struct BattSensor* btt_r) {
     }
     // Save to database
     char table_sql[256];
-    snprintf(table_sql, sizeof(table_sql) + sizeof(btt_r) + 1, "INSERT INTO battery_stats VALUES (%d, %d, %d, %d, %d, %d, %d);", btt_r->adc_raw, btt_r->voltage, btt_r->voltage_m, btt_r->percentage, btt_r->max_masured_voltage, btt_r->measure_freq, btt_r->loop_count);
+    snprintf(table_sql, sizeof(table_sql) + sizeof(btt_r) + 1, "INSERT INTO battery_stats VALUES (%d, %d);", btt_r->voltage_m, btt_r->percentage);
 
     rc = db_exec(db, table_sql);
     if (rc != SQLITE_OK) {
