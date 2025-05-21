@@ -184,6 +184,7 @@ esp_err_t co2_stats_get_handler(httpd_req_t *req) {
     xTaskCreate(select_stats, "SQL-Select", 1024*6, sql_args, 5, NULL);
     xSemaphoreTake(sql_args->sql_done, portMAX_DELAY); //Wait for completion in task
 
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     httpd_resp_set_type(req, "application/json");
     httpd_resp_sendstr(req, sql_args->json_str);
 
@@ -248,6 +249,7 @@ esp_err_t battery_stats_get_handler(httpd_req_t *req) {
     xTaskCreate(select_stats, "SQL-Select", 1024*6, sql_args, 5, NULL);
     xSemaphoreTake(sql_args->sql_done, portMAX_DELAY); //Wait for completion in task
 
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     httpd_resp_set_type(req, "application/json");
     httpd_resp_sendstr(req, sql_args->json_str);
 
@@ -312,6 +314,7 @@ esp_err_t air_stats_get_handler(httpd_req_t *req) {
     xTaskCreate(select_stats, "SQL-Select", 1024*6, sql_args, 5, NULL);
     xSemaphoreTake(sql_args->sql_done, portMAX_DELAY); //Wait for completion in task
 
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     httpd_resp_set_type(req, "application/json");
     httpd_resp_sendstr(req, sql_args->json_str);
 
