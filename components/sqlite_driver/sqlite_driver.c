@@ -211,7 +211,8 @@ Use SQLArgs to set LIMIT and OFFSET for SQL Query
 */
 void select_stats(void *sql_args_handle) {
     sql_args_t* sql_args = (sql_args_t*) sql_args_handle;
-    ESP_LOGI(TAG, "SQL SELECT: Columns: %d Limit %d Offset %d\nQUERY:\n%s", sql_args->cols, sql_args->limit, sql_args->offset, sql_args->table_sql);
+    // ESP_LOGI(TAG, "SQL SELECT: Columns: %d Limit %d Offset %d\nQUERY:\n%s", sql_args->cols, sql_args->limit, sql_args->offset, sql_args->table_sql);
+    ESP_LOGI(TAG, "SQL SELECT: Columns: %d Limit %d Offset %d", sql_args->cols, sql_args->limit, sql_args->offset);
     
     sqlite3 *db;
     sqlite3_initialize();
@@ -420,7 +421,7 @@ esp_err_t setup_db(void) {
     snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
     
     // DELETE previous table for now, at each startup.
-    // unlink(db_name);
+    unlink(db_name);
     sqlite3_initialize();  // Do not init again in task!
     
     // Create Message Buffer
