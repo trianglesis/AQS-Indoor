@@ -7,6 +7,10 @@
 #include "freertos/semphr.h"
 #include "esp_timer.h"
 
+// Memory leak check
+#include "soc/soc_caps.h"
+#include "esp_heap_caps.h"
+
 #include "esp_log.h"
 #include "esp_check.h"
 #include "esp_err.h"

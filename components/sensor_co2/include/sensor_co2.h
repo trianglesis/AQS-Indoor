@@ -10,6 +10,10 @@
 #include "esp_timer.h"
 #include "esp_log.h"
 
+// Memory leak check
+#include "soc/soc_caps.h"
+#include "esp_heap_caps.h"
+
 // My
 #include "i2c_driver.h"
 #include "led_driver.h"

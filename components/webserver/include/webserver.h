@@ -4,13 +4,15 @@
 #include "esp_netif.h"
 #include "esp_http_server.h"
 #include "esp_event.h"
-#include "esp_netif.h"
 #include "esp_tls.h"
 #include "esp_check.h"
 
+// Memory leak check
+#include "soc/soc_caps.h"
+#include "esp_heap_caps.h"
+
 // Rest
 #include "esp_vfs.h"
-
 
 // My
 #include "wifi.h"
@@ -43,10 +45,10 @@ Also limit to webserver max uri >
 
 /* Max size of an individual file. Make sure this
  * value is same as that set in upload_script.html */
-#define MAX_FILE_SIZE               (1024*1024) // 1024 KB
-#define MAX_FILE_SIZE_STR           "1024KB"
+#define MAX_FILE_SIZE               (1024*1024*5) // 5Mb
+#define MAX_FILE_SIZE_STR           "5242KB"
 /* Scratch buffer size */
-#define SCRATCH_BUFSIZE              8192
+#define SCRATCH_BUFSIZE              4096  // was 8192
 // Server upload files capability
 #define QUERY_KEY_MAX_LEN           (64)
 
@@ -80,5 +82,4 @@ typedef struct {
 
 
 void webserver(void);
-
 esp_err_t start_webserver(void);

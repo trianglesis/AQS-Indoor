@@ -42,7 +42,8 @@ void check_indexes_locations(void) {
     const char *file_path = NULL;
     file_path = WEBSERVER_ROOT"/index.html";
     // Check is SD path exists, first, Serve LFS if not.
-    if (stat(file_path, &st) == 0) {
+    int ret = stat(file_path, &st);
+    if (ret == 0) {
         index_exists = true;
         index_html_path = file_path;
         ESP_LOGI(TAG, "Web root index.html file exists at SD Card: %d", stat(file_path, &st));
@@ -50,7 +51,8 @@ void check_indexes_locations(void) {
         // Serve index html from LittleFS if there is no index at SD Card yet.
         // snprintf(file_path, sizeof(file_path), "%s/index.html", LFS_MOUNT_POINT);
         file_path = WEBSERVER_INIT_ROOT"/index.html";
-        if (stat(file_path, &st) == 0) {
+        ret = stat(file_path, &st);
+        if (ret == 0) {
             index_exists = true;
             index_html_path = file_path;
             ESP_LOGI(TAG, "Web root index.html file exists at LittleFS but not at SD Card: %d", stat(file_path, &st));
@@ -67,43 +69,99 @@ Path validation is at the check_indexes_locations()
 I've used this read_file as example to understand the proper pointer use.
 - https://github.com/DaveGamble/cJSON/blob/acc76239bee01d8e9c858ae2cab296704e52d916/tests/common.h#L47
 */
-char* load_html_file(const char *filepath) {
-    FILE *file = NULL;
-    char *content = NULL;
-    size_t read_chars = 0;
+char* load_html_file_old(const char *filepath) {
+    ESP_LOGI(TAG, "Load HTML file: %s", filepath);
     // Add heap trace here
     struct stat info;
-    ESP_LOGI(TAG, "Load HTML index...");
+
     // Test the file existence and get its size in bytes
-    if (stat(filepath, &info) == 0) {
-        ESP_LOGI(
-            TAG, "Index HTML exists: %s; \n\t - Last changed: %s \n\t - File size: %ld bytes", 
-            index_html_path, 
-            ctime(&info.st_mtime), 
-            info.st_size);
+    int ret = stat(filepath, &info);
+    if (ret != 0) {
+        ESP_LOGE(TAG, "File is not exist at path: %s", filepath);
+    } else {
+        ESP_LOGI(TAG, "HTML file exists\n\tpath: %s\n\tSize: %ld b\n\tChanged: %s", filepath, info.st_size, ctime(&info.st_mtime));
     }
-    // Read file
-    file = fopen(filepath, "r");
-    if (file == NULL) {
-        ESP_LOGE(TAG, "Cannot open HTML file for read from path: %s", index_html_path);
-    }
-    // Allocate memory for file to read into
-    content = (char*)malloc((size_t)info.st_size + sizeof(""));
+
+    char *content = malloc(info.st_size + sizeof(""));
+    // char *content = (char*)malloc((size_t)info.st_size + sizeof("") + 1);
     if (content == NULL) {
-        ESP_LOGE(TAG, "Failed to allocate memory");
+        ESP_LOGE(TAG, "Failed to allocate memory for reading the file: %s", filepath);
+    }
+
+    // Read file
+    ESP_LOGI(TAG, "Open HTML file from path: %s", filepath);
+    FILE *file = fopen(filepath, "r");
+    if (file == NULL) {
+        ESP_LOGE(TAG, "Cannot open HTML file for read from path: %s", filepath);
         fclose(file);
     }
+
     // Read the file
-    read_chars = fread(content, sizeof(char), (size_t)info.st_size, file);
+    size_t read_chars = 0;
+    ESP_LOGI(TAG, "Read HTML file from path: %s", filepath);
+    read_chars = fread(content, sizeof(char) + 1, (size_t)info.st_size, file);
     if ((long)read_chars != info.st_size) {
         free(content);
         content = NULL;
     }
+
     content[read_chars] = '\0';
     // Close now
+    ESP_LOGI(TAG, "File read and now close it: %s", filepath);
     if (file != NULL) {
         fclose(file);
     }
+    ESP_LOGI(TAG, "File closed, send content: %s", filepath);
+    return content;
+}
+
+static char* load_html_file(const char *filepath) {
+    FILE *file = NULL;
+    long length = 0;
+    char *content = NULL;
+    size_t read_chars = 0;
+
+    /* open in read binary mode */
+    file = fopen(filepath, "rb");
+    if (file == NULL) {
+        ESP_LOGE(TAG, "Cannot open file: %s", filepath);
+    }
+
+    // Seek file end:
+    if (fseek(file, 0, SEEK_END) != 0) {
+        ESP_LOGE(TAG, "Cannot seek file size: %s", filepath);
+    }
+
+    // Get file size
+    length = ftell(file);
+    if (length < 0) {
+        ESP_LOGE(TAG, "Cannot get file size: %s", filepath);
+    }
+
+    if (fseek(file, 0, SEEK_SET) != 0) {
+        ESP_LOGE(TAG, "I don't get it yet: %s", filepath);
+    }
+
+    // Allocate buff
+    content = (char*)malloc((size_t)length + sizeof(""));
+    if (content == NULL) {
+        ESP_LOGE(TAG, "Cannot allocate buffer for file to read: %s\n\tLen: %lu", filepath, length);
+    }
+
+    /* read the file into memory */
+    read_chars = fread(content, sizeof(char), (size_t)length, file);
+    if ((long)read_chars != length) {
+        free(content);
+        content = NULL;
+        ESP_LOGE(TAG, "Cannot read the file content size is not the same as chars read: %s\n\tread_chars: %u\n\tlength: %lu", filepath, read_chars, length);
+    }
+    
+    content[read_chars] = '\0';
+    // Clean
+    if (file != NULL) {
+        fclose(file);
+    }
+
     return content;
 }
 
@@ -116,18 +174,12 @@ esp_err_t root_get_handler(httpd_req_t *req) {
     // Check again, if the is already present html file at SD card.
     check_indexes_locations();
     // Load html page from validated path
-    // Add heap trace here
-    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-
     char *content = load_html_file(index_html_path);
 
     httpd_resp_set_type(req, "text/html");
     httpd_resp_send(req, content, HTTPD_RESP_USE_STRLEN);
     free(content);
 
-    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-    ssize_t delta = free_after - free_before;
-    ESP_LOGI(TAG, "INIT MEMORY\n\t\tBefore: %"PRIu32" bytes\n\t\tAfter: %"PRIu32" bytes\n\t\tDelta: %d\n\n", free_before, free_after, delta);
     return ESP_OK;
 }
 
@@ -140,7 +192,6 @@ const httpd_uri_t root = {
 
 // REST CO2
 esp_err_t co2_stats_get_handler(httpd_req_t *req) {
-    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     ESP_LOGI(TAG, "Load CO2 Stats JSON!");
 
     int limit = 10;
@@ -168,11 +219,6 @@ esp_err_t co2_stats_get_handler(httpd_req_t *req) {
     httpd_resp_set_type(req, "application/json");
     httpd_resp_sendstr(req, "[{}]");
 
-    // This should also free all memory related to JSON strings too
-    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-    ssize_t delta = free_after - free_before;
-    ESP_LOGI(TAG, "REST CO2\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
-
     return ESP_OK;
 }
 
@@ -185,8 +231,6 @@ httpd_uri_t co2_data_get_uri = {
 
 // REST Battery stats
 esp_err_t battery_stats_get_handler(httpd_req_t *req) {
-    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-
     int limit = 10;
     char *buf_q = NULL;
     size_t buf_len;
@@ -211,10 +255,6 @@ esp_err_t battery_stats_get_handler(httpd_req_t *req) {
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     httpd_resp_set_type(req, "application/json");
     httpd_resp_sendstr(req, "[{}]");
-
-    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-    ssize_t delta = free_after - free_before;
-    ESP_LOGI(TAG, "REST Battery\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
 
     return ESP_OK;
 }
@@ -228,7 +268,6 @@ httpd_uri_t battery_data_get_uri = {
 
 // REST Air stats
 esp_err_t air_stats_get_handler(httpd_req_t *req) {
-    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
 
     int limit = 10;
     char *buf_q = NULL;
@@ -254,10 +293,6 @@ esp_err_t air_stats_get_handler(httpd_req_t *req) {
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     httpd_resp_set_type(req, "application/json");
     httpd_resp_sendstr(req, "[{}]");
-
-    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-    ssize_t delta = free_after - free_before;
-    ESP_LOGI(TAG, "REST AIR\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
 
     return ESP_OK;
 }
@@ -467,8 +502,8 @@ static const char* get_path_from_uri(char *dest, const char *base_path, const ch
 }
 
 /* Handler to download a file kept on the server */
-esp_err_t download_get_handler(httpd_req_t *req)
-{
+esp_err_t download_get_handler(httpd_req_t *req) {
+    ESP_LOGI(TAG, "Loading files table page.");
     char filepath[FILE_PATH_MAX];
     FILE *fd = NULL;
     struct stat file_stat;
@@ -494,14 +529,6 @@ esp_err_t download_get_handler(httpd_req_t *req)
     }
 
     if (stat(filepath, &file_stat) == -1) {
-        /* If file not present on SPIFFS check if URI
-         * corresponds to one of the hardcoded paths */
-        if (strcmp(filename, "/index.html") == 0) {
-            return index_html_get_handler(req);
-        } else if (strcmp(filename, "/favicon.ico") == 0) {
-            return favicon_get_handler(req);
-        }
-        ESP_LOGE(TAG_FS, "Failed to stat file : %s", filepath);
         /* Respond with 404 Not Found */
         httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "File does not exist");
         return ESP_FAIL;
@@ -826,8 +853,8 @@ esp_err_t start_webserver(void) {
 
     // Webserver at first
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    // always check config LWIP_MAX_SOCKETS = 20
-    config.max_open_sockets = 13;
+    // always check config LWIP_MAX_SOCKETS = 10
+    config.max_open_sockets = 7;
     config.lru_purge_enable = true;
     config.max_uri_handlers = 10;
     config.max_resp_headers = 10;
@@ -851,10 +878,6 @@ esp_err_t start_webserver(void) {
     httpd_register_uri_handler(server, &air_data_get_uri);
     httpd_register_uri_handler(server, &battery_data_get_uri);
     httpd_register_err_handler(server, HTTPD_404_NOT_FOUND, http_404_error_handler);
-
-    /*
-    TODO: Add sockets or REST endpoints for all usefull information
-    */
 
     // Last, and check if WiFi is STA and ok
     start_fileserver();

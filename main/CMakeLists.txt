@@ -7,6 +7,7 @@ idf_component_register(
     PRIV_REQUIRES 
                     spi_flash
     REQUIRES 
+                    heap
                     card_driver
                     littlefs_driver
                     battery_driver
