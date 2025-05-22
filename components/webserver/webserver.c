@@ -68,53 +68,9 @@ Path validation is at the check_indexes_locations()
 
 I've used this read_file as example to understand the proper pointer use.
 - https://github.com/DaveGamble/cJSON/blob/acc76239bee01d8e9c858ae2cab296704e52d916/tests/common.h#L47
+- https://github.com/DaveGamble/cJSON/blob/acc76239bee01d8e9c858ae2cab296704e52d916/fuzzing/afl.c#L29
+
 */
-char* load_html_file_old(const char *filepath) {
-    ESP_LOGI(TAG, "Load HTML file: %s", filepath);
-    // Add heap trace here
-    struct stat info;
-
-    // Test the file existence and get its size in bytes
-    int ret = stat(filepath, &info);
-    if (ret != 0) {
-        ESP_LOGE(TAG, "File is not exist at path: %s", filepath);
-    } else {
-        ESP_LOGI(TAG, "HTML file exists\n\tpath: %s\n\tSize: %ld b\n\tChanged: %s", filepath, info.st_size, ctime(&info.st_mtime));
-    }
-
-    char *content = malloc(info.st_size + sizeof(""));
-    // char *content = (char*)malloc((size_t)info.st_size + sizeof("") + 1);
-    if (content == NULL) {
-        ESP_LOGE(TAG, "Failed to allocate memory for reading the file: %s", filepath);
-    }
-
-    // Read file
-    ESP_LOGI(TAG, "Open HTML file from path: %s", filepath);
-    FILE *file = fopen(filepath, "r");
-    if (file == NULL) {
-        ESP_LOGE(TAG, "Cannot open HTML file for read from path: %s", filepath);
-        fclose(file);
-    }
-
-    // Read the file
-    size_t read_chars = 0;
-    ESP_LOGI(TAG, "Read HTML file from path: %s", filepath);
-    read_chars = fread(content, sizeof(char) + 1, (size_t)info.st_size, file);
-    if ((long)read_chars != info.st_size) {
-        free(content);
-        content = NULL;
-    }
-
-    content[read_chars] = '\0';
-    // Close now
-    ESP_LOGI(TAG, "File read and now close it: %s", filepath);
-    if (file != NULL) {
-        fclose(file);
-    }
-    ESP_LOGI(TAG, "File closed, send content: %s", filepath);
-    return content;
-}
-
 static char* load_html_file(const char *filepath) {
     FILE *file = NULL;
     long length = 0;
@@ -173,13 +129,19 @@ esp_err_t root_get_handler(httpd_req_t *req) {
     ESP_LOGI(TAG, "Load root handler, start index html page read!");
     // Check again, if the is already present html file at SD card.
     check_indexes_locations();
+    
     // Load html page from validated path
+    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     char *content = load_html_file(index_html_path);
 
     httpd_resp_set_type(req, "text/html");
     httpd_resp_send(req, content, HTTPD_RESP_USE_STRLEN);
     free(content);
 
+    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    ssize_t delta = free_after - free_before;
+    ESP_LOGI(TAG, "Root page\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
+    
     return ESP_OK;
 }
 
@@ -393,8 +355,8 @@ struct file_server_data {
     /* Send HTML file header */
     httpd_resp_sendstr_chunk(req, "<!DOCTYPE html><html><body>");
 
+    const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     // Load html file
-    // Add heap trace here
     char *content = load_html_file(UPLOAD_HTML_PATH);
 
     /* Add file upload form and script which on execution sends a POST request to /upload */
@@ -451,6 +413,11 @@ struct file_server_data {
     /* Send empty chunk to signal HTTP response completion */
     httpd_resp_sendstr_chunk(req, NULL);
     free(content);
+
+    const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    ssize_t delta = free_after - free_before;
+    ESP_LOGI(TAG, "Download page\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
+
     return ESP_OK;
  }
 
