@@ -17,8 +17,3 @@ dependencies:
   lvgl/lvgl: ^9.2.2
   joltwallet/littlefs: ^1.19.2
   espressif/led_strip: ^3.0.1
-  nopnop2002/sqlite3:
-    # version: a27228d70b9bcf92149a28e7ea490661f9a9ca4d
-    version: main
-    path: components/esp32-idf-sqlite3/
-    git: https://github.com/nopnop2002/esp32-idf-sqlite3.git

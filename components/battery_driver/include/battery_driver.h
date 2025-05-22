@@ -13,12 +13,6 @@
 #include "esp_adc/adc_cali.h"
 #include "esp_adc/adc_cali_scheme.h"
 
-#include "sqlite3.h"
-#include "sqllib.h"
-#include "sqlite_driver.h"
-
-#define DB_ROOT  CONFIG_SD_MOUNT_POINT
-
 #define ADC_PIN                             CONFIG_ADC_PIN
 #define ADC1_CHAN0                          ADC_CHANNEL_0
 #define ADC_ATTEN                           ADC_ATTEN_DB_12

@@ -120,28 +120,6 @@ adc_handle_t battery_adc_init() {
     return (adc_handle_t) handle;
 }
 
-static void save_to_db(struct BattSensor* btt_r) {
-    char db_name[32];
-    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
-    sqlite3 *db;
-    sqlite3_initialize();
-    int rc = db_open(db_name, &db); // will print "Opened database successfully"
-    if (rc != SQLITE_OK) {
-        ESP_LOGE(TAG, "DB INSERT Cannot open database");
-    }
-    // Save to database
-    char table_sql[256];
-    snprintf(table_sql, sizeof(table_sql) + sizeof(btt_r) + 1, "INSERT INTO battery_stats VALUES (%d, %d);", btt_r->voltage_m, btt_r->percentage);
-
-    rc = db_exec(db, table_sql);
-    if (rc != SQLITE_OK) {
-        ESP_LOGE(TAG, "DB INSERT, cannot insert: \n%s\n", table_sql);
-    }
-    sqlite3_close(db);
-    // Cleanup
-    sqlite3_shutdown();  // close
-}
-
 void battery_measure_task(void *pvParameters) {
     int max_perc = 100;
     int min_perc = 1;
@@ -153,6 +131,8 @@ void battery_measure_task(void *pvParameters) {
     vTaskDelay(pdMS_TO_TICKS(1000)); // Wait
     TickType_t last_wake_time  = xTaskGetTickCount();  
     while (1) {
+        const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+
         static int adc_raw[2][10];
         static int voltage[2][10];
         struct BattSensor btt_r = {};
@@ -187,11 +167,6 @@ void battery_measure_task(void *pvParameters) {
         btt_r.measure_freq = measure_freq;
         btt_r.loop_count = loop_count;
         xQueueOverwrite(mq_batt, (void *)&btt_r);
-        
-        // Save to database
-        const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-        save_to_db(&btt_r);
-        const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
 
         // Deinit to save resources between measurements
         // tear_down(handle_param->do_calibration1_chan0, handle_param->adc1_handle, handle_param->adc1_cali_chan0_handle);
@@ -199,8 +174,9 @@ void battery_measure_task(void *pvParameters) {
             tear_down_handle(adc_handle);
         }
 
+        const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
         ssize_t delta = free_after - free_before;
-        ESP_LOGI(TAG, "Battery Save DB and DEINIT\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
+        ESP_LOGI(TAG, "Battery DEINIT\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
 
         // Sleep
         xTaskDelayUntil(&last_wake_time, measure_freq);

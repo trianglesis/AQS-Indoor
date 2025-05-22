@@ -4,7 +4,7 @@ idf_component_register(
     REQUIRES
                     esp_bme680 esp_type_utils
     PRIV_REQUIRES
-                    i2c_driver esp_timer sqlite_driver
+                    i2c_driver esp_timer
     INCLUDE_DIRS 
                     "include"
                     

@@ -21,28 +21,6 @@ void sensor_co2_info(void) {
 
 }
 
-static void save_to_db(struct SCD4XSensor* co2_r) {
-    char db_name[32];
-    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
-    sqlite3 *db;
-    sqlite3_initialize();
-    int rc = db_open(db_name, &db); // will print "Opened database successfully"
-    if (rc != SQLITE_OK) {
-        ESP_LOGE(TAG, "DB INSERT Cannot open database");
-    }
-    // Save to database
-    char table_sql[256];
-    snprintf(table_sql, sizeof(table_sql) + sizeof(co2_r) + 1, "INSERT INTO co2_stats VALUES (%0.f, %0.f, %d);", co2_r->temperature, co2_r->humidity, co2_r->co2_ppm);
-
-    rc = db_exec(db, table_sql);
-    if (rc != SQLITE_OK) {
-        ESP_LOGE(TAG, "DB INSERT, cannot insert: \n%s\n", table_sql);
-    }
-    sqlite3_close(db);
-    // Cleanup
-    sqlite3_shutdown();  // close
-}
-
 /*
  Check 
 */
@@ -54,6 +32,8 @@ void co2_scd4x_reading(void * pvParameters) {
     // Wait TS between cycles real time
     TickType_t last_wake_time  = xTaskGetTickCount();  
     while (1) {
+        const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+
         uint16_t co2Raw;         // ppm
         int32_t t_mili_deg;  // millicelsius
         int32_t humid_mili_percent;     // millipercent
@@ -84,13 +64,9 @@ void co2_scd4x_reading(void * pvParameters) {
             // Update LED
             led_co2_severity(co2_r.co2_ppm);
 
-            const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-            // Save to database
-            save_to_db(&co2_r);
             const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
             ssize_t delta = free_after - free_before;
-            ESP_LOGI(TAG, "CO2 Save DB\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
-
+            ESP_LOGI(TAG, "CO2\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
             xTaskDelayUntil(&last_wake_time, CO2_MEASUREMENT_FREQ);
         } // Data ready
     } // WHILE

@@ -9,10 +9,7 @@
 #include "esp_flash.h"
 #include "esp_vfs_fat.h"
 
-#include "sqlite_driver.h"
-
-#define MAX_CHAR_SIZE    64
-
+#define MAX_CHAR_SIZE               64
 
 #define SD_GPIO_MOSI                CONFIG_SD_GPIO_MOSI
 #define SD_GPIO_SCLK                CONFIG_SD_GPIO_SCLK

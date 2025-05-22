@@ -36,21 +36,12 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 9.2.2
-  nopnop2002/sqlite3:
-    component_hash: 8c93abc82de5735b9031fe532bf157906508c8e10ce1c5004709ad512cda3782
-    dependencies: []
-    source:
-      git: https://github.com/nopnop2002/esp32-idf-sqlite3.git
-      path: components/esp32-idf-sqlite3/
-      type: git
-    version: a27228d70b9bcf92149a28e7ea490661f9a9ca4d
 direct_dependencies:
 - espressif/led_strip
 - idf
 - joltwallet/littlefs
 - k0i05/esp_type_utils
 - lvgl/lvgl
-- nopnop2002/sqlite3
-manifest_hash: 49c8e662c9ee6d752be92b2e7c6b80bee7f2d15592db2a92a375ffc2938cf9d8
+manifest_hash: 7c37586ee581c9894f125d083a8d20ee14d3b6e3260fd8b6551b11dce625a3bf
 target: esp32c6
 version: 2.0.0

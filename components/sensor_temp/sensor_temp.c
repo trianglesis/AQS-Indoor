@@ -21,34 +21,14 @@ void sensor_temp(void) {
     }
 }
 
-static void save_to_db(struct BMESensor* bme680_r) {
-    char db_name[32];
-    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
-    sqlite3 *db;
-    sqlite3_initialize();
-    int rc = db_open(db_name, &db); // will print "Opened database successfully"
-    if (rc != SQLITE_OK) {
-        ESP_LOGE(TAG, "DB INSERT Cannot open database");
-    }
-    // Save to database
-    char table_sql[256];
-    snprintf(table_sql, sizeof(table_sql) + sizeof(bme680_r) + 1, "INSERT INTO air_temp_stats VALUES (%0.f, %0.f, %0.f, %0.f, %d);", bme680_r->temperature, bme680_r->humidity, bme680_r->pressure, bme680_r->resistance, bme680_r->air_q_index);
-
-    rc = db_exec(db, table_sql);
-    if (rc != SQLITE_OK) {
-        ESP_LOGE(TAG, "DB INSERT, cannot insert: \n%s\n", table_sql);
-    }
-    sqlite3_close(db);
-    // Cleanup
-    sqlite3_shutdown();  // close
-}
-
 void bme680_reading(void * pvParameters) {
     // Wait 5 seconds before goint into the loop, sensor should warm up
     vTaskDelay(pdMS_TO_TICKS(5000));
     // Wait TS between cycles real time
     TickType_t last_wake_time = xTaskGetTickCount();  
     while (1) {
+        const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+
         esp_err_t result;
         struct BMESensor bme680_r = {};
         bme680_data_t data;
@@ -98,12 +78,9 @@ void bme680_reading(void * pvParameters) {
         bme680_r.measure_freq = BME680_MEASUREMENT_FREQ;
         xQueueOverwrite(mq_bme680, (void *)&bme680_r);
 
-        const uint32_t free_before = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-        // Save to database
-        save_to_db(&bme680_r);
         const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
         ssize_t delta = free_after - free_before;
-        ESP_LOGI(TAG, "BME680 Save DB\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
+        ESP_LOGI(TAG, "BME680\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
 
         xTaskDelayUntil(&last_wake_time, BME680_MEASUREMENT_FREQ);
     }

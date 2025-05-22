@@ -9,8 +9,6 @@ const char *index_html_path = NULL;
 static const char *TAG = "webserver";
 static const char *TAG_FS = "fileserver";
 
-static SemaphoreHandle_t sql_done;
-
 
 void webserver_info(void) {
     printf("\n\n- Init:\t\tWebServer debug info!\n");
@@ -164,34 +162,13 @@ esp_err_t co2_stats_get_handler(httpd_req_t *req) {
         free(buf_q);
     }
 
-    sql_done = xSemaphoreCreateBinary();
-    sql_args_t* sql_args = (sql_args_t*) calloc(1, sizeof(sql_args_t));
-    sql_args->sql_done = sql_done;
-    sql_args->save_file = true;  // Save to local FS, SD Card is best
-    sql_args->json_file = "co2_stats";  // Save to local FS, SD Card is best
-    sql_args->cols = 1;  // Amount of selected COLs, see query
-    sql_args->limit = limit;  // MAX items to select
-    sql_args->offset = 0;  // Paging if needed
-
-    char db_name[32];
-    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
-    sql_args->db_name = db_name;
-    
-    char table_sql[128];
-    snprintf(table_sql, sizeof(table_sql) + 1, "SELECT co2_ppm FROM co2_stats ORDER BY rowid DESC LIMIT %d OFFSET %d;", sql_args->limit, sql_args->offset);
-    sql_args->table_sql = table_sql;
-
-    xTaskCreate(select_stats, "SQL-Select", 1024*6, sql_args, 5, NULL);
-    xSemaphoreTake(sql_args->sql_done, portMAX_DELAY); //Wait for completion in task
+    // TODO: Read CSV file for history stats OR Queue for recent results
 
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     httpd_resp_set_type(req, "application/json");
-    httpd_resp_sendstr(req, sql_args->json_str);
+    httpd_resp_sendstr(req, "[{}]");
 
     // This should also free all memory related to JSON strings too
-    free(sql_args);
-    vSemaphoreDelete(sql_done);
-
     const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     ssize_t delta = free_after - free_before;
     ESP_LOGI(TAG, "REST CO2\n\tBefore:\t%"PRIu32" b\n\tAfter:\t%"PRIu32" b\n\tDelta:\t%d\n", free_before, free_after, delta);
@@ -229,33 +206,11 @@ esp_err_t battery_stats_get_handler(httpd_req_t *req) {
         free(buf_q);
     }
 
-    sql_done = xSemaphoreCreateBinary();
-    sql_args_t* sql_args = (sql_args_t*) calloc(1, sizeof(sql_args_t));
-    
-    char db_name[32];
-    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
-    sql_args->db_name = db_name;
-    sql_args->sql_done = sql_done;
-    sql_args->save_file = true;  // Save to local FS, SD Card is best
-    sql_args->json_file = "battery_stats";  // Save to local FS, SD Card is best
-    sql_args->cols = 2;  // Amount of selected COLs, see query
-    sql_args->limit = limit;  // MAX items to select
-    sql_args->offset = 0;  // Paging if needed
-    
-    char table_sql[128];
-    snprintf(table_sql, sizeof(table_sql) + 1, "SELECT voltage_m, percentage FROM battery_stats ORDER BY rowid DESC LIMIT %d OFFSET %d;", sql_args->limit, sql_args->offset);
-    sql_args->table_sql = table_sql;
-
-    xTaskCreate(select_stats, "SQL-Select", 1024*6, sql_args, 5, NULL);
-    xSemaphoreTake(sql_args->sql_done, portMAX_DELAY); //Wait for completion in task
+    // TODO: Read CSV file for history stats OR Queue for recent results
 
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     httpd_resp_set_type(req, "application/json");
-    httpd_resp_sendstr(req, sql_args->json_str);
-
-    // This should also free all memory related to JSON strings too
-    free(sql_args);
-    vSemaphoreDelete(sql_done);
+    httpd_resp_sendstr(req, "[{}]");
 
     const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     ssize_t delta = free_after - free_before;
@@ -294,33 +249,11 @@ esp_err_t air_stats_get_handler(httpd_req_t *req) {
         free(buf_q);
     }
 
-    sql_done = xSemaphoreCreateBinary();
-    sql_args_t* sql_args = (sql_args_t*) calloc(1, sizeof(sql_args_t));
-    
-    char db_name[32];
-    snprintf(db_name, sizeof(db_name)-1, "%s/stats.db", DB_ROOT);
-    sql_args->db_name = db_name;
-    sql_args->sql_done = sql_done;
-    sql_args->save_file = true;  // Save to local FS, SD Card is best
-    sql_args->json_file = "air_stats";  // Save to local FS, SD Card is best
-    sql_args->cols = 4;  // Amount of selected COLs, see query
-    sql_args->limit = limit;  // MAX items to select
-    sql_args->offset = 0;  // Paging if needed
-    
-    char table_sql[128];
-    snprintf(table_sql, sizeof(table_sql) + 1, "SELECT temperature, humidity, pressure, air_q_index FROM air_temp_stats ORDER BY rowid DESC LIMIT %d OFFSET %d;", sql_args->limit, sql_args->offset);
-    sql_args->table_sql = table_sql;
-
-    xTaskCreate(select_stats, "SQL-Select", 1024*6, sql_args, 5, NULL);
-    xSemaphoreTake(sql_args->sql_done, portMAX_DELAY); //Wait for completion in task
+    // TODO: Read CSV file for history stats OR Queue for recent results
 
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     httpd_resp_set_type(req, "application/json");
-    httpd_resp_sendstr(req, sql_args->json_str);
-
-    // This should also free all memory related to JSON strings too
-    free(sql_args);
-    vSemaphoreDelete(sql_done);
+    httpd_resp_sendstr(req, "[{}]");
 
     const uint32_t free_after = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     ssize_t delta = free_after - free_before;
