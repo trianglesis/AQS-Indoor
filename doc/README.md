@@ -307,6 +307,8 @@ It seems like all ESP32 SQLite libraries I saw aren't good and prone to memory i
 - For IDF 5.4.1 [here](https://github.com/nopnop2002/esp32-idf-sqlite3)
 - Original [here](https://github.com/siara-cc/esp32-idf-sqlite3)
 
+Tested some methods under WSL QEMU: [doc](https://github.com/trianglesis/test-wsl/blob/6bae8613b950cfa44a6b25050eee0f035bd67478/README.md)
+
 So it's better to remove it from my project completely and replace it with something else.
 
 I've created a branch to keep SQLite example implementation: `with-sqlite-inefficient-dropped`.
