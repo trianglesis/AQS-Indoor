@@ -309,6 +309,9 @@ It seems like all ESP32 SQLite libraries I saw aren't good and prone to memory i
 
 So it's better to remove it from my project completely and replace it with something else.
 
+I've created a branch to keep SQLite example implementation: `with-sqlite-inefficient-dropped`.
+And will remove SQLite from the main code.
+
 ## SELECT and return as JSON from webserver API
 
 Testing code for SQL and JSON conversion [here](https://github.com/trianglesis/test-wsl/blob/8d009573ba6cac2eff20d686c16ab2729d58ec4f/README.md) in a separeate repo, set up at WSL with QEMU
