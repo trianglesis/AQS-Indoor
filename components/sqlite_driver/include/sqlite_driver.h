@@ -13,8 +13,10 @@
 #include "cJSON.h"
 
 
-#define DB_ROOT                     CONFIG_SD_MOUNT_POINT
-#define SQLITE_DEFAULT_PAGE_SIZE    512
+#define DB_ROOT                         CONFIG_SD_MOUNT_POINT
+#define SQLITE_DEFAULT_PAGE_SIZE        512
+#define SQLITE_MAX_PAGE_SIZE            512
+#define SQLITE_MAX_DEFAULT_PAGE_SIZE    512
 
 typedef struct SQLArgs {
     int limit;

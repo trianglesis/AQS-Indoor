@@ -135,6 +135,10 @@ Check float enabled, or UI will not show you float numbers.
 
 NOTE: About memory usage: `TCP connections retain some memory even after they are closed due to the TIME_WAIT state. Once the TIME_WAIT period is completed, this memory will be freed.`
 
+UPD: Having multiple REST endpoints is not very effective.
+Memory is running down after a hour or two at opened web page.
+Better move all data into a ONE REST method and call.
+
 # File server
 
 CURL example:
@@ -298,6 +302,12 @@ The board is working fine now.
 
 # SQLite
 
+It seems like all ESP32 SQLite libraries I saw aren't good and prone to memory inefficiency.
+
+- For IDF 5.4.1 [here](https://github.com/nopnop2002/esp32-idf-sqlite3)
+- Original [here](https://github.com/siara-cc/esp32-idf-sqlite3)
+
+So it's better to remove it from my project completely and replace it with something else.
 
 ## SELECT and return as JSON from webserver API
 
